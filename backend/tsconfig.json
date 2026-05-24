@@ -14,6 +14,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "baseUrl": "./src",
     "paths": {
       "@config/*": ["config/*"],
@@ -23,6 +24,7 @@
       "@models/*": ["models/*"],
       "@middlewares/*": ["middlewares/*"],
       "@routes/*": ["routes/*"],
+      "@modules/*": ["modules/*"],
       "@validators/*": ["validators/*"],
       "@helpers/*": ["helpers/*"],
       "@utils/*": ["utils/*"]

@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@hooks/useAuth';
 import { useRouter } from 'next/router';
+import { useAuth } from '@hooks/useAuth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,7 +19,8 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result?.success) {
-      router.push('/dashboard');
+      const role = result.user?.role || 'student';
+      router.push(role === 'admin' || role === 'super_admin' ? '/dashboard' : '/student');
     } else {
       setError(result?.error || 'Login failed');
     }
@@ -67,7 +66,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input-field"
-              placeholder="••••••••"
+              placeholder="Enter your password"
               required
             />
           </div>
@@ -87,13 +86,8 @@ export default function LoginPage() {
             Sign up
           </Link>
         </div>
-
-        <div className="mt-6 text-center">
-          <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
-            Forgot your password?
-          </a>
-        </div>
       </div>
     </div>
   );
 }
+

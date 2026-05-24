@@ -25,12 +25,12 @@ cp .env.example .env
 Edit `.env` with your configuration:
 ```env
 NODE_ENV=development
-PORT=5000
+PORT=5001
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=college_erp_db
+DB_NAME=eiilm_college
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=root
 JWT_SECRET=your_super_secret_key
 ```
 
@@ -39,11 +39,12 @@ JWT_SECRET=your_super_secret_key
 ```bash
 # Create database
 mysql -u root -p
-CREATE DATABASE college_erp_db;
+CREATE DATABASE eiilm_college;
 EXIT;
 
-# Run migrations (when implemented)
-npm run db:migrate
+# Import schema and seed baseline data
+mysql -u root -p eiilm_college < ../database/schema.sql
+npm run seed
 ```
 
 ### 4. Start Development Server
@@ -52,7 +53,12 @@ npm run db:migrate
 npm run dev
 ```
 
-The server will start at `http://localhost:5000`.
+The server will start at `http://localhost:5001` (or next available port if occupied).
+
+### Seeded Accounts (after `npm run seed`)
+
+- Admin: `admin@eiilm.edu` / `Admin@123`
+- Student: `student@eiilm.edu` / `Student@123`
 
 ## Project Structure
 
@@ -99,7 +105,16 @@ src/
 ```
 POST /api/v1/auth/register    - Register new user
 POST /api/v1/auth/login       - User login
+POST /api/v1/auth/refresh     - Refresh token
+GET  /api/v1/auth/me          - Current user profile
 POST /api/v1/auth/logout      - User logout
+
+GET  /api/v1/courses          - Public courses list
+POST /api/v1/inquiries        - Public admission inquiry
+
+GET  /api/v1/dashboard/stats  - Admin dashboard stats
+GET  /api/v1/users            - Admin user list
+GET  /api/v1/student/me       - Student profile
 ```
 
 ## Adding New Features

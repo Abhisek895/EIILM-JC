@@ -5,7 +5,7 @@ export const authApi = {
     name: string;
     email: string;
     password: string;
-    roleId: number;
+    roleName?: string;
   }) => {
     return apiClient.post('/auth/register', data);
   },
@@ -16,6 +16,10 @@ export const authApi = {
 
   logout: async () => {
     return apiClient.post('/auth/logout', {});
+  },
+
+  me: async () => {
+    return apiClient.get('/auth/me');
   },
 
   refreshToken: async (refreshToken: string) => {
@@ -77,5 +81,23 @@ export const inquiryApi = {
 
   update: async (id: number, data: any) => {
     return apiClient.put(`/inquiries/${id}`, data);
+  },
+};
+
+export const dashboardApi = {
+  getStats: async () => {
+    return apiClient.get('/dashboard/stats');
+  },
+  getRecentInquiries: async (limit: number = 5) => {
+    return apiClient.get(`/dashboard/recent-inquiries?limit=${limit}`);
+  },
+};
+
+export const studentApi = {
+  me: async () => {
+    return apiClient.get('/student/me');
+  },
+  courses: async (page: number = 1, limit: number = 10) => {
+    return apiClient.get(`/student/courses?page=${page}&limit=${limit}`);
   },
 };

@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: College ERP API
+  version: 1.0.0
+  description: Enterprise API contract baseline
+servers:
+  - url: https://api.erp.example.com/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      responses:
+        "200":
+          description: Success
+  /auth/register:
+    post:
+      summary: Register
+      responses:
+        "201":
+          description: Created
+  /courses:
+    get:
+      summary: List courses
+      responses:
+        "200":
+          description: Success
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

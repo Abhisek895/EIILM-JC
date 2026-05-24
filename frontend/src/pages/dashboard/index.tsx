@@ -1,59 +1,130 @@
-import React from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import DashboardLayout from '@layouts/DashboardLayout';
+import { dashboardApi } from '@api/endpoints';
+import { useAuth } from '@hooks/useAuth';
+
+type DashboardStats = {
+  totalUsers: number;
+  totalStudents: number;
+  totalCourses: number;
+  totalInquiries: number;
+};
+
+type Inquiry = {
+  id: number;
+  fullName: string;
+  email: string;
+  status: string;
+  createdAt: string;
+};
 
 export default function DashboardPage() {
-  const stats = [
-    { label: 'Total Students', value: '2,543', icon: '👥' },
-    { label: 'Courses', value: '24', icon: '📚' },
-    { label: 'Faculty', value: '187', icon: '👨‍🏫' },
-    { label: 'Events', value: '12', icon: '📅' },
-  ];
+  const router = useRouter();
+  const { isAuthenticated, isHydrated } = useAuth();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentInquiries, setRecentInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const [statsResponse, inquiriesResponse]: any = await Promise.all([
+          dashboardApi.getStats(),
+          dashboardApi.getRecentInquiries(5),
+        ]);
+
+        if (statsResponse.success) {
+          setStats(statsResponse.data);
+        }
+
+        if (inquiriesResponse.success) {
+          setRecentInquiries(inquiriesResponse.data);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [isAuthenticated, isHydrated, router]);
+
+  const cards = useMemo(
+    () => [
+      { label: 'Total Students', value: stats?.totalStudents ?? 0 },
+      { label: 'Total Users', value: stats?.totalUsers ?? 0 },
+      { label: 'Courses', value: stats?.totalCourses ?? 0 },
+      { label: 'Inquiries', value: stats?.totalInquiries ?? 0 },
+    ],
+    [stats]
+  );
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-6">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="card">
-              <div className="text-4xl mb-4">{stat.icon}</div>
-              <p className="text-gray-600 text-sm">{stat.label}</p>
-              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Recent Inquiries */}
-        <div className="card">
-          <h2 className="text-xl font-bold mb-6">Recent Inquiries</h2>
-          <table className="w-full">
-            <thead className="border-b border-gray-200">
-              <tr>
-                <th className="text-left py-2 px-4 font-semibold">Name</th>
-                <th className="text-left py-2 px-4 font-semibold">Email</th>
-                <th className="text-left py-2 px-4 font-semibold">Course</th>
-                <th className="text-left py-2 px-4 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, idx) => (
-                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">John Doe</td>
-                  <td className="py-3 px-4">john@example.com</td>
-                  <td className="py-3 px-4">BCA</td>
-                  <td className="py-3 px-4">
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-                      Pending
-                    </span>
-                  </td>
-                </tr>
+        {loading ? (
+          <div className="card">Loading dashboard...</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {cards.map((stat) => (
+                <div key={stat.label} className="card">
+                  <p className="text-gray-600 text-sm">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+
+            <div className="card">
+              <h2 className="text-xl font-bold mb-6">Recent Inquiries</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b border-gray-200">
+                    <tr>
+                      <th className="text-left py-2 px-4 font-semibold">Name</th>
+                      <th className="text-left py-2 px-4 font-semibold">Email</th>
+                      <th className="text-left py-2 px-4 font-semibold">Status</th>
+                      <th className="text-left py-2 px-4 font-semibold">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentInquiries.length === 0 ? (
+                      <tr>
+                        <td className="py-3 px-4 text-gray-500" colSpan={4}>
+                          No inquiries yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      recentInquiries.map((item) => (
+                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4">{item.fullName}</td>
+                          <td className="py-3 px-4">{item.email || '-'}</td>
+                          <td className="py-3 px-4 capitalize">{item.status}</td>
+                          <td className="py-3 px-4">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );
 }
+

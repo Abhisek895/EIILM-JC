@@ -23,7 +23,7 @@ cp .env.local.example .env.local
 
 Edit `.env.local`:
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_API_URL=http://localhost:5001/api/v1
 NEXT_PUBLIC_APP_NAME=College ERP
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -76,7 +76,10 @@ src/
 
 - **`/`** - Home page with hero and features
 - **`/auth/login`** - Login page
+- **`/auth/register`** - Student registration page
 - **`/dashboard`** - Admin dashboard
+- **`/courses`** - Public course listing page
+- **`/admissions`** - Public inquiry form
 
 ## Using the Auth System
 
@@ -271,6 +274,7 @@ npm install
 
 - Check `.env.local` has correct `NEXT_PUBLIC_API_URL`
 - Ensure backend is running on correct port
+- API client automatically probes local ports `5000`, `5001`, `5002` if needed
 - Check browser console for CORS errors
 
 ## Next Steps

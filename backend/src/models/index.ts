@@ -1,3 +1,18 @@
-export { User } from './User';
-export { Course } from './Course';
-// Add more models as you create them
+import { User } from './User';
+import { Course } from './Course';
+import { Role } from './Role';
+import { Inquiry } from './Inquiry';
+
+Role.hasMany(User, {
+  foreignKey: 'roleId',
+  sourceKey: 'id',
+  as: 'users',
+});
+
+User.belongsTo(Role, {
+  foreignKey: 'roleId',
+  targetKey: 'id',
+  as: 'role',
+});
+
+export { User, Course, Role, Inquiry };

@@ -9,9 +9,9 @@ class Database {
   static getInstance(): Sequelize {
     if (!Database.instance) {
       Database.instance = new Sequelize(
-        process.env.DB_NAME || 'college_erp_db',
+        process.env.DB_NAME || 'eiilm_college',
         process.env.DB_USER || 'root',
-        process.env.DB_PASSWORD || 'password',
+        process.env.DB_PASSWORD || 'root',
         {
           host: process.env.DB_HOST || 'localhost',
           port: parseInt(process.env.DB_PORT || '3306'),

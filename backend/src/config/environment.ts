@@ -2,8 +2,8 @@ export const Config = {
   app: {
     name: process.env.APP_NAME || 'College ERP',
     env: process.env.NODE_ENV || 'development',
-    port: parseInt(process.env.PORT || '5000'),
-    url: process.env.APP_URL || 'http://localhost:5000',
+    port: parseInt(process.env.PORT || '5001'),
+    url: process.env.APP_URL || 'http://localhost:5001',
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'super-secret-key',
@@ -14,9 +14,9 @@ export const Config = {
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '3306'),
-    name: process.env.DB_NAME || 'college_erp_db',
+    name: process.env.DB_NAME || 'eiilm_college',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'password',
+    password: process.env.DB_PASSWORD || 'root',
   },
   storage: {
     provider: process.env.STORAGE_PROVIDER || 'cloudinary', // 'cloudinary' | 's3'

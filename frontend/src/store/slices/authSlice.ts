@@ -1,10 +1,11 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+﻿import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  roleId: string;
+  roleId: number;
+  role: string;
 }
 
 interface AuthState {
@@ -14,6 +15,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 }
 
 const initialState: AuthState = {
@@ -23,6 +25,7 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   isAuthenticated: false,
+  isHydrated: false,
 };
 
 const authSlice = createSlice({
@@ -33,12 +36,16 @@ const authSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
-    loginSuccess: (state, action: PayloadAction<any>) => {
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ user: User; token: string; refreshToken: string }>
+    ) => {
       state.isLoading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
+      state.error = null;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -52,13 +59,34 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
     },
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+    hydrateAuth: (
+      state,
+      action: PayloadAction<{
+        user: User | null;
+        token: string | null;
+        refreshToken: string | null;
+      }>
+    ) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = Boolean(action.payload.token);
+      state.isHydrated = true;
+    },
+    setHydrated: (state) => {
+      state.isHydrated = true;
     },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setUser } =
-  authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+  hydrateAuth,
+  setHydrated,
+} = authSlice.actions;
 
 export default authSlice.reducer;
+

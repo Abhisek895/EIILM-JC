@@ -1,41 +1,73 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Config } from '@config/environment';
+import { ApiResponse } from '@utils/responses';
+
+type JwtUser = {
+  id: number;
+  email: string;
+  roleId: number;
+  role: string;
+};
 
 export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    roleId: string;
-  };
+  user?: JwtUser;
 }
 
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    res.status(401).json({ error: 'Unauthorized: Token missing' });
+    ApiResponse.error(res, 401, 'Unauthorized: token missing');
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, Config.jwt.secret);
-    req.user = decoded as any;
+    const decoded = jwt.verify(token, Config.jwt.secret) as JwtUser;
+    req.user = decoded;
     next();
   } catch (err) {
-    res.status(403).json({ error: 'Forbidden: Invalid token' });
+    ApiResponse.error(res, 403, 'Forbidden: invalid token');
   }
+};
+
+export const authenticateTokenOptional = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    next();
+    return;
+  }
+
+  try {
+    req.user = jwt.verify(token, Config.jwt.secret) as JwtUser;
+  } catch (err) {
+    // If token is invalid in optional mode, continue as anonymous.
+  }
+
+  next();
 };
 
 export const authorizeRole = (allowedRoles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({ error: 'Unauthorized' });
+      ApiResponse.error(res, 401, 'Unauthorized');
       return;
     }
 
-    if (!allowedRoles.includes(req.user.roleId)) {
-      res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+    const normalizedRole = req.user.role
+      .toLowerCase()
+      .trim()
+      .replace(/[\s-]+/g, '_');
+    const normalizedAllowedRoles = allowedRoles.map((role) =>
+      role.toLowerCase().trim().replace(/[\s-]+/g, '_')
+    );
+
+    if (!normalizedAllowedRoles.includes(normalizedRole)) {
+      ApiResponse.error(res, 403, 'Forbidden: insufficient permissions');
       return;
     }
 

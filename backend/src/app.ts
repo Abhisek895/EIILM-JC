@@ -1,31 +1,41 @@
-import express, { Express } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+﻿import cors from 'cors';
 import dotenv from 'dotenv';
+import express, { Express } from 'express';
+import helmet from 'helmet';
+import http from 'http';
+import rateLimit from 'express-rate-limit';
 import { Database } from '@config/database';
 import { errorHandler } from '@middlewares/errorHandler';
+import { correlationId } from '@middlewares/correlationId';
 import { requestLogger } from '@middlewares/requestLogger';
+import '@models/index';
 import v1Routes from '@routes/v1/index';
 
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 5000;
-
-// ==================== Middleware ====================
+const configuredPort = Number.parseInt(process.env.PORT || '5000', 10);
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests, please try again later.',
 });
 app.use('/api/', limiter);
@@ -34,47 +44,86 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Correlation IDs
+app.use(correlationId);
+
 // Request logging
 app.use(requestLogger);
 
-// ==================== Routes ====================
+// API routes
 app.use('/api/v1', v1Routes);
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'OK',
     message: 'College ERP Server is running',
     service: 'College Management Platform',
     version: '1.0.0',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+app.use((_req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
 });
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// ==================== Database & Server ====================
+const listenWithFallback = async (
+  server: http.Server,
+  startPort: number
+): Promise<number> => {
+  let currentPort = startPort;
+  const maxAttempts = 10;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const onError = (error: Error) => {
+          server.removeListener('listening', onListening);
+          reject(error);
+        };
+
+        const onListening = () => {
+          server.removeListener('error', onError);
+          resolve();
+        };
+
+        server.once('error', onError);
+        server.once('listening', onListening);
+        server.listen(currentPort);
+      });
+
+      return currentPort;
+    } catch (error: any) {
+      if (error.code !== 'EADDRINUSE') {
+        throw error;
+      }
+      currentPort += 1;
+    }
+  }
+
+  throw new Error(`Unable to bind server from port ${startPort}`);
+};
+
 const startServer = async () => {
   try {
-    const db = Database.getInstance();
-    await db.authenticate();
-    console.log('✓ Database connected successfully');
+    await Database.authenticate();
+    console.log('Database connected successfully');
 
-    app.listen(port, () => {
-      console.log(`\n🎓 College ERP System`);
-      console.log(`✓ Server running on port ${port}`);
-      console.log(`✓ API Base URL: http://localhost:${port}/api/v1`);
-      console.log(`✓ Health Check: http://localhost:${port}/health`);
-      console.log(`✓ Ready for college management operations\n`);
-    });
+    const server = http.createServer(app);
+    const runningPort = await listenWithFallback(server, configuredPort);
+
+    console.log('\nCollege ERP System');
+    console.log(`Server running on port ${runningPort}`);
+    console.log(`API Base URL: http://localhost:${runningPort}/api/v1`);
+    console.log(`Health Check: http://localhost:${runningPort}/health`);
+    console.log('Ready for college management operations\n');
   } catch (error) {
-    console.error('✗ Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
@@ -82,3 +131,4 @@ const startServer = async () => {
 startServer();
 
 export default app;
+

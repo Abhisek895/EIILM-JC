@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: college-erp-backend
+  labels:
+    app: college-erp-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: college-erp-backend
+  template:
+    metadata:
+      labels:
+        app: college-erp-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/your-org/college-erp-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5001
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          envFrom:
+            - secretRef:
+                name: college-erp-backend-secrets
+            - configMapRef:
+                name: college-erp-backend-config
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"

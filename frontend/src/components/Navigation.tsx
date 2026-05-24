@@ -3,7 +3,15 @@ import Link from 'next/link';
 import { useAuth } from '@hooks/useAuth';
 
 export const Navigation: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
+  const portalHref =
+    user?.role === 'admin' || user?.role === 'super_admin'
+      ? '/dashboard'
+      : '/student';
+  const portalLabel =
+    user?.role === 'admin' || user?.role === 'super_admin'
+      ? 'Dashboard'
+      : 'Student Portal';
 
   return (
     <nav className="bg-white shadow-md">
@@ -34,8 +42,8 @@ export const Navigation: React.FC = () => {
 
           {isAuthenticated ? (
             <>
-              <Link href="/dashboard" className="text-gray-700 hover:text-blue-600">
-                Dashboard
+              <Link href={portalHref} className="text-gray-700 hover:text-blue-600">
+                {portalLabel}
               </Link>
               <button
                 onClick={logout}
