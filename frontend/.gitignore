@@ -1,0 +1,16 @@
+node_modules
+.next
+dist
+npm-debug.log
+yarn-error.log
+.env.local
+.env.local.backup
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+.env
+coverage
+.nyc_output
