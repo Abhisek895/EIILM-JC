@@ -1,5 +1,4 @@
-import { User } from '@models/User';
-import { Role } from '@models/Role';
+import { User, Role } from '@models/index';
 import { BaseRepository } from './BaseRepository';
 
 export class UserRepository extends BaseRepository<User> {

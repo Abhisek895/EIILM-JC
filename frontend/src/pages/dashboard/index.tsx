@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { dashboardApi } from '@api/endpoints';
@@ -50,6 +50,8 @@ export default function DashboardPage() {
         if (inquiriesResponse.success) {
           setRecentInquiries(inquiriesResponse.data);
         }
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
       } finally {
         setLoading(false);
       }

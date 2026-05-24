@@ -1,5 +1,5 @@
 import { BaseRepository } from './BaseRepository';
-import { Role } from '@models/Role';
+import { Role } from '@models/index';
 import { Op } from 'sequelize';
 
 export class RoleRepository extends BaseRepository<Role> {

@@ -1,10 +1,13 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { Config } from '@config/environment';
 import { UserRepository } from '@repositories/UserRepository';
-import { User } from '@models/User';
+// IMPORTANT: Import from @models/index, not individual model files.
+// This guarantees that all Sequelize associations (User belongsTo Role, etc.)
+// are registered before any query runs.
+import { User } from '@models/index';
 import { RoleRepository } from '@repositories/RoleRepository';
 
-type SafeUser = {
+export type SafeUser = {
   id: number;
   name: string;
   email: string;
@@ -57,7 +60,7 @@ export class UserService {
     const createdUser = await this.userRepo.create({
       name: data.name,
       email: data.email.toLowerCase().trim(),
-      password: data.password,
+      password: data.password, // plain text — beforeCreate hook hashes it
       roleId,
     });
 
@@ -68,6 +71,40 @@ export class UserService {
     return this.userRepo.findById(userId, {
       include: [{ association: 'role', attributes: ['id', 'name'] }],
     });
+  }
+
+  async updateUser(
+    userId: number,
+    data: {
+      name?: string;
+      email?: string;
+      password?: string;
+      roleId?: number;
+      status?: 'active' | 'inactive' | 'blocked';
+    }
+  ): Promise<User | null> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return null;
+
+    if (data.name !== undefined) user.name = data.name;
+    if (data.email !== undefined) user.email = data.email.toLowerCase().trim();
+    if (data.roleId !== undefined) user.roleId = data.roleId;
+    if (data.status !== undefined) user.status = data.status;
+    if (data.password !== undefined && data.password !== '') {
+      user.password = data.password; // hook hashes it
+    }
+
+    await user.save();
+
+    // Reload with association
+    return this.userRepo.findById(userId, {
+      include: [{ association: 'role', attributes: ['id', 'name'] }],
+    });
+  }
+
+  async deleteUser(userId: number): Promise<boolean> {
+    const affectedRows = await this.userRepo.delete(userId);
+    return affectedRows > 0;
   }
 
   async listUsers(): Promise<SafeUser[]> {
@@ -86,7 +123,12 @@ export class UserService {
     const normalizedEmail = email.toLowerCase().trim();
     const user = await this.userRepo.findByEmail(normalizedEmail);
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user) {
+      return null;
+    }
+
+    const passwordValid = await user.comparePassword(password);
+    if (!passwordValid) {
       return null;
     }
 
@@ -94,13 +136,24 @@ export class UserService {
       throw new Error('User account is not active');
     }
 
-    const { token, refreshToken } = this.issueTokensForUser(user);
+    // Load user with role association if not already loaded
+    const userWithRole = user.role
+      ? user
+      : await this.userRepo.findById(user.id, {
+          include: [{ association: 'role', attributes: ['id', 'name'] }],
+        });
 
-    // Update last login
+    if (!userWithRole) {
+      return null;
+    }
+
+    const { token, refreshToken } = this.issueTokensForUser(userWithRole);
+
+    // Update last login timestamp
     await this.userRepo.update(user.id, { lastLogin: new Date() });
 
     return {
-      user: this.toSafeUser(user),
+      user: this.toSafeUser(userWithRole),
       token,
       refreshToken,
     };

@@ -1,5 +1,5 @@
 import { BaseRepository } from './BaseRepository';
-import { Course } from '@models/Course';
+import { Course } from '@models/index';
 
 export class CourseRepository extends BaseRepository<Course> {
   constructor() {

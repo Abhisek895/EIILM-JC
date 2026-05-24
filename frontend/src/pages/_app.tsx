@@ -1,6 +1,7 @@
-﻿import type { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { Provider, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
+import Head from 'next/head';
 import { store } from '@store/index';
 import { hydrateAuth, setHydrated } from '@store/slices/authSlice';
 import '@styles/globals.css';
@@ -37,6 +38,9 @@ const AuthHydrator = () => {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       <AuthHydrator />
       <Component {...pageProps} />
     </Provider>

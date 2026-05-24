@@ -1,5 +1,5 @@
 import { BaseRepository } from './BaseRepository';
-import { Inquiry } from '@models/Inquiry';
+import { Inquiry } from '@models/index';
 
 export class InquiryRepository extends BaseRepository<Inquiry> {
   constructor() {

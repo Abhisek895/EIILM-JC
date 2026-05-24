@@ -39,7 +39,7 @@ export class DashboardService {
         'email',
         'status',
         'courseId',
-        'createdAt',
+        ['created_at', 'createdAt'],
       ],
     });
   }

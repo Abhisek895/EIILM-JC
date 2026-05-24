@@ -1,103 +1,131 @@
 import { apiClient } from './apiClient';
 
+// ─── Type Helpers ─────────────────────────────────────────────────────────────
+type ApiRes<T = unknown> = Promise<T>;
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 export const authApi = {
-  register: async (data: {
-    name: string;
-    email: string;
-    password: string;
-    roleName?: string;
-  }) => {
-    return apiClient.post('/auth/register', data);
-  },
-
-  login: async (email: string, password: string) => {
-    return apiClient.post('/auth/login', { email, password });
-  },
-
-  logout: async () => {
-    return apiClient.post('/auth/logout', {});
-  },
-
-  me: async () => {
-    return apiClient.get('/auth/me');
-  },
-
-  refreshToken: async (refreshToken: string) => {
-    return apiClient.post('/auth/refresh', { refreshToken });
-  },
+  register: (data: { name: string; email: string; password: string; roleName?: string }) =>
+    apiClient.post('/auth/register', data),
+  login: (email: string, password: string) =>
+    apiClient.post('/auth/login', { email, password }),
+  logout: () => apiClient.post('/auth/logout', {}),
+  me: () => apiClient.get('/auth/me'),
+  refreshToken: (refreshToken: string) =>
+    apiClient.post('/auth/refresh', { refreshToken }),
 };
 
+// ─── Users ────────────────────────────────────────────────────────────────────
+export const userApi = {
+  getAll: (page = 1, limit = 20) => apiClient.get(`/users?page=${page}&limit=${limit}`),
+  getById: (id: number) => apiClient.get(`/users/${id}`),
+  create: (data: unknown) => apiClient.post('/users', data),
+  update: (id: number, data: unknown) => apiClient.put(`/users/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/users/${id}`),
+};
+
+// ─── Courses ──────────────────────────────────────────────────────────────────
 export const courseApi = {
-  getAll: async (page: number = 1, limit: number = 10) => {
-    return apiClient.get(`/courses?page=${page}&limit=${limit}`);
-  },
-
-  getById: async (id: number) => {
-    return apiClient.get(`/courses/${id}`);
-  },
-
-  create: async (data: any) => {
-    return apiClient.post('/courses', data);
-  },
-
-  update: async (id: number, data: any) => {
-    return apiClient.put(`/courses/${id}`, data);
-  },
-
-  delete: async (id: number) => {
-    return apiClient.delete(`/courses/${id}`);
-  },
+  getAll: (page = 1, limit = 20, status?: string) =>
+    apiClient.get(`/courses?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+  getBySlug: (slug: string) => apiClient.get(`/courses/${slug}`),
+  getById: (id: number) => apiClient.get(`/courses/${id}`),
+  create: (data: unknown) => apiClient.post('/courses', data),
+  update: (id: number, data: unknown) => apiClient.put(`/courses/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/courses/${id}`),
 };
 
+// ─── Departments ──────────────────────────────────────────────────────────────
 export const departmentApi = {
-  getAll: async () => {
-    return apiClient.get('/departments');
-  },
-
-  getById: async (id: number) => {
-    return apiClient.get(`/departments/${id}`);
-  },
+  getAll: (page = 1, limit = 50) => apiClient.get(`/departments?page=${page}&limit=${limit}`),
+  getBySlug: (slug: string) => apiClient.get(`/departments/${slug}`),
+  getById: (id: number) => apiClient.get(`/departments/${id}`),
+  create: (data: unknown) => apiClient.post('/departments', data),
+  update: (id: number, data: unknown) => apiClient.put(`/departments/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/departments/${id}`),
 };
 
+// ─── Faculty ─────────────────────────────────────────────────────────────────
 export const facultyApi = {
-  getAll: async (departmentId?: number) => {
-    const url = departmentId ? `/faculty?departmentId=${departmentId}` : '/faculty';
-    return apiClient.get(url);
-  },
-
-  getById: async (id: number) => {
-    return apiClient.get(`/faculty/${id}`);
-  },
+  getAll: (page = 1, limit = 50, departmentId?: number) =>
+    apiClient.get(
+      `/faculty?page=${page}&limit=${limit}${departmentId ? `&departmentId=${departmentId}` : ''}`
+    ),
+  getById: (id: number) => apiClient.get(`/faculty/${id}`),
+  create: (data: unknown) => apiClient.post('/faculty', data),
+  update: (id: number, data: unknown) => apiClient.put(`/faculty/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/faculty/${id}`),
 };
 
+// ─── Notices ─────────────────────────────────────────────────────────────────
+export const noticeApi = {
+  getAll: (page = 1, limit = 20) => apiClient.get(`/notices?page=${page}&limit=${limit}`),
+  getById: (id: number) => apiClient.get(`/notices/${id}`),
+  create: (data: unknown) => apiClient.post('/notices', data),
+  update: (id: number, data: unknown) => apiClient.put(`/notices/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/notices/${id}`),
+};
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+export const eventApi = {
+  getAll: (page = 1, limit = 20) => apiClient.get(`/events?page=${page}&limit=${limit}`),
+  getById: (id: number) => apiClient.get(`/events/${id}`),
+  create: (data: unknown) => apiClient.post('/events', data),
+  update: (id: number, data: unknown) => apiClient.put(`/events/${id}`, data),
+  remove: (id: number) => apiClient.delete(`/events/${id}`),
+};
+
+// ─── Site Settings ────────────────────────────────────────────────────────────
+export const siteSettingsApi = {
+  // Public — returns {college_name: '...', address: '...', ...}
+  getMap: (): ApiRes<Record<string, string>> => apiClient.get('/site-settings/map'),
+  // Admin — full list
+  getAll: () => apiClient.get('/site-settings'),
+  update: (key: string, value: string) => apiClient.put(`/site-settings/${key}`, { value }),
+  bulkUpdate: (settings: Array<{ key: string; value: string }>) =>
+    apiClient.put('/site-settings/bulk', { settings }),
+};
+
+// ─── CMS Page Sections ────────────────────────────────────────────────────────
+export const cmsApi = {
+  getPageSections: (pageKey: string) =>
+    apiClient.get(`/cms/page-sections?pageKey=${pageKey}`),
+  getAllSections: (page = 1, limit = 50) =>
+    apiClient.get(`/cms/page-sections/all?page=${page}&limit=${limit}`),
+  upsertSection: (data: {
+    pageKey: string;
+    sectionKey: string;
+    config: object;
+    sortOrder?: number;
+  }) => apiClient.post('/cms/page-sections', data),
+  updateSection: (id: number, data: unknown) =>
+    apiClient.put(`/cms/page-sections/${id}`, data),
+  deleteSection: (id: number) => apiClient.delete(`/cms/page-sections/${id}`),
+};
+
+// ─── Inquiries ────────────────────────────────────────────────────────────────
 export const inquiryApi = {
-  create: async (data: any) => {
-    return apiClient.post('/inquiries', data);
-  },
-
-  getAll: async (page: number = 1, limit: number = 10) => {
-    return apiClient.get(`/inquiries?page=${page}&limit=${limit}`);
-  },
-
-  update: async (id: number, data: any) => {
-    return apiClient.put(`/inquiries/${id}`, data);
-  },
+  create: (data: unknown) => apiClient.post('/inquiries', data),
+  getAll: (page = 1, limit = 20) => apiClient.get(`/inquiries?page=${page}&limit=${limit}`),
+  update: (id: number, data: unknown) => apiClient.put(`/inquiries/${id}`, data),
 };
 
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 export const dashboardApi = {
-  getStats: async () => {
-    return apiClient.get('/dashboard/stats');
-  },
-  getRecentInquiries: async (limit: number = 5) => {
-    return apiClient.get(`/dashboard/recent-inquiries?limit=${limit}`);
-  },
+  getStats: () => apiClient.get('/dashboard/stats'),
+  getRecentInquiries: (limit = 5) =>
+    apiClient.get(`/dashboard/recent-inquiries?limit=${limit}`),
 };
 
+// ─── Student ─────────────────────────────────────────────────────────────────
 export const studentApi = {
-  me: async () => {
-    return apiClient.get('/student/me');
-  },
-  courses: async (page: number = 1, limit: number = 10) => {
-    return apiClient.get(`/student/courses?page=${page}&limit=${limit}`);
-  },
+  me: () => apiClient.get('/student/me'),
+  courses: (page = 1, limit = 10) =>
+    apiClient.get(`/student/courses?page=${page}&limit=${limit}`),
+};
+
+// ─── Media ────────────────────────────────────────────────────────────────────
+export const mediaApi = {
+  upload: (formData: FormData) => apiClient.upload('/media/upload', formData),
+  getAll: (page = 1, limit = 30) => apiClient.get(`/media?page=${page}&limit=${limit}`),
 };
