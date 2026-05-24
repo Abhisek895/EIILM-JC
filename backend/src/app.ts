@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import http from 'http';
+import path from 'path';
 import rateLimit from 'express-rate-limit';
 import { Database } from '@config/database';
 import { errorHandler } from '@middlewares/errorHandler';
@@ -17,7 +18,9 @@ const app: Express = express();
 const configuredPort = Number.parseInt(process.env.PORT || '5000', 10);
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false // Required so that frontend can load static uploaded assets from backend domain
+}));
 
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -43,6 +46,9 @@ app.use('/api/', limiter);
 // Body parsing
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Serve static uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Correlation IDs
 app.use(correlationId);

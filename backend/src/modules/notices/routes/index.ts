@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { NoticeController } from '../controller/NoticeController';
+import { upload } from '@middlewares/upload';
 import {
   authenticateToken,
   authenticateTokenOptional,
@@ -17,12 +18,14 @@ router.post(
   '/',
   authenticateToken,
   authorizeRole(['admin', 'super_admin']),
+  upload.single('file'),
   (req, res) => ctrl.create(req, res)
 );
 router.put(
   '/:id',
   authenticateToken,
   authorizeRole(['admin', 'super_admin']),
+  upload.single('file'),
   (req, res) => ctrl.update(req, res)
 );
 router.delete(

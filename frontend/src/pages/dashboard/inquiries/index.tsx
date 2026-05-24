@@ -30,6 +30,9 @@ export default function AdminInquiriesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Custom success Toast State
+  const [toast, setToast] = useState<{ visible: boolean; title: string; message: string } | null>(null);
+
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push('/auth/login');
   }, [isHydrated, isAuthenticated, router]);
@@ -47,12 +50,20 @@ export default function AdminInquiriesPage() {
 
   useEffect(() => { load(page); }, [page, load]);
 
+  const showSuccessToast = (title: string, message: string) => {
+    setToast({ visible: true, title, message });
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  };
+
   const updateStatus = async (id: number, status: string) => {
     try {
       await inquiryApi.update(id, { status });
       setInquiries((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
+      showSuccessToast('Inquiry Updated', `Inquiry status successfully changed to "${status.toUpperCase()}"!`);
     } catch {
-      alert('Failed to update status');
+      showSuccessToast('Update Failed', 'Failed to update inquiry status.');
     }
   };
 
@@ -154,6 +165,19 @@ export default function AdminInquiriesPage() {
           )}
         </div>
       </div>
+      
+      {/* Slide-in custom success Toast popup notification */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 animate-bounce flex items-center gap-3 bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl shadow-2xl transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold shadow-md">
+            ✓
+          </div>
+          <div>
+            <div className="text-sm font-extrabold text-white">{toast.title}</div>
+            <div className="text-xs text-emerald-400 mt-0.5">{toast.message}</div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

@@ -23,6 +23,8 @@ type NoticeForm = {
   expiryDate: string;
   priority: 'low' | 'medium' | 'high';
   status: 'draft' | 'published' | 'expired';
+  sendToStudents: 'yes' | 'no';
+  sendToFaculty: 'yes' | 'no';
 };
 
 const EMPTY_FORM: NoticeForm = {
@@ -33,6 +35,8 @@ const EMPTY_FORM: NoticeForm = {
   expiryDate: '',
   priority: 'medium',
   status: 'draft',
+  sendToStudents: 'yes',
+  sendToFaculty: 'yes',
 };
 
 export default function AdminNoticesPage() {
@@ -45,6 +49,10 @@ export default function AdminNoticesPage() {
   const [form, setForm] = useState<NoticeForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  
+  // Custom states for File Upload & success Toast pop-up
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; title: string; message: string } | null>(null);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push('/auth/login');
@@ -66,9 +74,17 @@ export default function AdminNoticesPage() {
     load();
   }, [load]);
 
+  const showSuccessToast = (title: string, message: string) => {
+    setToast({ visible: true, title, message });
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  };
+
   const openCreate = () => {
     setEditId(null);
     setForm(EMPTY_FORM);
+    setSelectedFile(null);
     setShowForm(true);
     setError('');
   };
@@ -83,7 +99,10 @@ export default function AdminNoticesPage() {
       expiryDate: n.expiryDate ? n.expiryDate.split('T')[0] : '',
       priority: n.priority,
       status: n.status,
+      sendToStudents: 'yes',
+      sendToFaculty: 'yes',
     });
+    setSelectedFile(null);
     setShowForm(true);
     setError('');
   };
@@ -93,19 +112,29 @@ export default function AdminNoticesPage() {
     setSaving(true);
     setError('');
 
-    const payload = {
-      ...form,
-      publishDate: form.publishDate || null,
-      expiryDate: form.expiryDate || null,
-      pdfUrl: form.pdfUrl || null,
-      description: form.description || null,
-    };
+    // Construct FormData to support both JSON fields and direct file attachments
+    const formData = new FormData();
+    formData.append('title', form.title);
+    formData.append('priority', form.priority);
+    formData.append('status', form.status);
+    formData.append('sendToStudents', form.sendToStudents);
+    formData.append('sendToFaculty', form.sendToFaculty);
+    if (form.description) formData.append('description', form.description);
+    if (form.publishDate) formData.append('publishDate', form.publishDate);
+    if (form.expiryDate) formData.append('expiryDate', form.expiryDate);
+    if (form.pdfUrl && !selectedFile) formData.append('pdfUrl', form.pdfUrl);
+    
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    }
 
     try {
       if (editId) {
-        await noticeApi.update(editId, payload);
+        await noticeApi.update(editId, formData);
+        showSuccessToast('Notice Modified', 'Notice modification is successful!');
       } else {
-        await noticeApi.create(payload);
+        await noticeApi.create(formData);
+        showSuccessToast('Notice Created', 'Notice publication is successful!');
       }
       setShowForm(false);
       await load();
@@ -120,9 +149,10 @@ export default function AdminNoticesPage() {
     if (!confirm(`Delete notice "${title}"? This cannot be undone.`)) return;
     try {
       await noticeApi.remove(id);
+      showSuccessToast('Notice Deleted', 'Notice deletion is successful!');
       await load();
     } catch {
-      alert('Failed to delete notice');
+      showSuccessToast('Deletion Failed', 'Failed to delete notice');
     }
   };
 
@@ -200,6 +230,28 @@ export default function AdminNoticesPage() {
                     </select>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Send Mail to Students?</label>
+                    <select
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={form.sendToStudents}
+                      onChange={(e: any) => setForm({ ...form, sendToStudents: e.target.value })}
+                    >
+                      <option value="yes">YES (Send Broadcast)</option>
+                      <option value="no">NO (Do Not Send)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Send Mail to Faculty?</label>
+                    <select
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={form.sendToFaculty}
+                      onChange={(e: any) => setForm({ ...form, sendToFaculty: e.target.value })}
+                    >
+                      <option value="yes">YES (Send Broadcast)</option>
+                      <option value="no">NO (Do Not Send)</option>
+                    </select>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Publish Date</label>
                     <input
                       type="date"
@@ -218,12 +270,29 @@ export default function AdminNoticesPage() {
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Attachment (PDF URL)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Attachment File (PDF, Image, etc.)</label>
+                    {form.pdfUrl && (
+                      <div className="text-xs text-blue-600 font-semibold mb-2 flex items-center gap-1.5">
+                        <span>📎 Current Attachment:</span>
+                        <a 
+                          href={`http://localhost:5002${form.pdfUrl}`} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="underline hover:text-blue-800"
+                        >
+                          {form.pdfUrl.split('/').pop()}
+                        </a>
+                      </div>
+                    )}
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={form.pdfUrl}
-                      onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
-                      placeholder="e.g. /uploads/notices/doc.pdf"
+                      type="file"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          setSelectedFile(files[0]);
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-span-2">
@@ -325,6 +394,19 @@ export default function AdminNoticesPage() {
           </div>
         </div>
       </div>
+      
+      {/* Slide-in custom success Toast popup notification */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 animate-bounce flex items-center gap-3 bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl shadow-2xl transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold shadow-md">
+            ✓
+          </div>
+          <div>
+            <div className="text-sm font-extrabold text-white">{toast.title}</div>
+            <div className="text-xs text-emerald-400 mt-0.5">{toast.message}</div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS users (
     role_id BIGINT NOT NULL,
     status ENUM('active','inactive','blocked') DEFAULT 'active',
     last_login DATETIME,
+    otp_code VARCHAR(6) NULL,
+    otp_expires_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id)

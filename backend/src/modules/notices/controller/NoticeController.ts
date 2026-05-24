@@ -53,6 +53,9 @@ export class NoticeController {
         ApiResponse.error(res, 400, 'title is required');
         return;
       }
+      if (req.file) {
+        req.body.pdfUrl = `/uploads/files/${req.file.filename}`;
+      }
       const notice = await this.service.create(req.body);
       ApiResponse.success(res, 201, 'Notice created', notice);
     } catch (error: any) {
@@ -63,6 +66,9 @@ export class NoticeController {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const id = Number(req.params.id);
+      if (req.file) {
+        req.body.pdfUrl = `/uploads/files/${req.file.filename}`;
+      }
       await this.service.update(id, req.body);
       ApiResponse.success(res, 200, 'Notice updated');
     } catch (error: any) {

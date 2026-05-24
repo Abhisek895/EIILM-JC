@@ -11,6 +11,8 @@ class User extends Model {
   public roleId!: number;
   public status!: 'active' | 'inactive' | 'blocked';
   public lastLogin!: Date | null;
+  public otpCode!: string | null;
+  public otpExpiresAt!: Date | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
   public role?: { id: number; name: string; description?: string };
@@ -60,6 +62,16 @@ User.init(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'last_login',
+    },
+    otpCode: {
+      type: DataTypes.STRING(6),
+      allowNull: true,
+      field: 'otp_code',
+    },
+    otpExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'otp_expires_at',
     },
   },
   {

@@ -34,11 +34,21 @@ export class InquiryService {
   }
 
   async createInquiry(data: CreateInquiryInput): Promise<Inquiry> {
-    return this.inquiryRepo.create({
+    const inquiry = await this.inquiryRepo.create({
       ...data,
       status: 'new',
       source: data.source || 'website',
     });
+
+    if (inquiry.email) {
+      const { EmailService } = require('@services/EmailService');
+      EmailService.sendInquiryConfirmation(inquiry.email, {
+        fullName: inquiry.fullName,
+        courseInterest: 'our college programs',
+      }).catch((e: any) => console.error('Inquiry confirmation email failed:', e));
+    }
+
+    return inquiry;
   }
 
   async listInquiries(page: number, limit: number) {
@@ -48,6 +58,16 @@ export class InquiryService {
   }
 
   async updateInquiry(id: number, data: UpdateInquiryInput): Promise<void> {
+    const existing = await this.inquiryRepo.findById(id);
     await this.inquiryRepo.update(id, data);
+
+    if (data.status && existing && existing.status !== data.status && existing.email) {
+      const { EmailService } = require('@services/EmailService');
+      EmailService.sendAdmissionConfirmation(existing.email, {
+        fullName: existing.fullName,
+        courseInterest: 'your requested program',
+        status: data.status,
+      }).catch((e: any) => console.error('Admission status email failed:', e));
+    }
   }
 }

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { UserService } from '@services/UserService';
 import { ApiResponse } from '@utils/responses';
 import { AuthRequest } from '@middlewares/auth';
+import { EmailService } from '@services/EmailService';
 
 export class AuthController {
   private userService: UserService;
@@ -129,5 +130,83 @@ export class AuthController {
   async logout(req: Request, res: Response): Promise<void> {
     // Implement token blacklisting or session management
     ApiResponse.success(res, 200, 'Logout successful');
+  }
+
+  async requestChangePasswordOtp(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        ApiResponse.error(res, 401, 'Unauthorized');
+        return;
+      }
+
+      const user = await this.userService.getUserById(req.user.id);
+      if (!user) {
+        ApiResponse.error(res, 404, 'User not found');
+        return;
+      }
+
+      // Generate a secure 6-digit numeric OTP code
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      // OTP valid for 10 minutes
+      const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+      // Save fields to User record
+      user.otpCode = otpCode;
+      user.otpExpiresAt = otpExpiresAt;
+      await user.save();
+
+      // Dispatch verification email asynchronously
+      await EmailService.sendPasswordChangeOtp(user.email, {
+        fullName: user.name,
+        otpCode,
+      });
+
+      ApiResponse.success(res, 200, 'Verification OTP sent successfully to your email address.');
+    } catch (error: any) {
+      ApiResponse.error(res, 500, error.message || 'Failed to send verification OTP.');
+    }
+  }
+
+  async verifyChangePasswordOtp(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        ApiResponse.error(res, 401, 'Unauthorized');
+        return;
+      }
+
+      const { otpCode, newPassword } = req.body;
+
+      if (!otpCode || !newPassword) {
+        ApiResponse.error(res, 400, 'OTP code and new password are required.');
+        return;
+      }
+
+      const user = await this.userService.getUserById(req.user.id);
+      if (!user) {
+        ApiResponse.error(res, 404, 'User not found');
+        return;
+      }
+
+      // Check OTP and Expiry
+      if (!user.otpCode || user.otpCode !== otpCode) {
+        ApiResponse.error(res, 400, 'Invalid verification code.');
+        return;
+      }
+
+      if (!user.otpExpiresAt || new Date() > new Date(user.otpExpiresAt)) {
+        ApiResponse.error(res, 400, 'Verification code has expired. Please request a new one.');
+        return;
+      }
+
+      // Valid OTP: Update password (hooks hash automatically) and clear OTP fields
+      user.password = newPassword;
+      user.otpCode = null;
+      user.otpExpiresAt = null;
+      await user.save();
+
+      ApiResponse.success(res, 200, 'Password changed successfully!');
+    } catch (error: any) {
+      ApiResponse.error(res, 500, error.message || 'Failed to verify OTP and change password.');
+    }
   }
 }

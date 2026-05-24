@@ -40,6 +40,9 @@ export default function AdminCoursesPage() {
   const [form, setForm] = useState<CourseForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  
+  // Custom success Toast State
+  const [toast, setToast] = useState<{ visible: boolean; title: string; message: string } | null>(null);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push('/auth/login');
@@ -56,6 +59,13 @@ export default function AdminCoursesPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  
+  const showSuccessToast = (title: string, message: string) => {
+    setToast({ visible: true, title, message });
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  };
 
   const openCreate = () => { setEditId(null); setForm(EMPTY_FORM); setShowForm(true); setError(''); };
   const openEdit = (c: Course) => {
@@ -76,8 +86,10 @@ export default function AdminCoursesPage() {
     try {
       if (editId) {
         await courseApi.update(editId, form);
+        showSuccessToast('Course Modified', 'Course has been modified successfully!');
       } else {
         await courseApi.create(form);
+        showSuccessToast('Course Created', 'New course has been created successfully!');
       }
       setShowForm(false);
       await load();
@@ -92,9 +104,10 @@ export default function AdminCoursesPage() {
     if (!confirm(`Delete course "${name}"? This cannot be undone.`)) return;
     try {
       await courseApi.remove(id);
+      showSuccessToast('Course Deleted', 'Course has been deleted successfully!');
       await load();
     } catch {
-      alert('Failed to delete course');
+      showSuccessToast('Deletion Failed', 'Failed to delete course');
     }
   };
 
@@ -292,6 +305,19 @@ export default function AdminCoursesPage() {
           </div>
         </div>
       </div>
+      
+      {/* Slide-in custom success Toast popup notification */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 animate-bounce flex items-center gap-3 bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl shadow-2xl transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold shadow-md">
+            ✓
+          </div>
+          <div>
+            <div className="text-sm font-extrabold text-white">{toast.title}</div>
+            <div className="text-xs text-emerald-400 mt-0.5">{toast.message}</div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

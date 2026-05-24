@@ -46,6 +46,9 @@ export default function AdminUsersPage() {
   const [form, setForm] = useState<UserForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  
+  // Custom success Toast State
+  const [toast, setToast] = useState<{ visible: boolean; title: string; message: string } | null>(null);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push('/auth/login');
@@ -66,6 +69,13 @@ export default function AdminUsersPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const showSuccessToast = (title: string, message: string) => {
+    setToast({ visible: true, title, message });
+    setTimeout(() => {
+      setToast(null);
+    }, 2500);
+  };
 
   const openCreate = () => {
     setEditId(null);
@@ -102,8 +112,10 @@ export default function AdminUsersPage() {
           ...(form.password ? { password: form.password } : {}),
         };
         await userApi.update(editId, payload);
+        showSuccessToast('User Updated', 'User account has been updated successfully!');
       } else {
         await userApi.create(form);
+        showSuccessToast('User Created', 'New user account has been created successfully!');
       }
       setShowForm(false);
       await load();
@@ -118,9 +130,10 @@ export default function AdminUsersPage() {
     if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
     try {
       await userApi.remove(id);
+      showSuccessToast('User Deleted', 'User account has been deleted successfully!');
       await load();
     } catch {
-      alert('Failed to delete user');
+      showSuccessToast('Deletion Failed', 'Failed to delete user account');
     }
   };
 
@@ -312,6 +325,19 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+      
+      {/* Slide-in custom success Toast popup notification */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 animate-bounce flex items-center gap-3 bg-slate-900 border border-slate-800 text-white px-5 py-4 rounded-2xl shadow-2xl transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold shadow-md">
+            ✓
+          </div>
+          <div>
+            <div className="text-sm font-extrabold text-white">{toast.title}</div>
+            <div className="text-xs text-emerald-400 mt-0.5">{toast.message}</div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

@@ -13,6 +13,10 @@ export const authApi = {
   me: () => apiClient.get('/auth/me'),
   refreshToken: (refreshToken: string) =>
     apiClient.post('/auth/refresh', { refreshToken }),
+  requestPasswordChangeOtp: () =>
+    apiClient.post('/auth/change-password/request-otp', {}),
+  verifyPasswordChangeOtp: (otpCode: string, newPassword: string) =>
+    apiClient.post('/auth/change-password/verify-otp', { otpCode, newPassword }),
 };
 
 // ─── Users ────────────────────────────────────────────────────────────────────
