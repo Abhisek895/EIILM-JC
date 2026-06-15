@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: college_erp_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: college_erp_db
+      MYSQL_USER: erp_user
+      MYSQL_PASSWORD: erp_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - college_erp_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: college_erp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - college_erp_network
+
+  # Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    container_name: college_erp_backend
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: college_erp_db
+      DB_USER: erp_user
+      DB_PASSWORD: erp_password
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./backend/src:/app/src
+    networks:
+      - college_erp_network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    container_name: college_erp_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
+      NEXT_PUBLIC_APP_NAME: College ERP
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+    networks:
+      - college_erp_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  college_erp_network:
+    driver: bridge

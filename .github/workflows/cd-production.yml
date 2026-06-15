@@ -1,0 +1,30 @@
+name: CD Production BlueGreen
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pre-deploy checks
+        run: |
+          echo "TODO: confirm staging green + approvals + change window"
+      - name: Deploy green
+        run: |
+          echo "TODO: deploy green stack and keep blue live"
+      - name: Run migrations
+        run: |
+          echo "TODO: run backward-compatible migrations"
+      - name: Shift traffic
+        run: |
+          echo "TODO: shift ingress/service selector to green"
+      - name: Post-deploy validation
+        run: |
+          echo "TODO: run production smoke and SLO checks"
+      - name: Rollback trigger
+        if: failure()
+        run: |
+          echo "TODO: revert traffic to blue and open incident"

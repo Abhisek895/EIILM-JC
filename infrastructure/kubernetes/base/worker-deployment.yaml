@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: college-erp-worker
+  labels:
+    app: college-erp-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: college-erp-worker
+  template:
+    metadata:
+      labels:
+        app: college-erp-worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/your-org/college-erp-backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/workers/index.js"]
+          envFrom:
+            - secretRef:
+                name: college-erp-backend-secrets
+            - configMapRef:
+                name: college-erp-backend-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "750m"
+              memory: "1024Mi"

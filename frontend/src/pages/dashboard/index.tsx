@@ -1,0 +1,139 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import DashboardLayout from '@layouts/DashboardLayout';
+import { dashboardApi } from '@api/endpoints';
+import { useAuth } from '@hooks/useAuth';
+
+type DashboardStats = {
+  totalUsers: number;
+  totalStudents: number;
+  totalCourses: number;
+  totalInquiries: number;
+};
+
+type Inquiry = {
+  id: number;
+  fullName: string;
+  email: string;
+  status: string;
+  createdAt: string;
+};
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { isAuthenticated, isHydrated, user } = useAuth();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentInquiries, setRecentInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+
+    const role = user?.role;
+    const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.dashboard?.includes('read')) || role === 'faculty' || role === 'student';
+    if (!canRead) {
+      router.push('/dashboard');
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const [statsResponse, inquiriesResponse]: any = await Promise.all([
+          dashboardApi.getStats(),
+          dashboardApi.getRecentInquiries(5),
+        ]);
+
+        if (statsResponse.success) {
+          setStats(statsResponse.data);
+        }
+
+        if (inquiriesResponse.success) {
+          setRecentInquiries(inquiriesResponse.data);
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [isAuthenticated, isHydrated, router, user]);
+
+  const cards = useMemo(
+    () => [
+      { label: 'Total Students', value: stats?.totalStudents ?? 0 },
+      { label: 'Total Users', value: stats?.totalUsers ?? 0 },
+      { label: 'Courses', value: stats?.totalCourses ?? 0 },
+      { label: 'Inquiries', value: stats?.totalInquiries ?? 0 },
+    ],
+    [stats]
+  );
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+
+        {loading ? (
+          <div className="card">Loading dashboard...</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {cards.map((stat) => (
+                <div key={stat.label} className="card">
+                  <p className="text-gray-600 text-sm">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="card">
+              <h2 className="text-xl font-bold mb-6">Recent Inquiries</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b border-gray-200">
+                    <tr>
+                      <th className="text-left py-2 px-4 font-semibold">Name</th>
+                      <th className="text-left py-2 px-4 font-semibold">Email</th>
+                      <th className="text-left py-2 px-4 font-semibold">Status</th>
+                      <th className="text-left py-2 px-4 font-semibold">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentInquiries.length === 0 ? (
+                      <tr>
+                        <td className="py-3 px-4 text-gray-500" colSpan={4}>
+                          No inquiries yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      recentInquiries.map((item) => (
+                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4">{item.fullName}</td>
+                          <td className="py-3 px-4">{item.email || '-'}</td>
+                          <td className="py-3 px-4 capitalize">{item.status}</td>
+                          <td className="py-3 px-4">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
+

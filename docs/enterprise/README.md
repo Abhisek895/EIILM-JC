@@ -1,0 +1,18 @@
+# Enterprise Architecture Pack
+
+This folder contains the production-grade SaaS transformation blueprint.
+
+## Documents
+- [00_MASTER_ROADMAP.md](/c:/EIILM-JC/docs/enterprise/00_MASTER_ROADMAP.md)
+- [01_TARGET_ARCHITECTURE.md](/c:/EIILM-JC/docs/enterprise/01_TARGET_ARCHITECTURE.md)
+- [02_BACKEND_MODULAR_ARCHITECTURE.md](/c:/EIILM-JC/docs/enterprise/02_BACKEND_MODULAR_ARCHITECTURE.md)
+- [03_DATABASE_EVOLUTION_PLAN.md](/c:/EIILM-JC/docs/enterprise/03_DATABASE_EVOLUTION_PLAN.md)
+- [04_SECURITY_CHECKLIST.md](/c:/EIILM-JC/docs/enterprise/04_SECURITY_CHECKLIST.md)
+- [05_API_STANDARDS.md](/c:/EIILM-JC/docs/enterprise/05_API_STANDARDS.md)
+- [06_FRONTEND_ENTERPRISE_ARCHITECTURE.md](/c:/EIILM-JC/docs/enterprise/06_FRONTEND_ENTERPRISE_ARCHITECTURE.md)
+- [07_DEVOPS_INFRA_BLUEPRINT.md](/c:/EIILM-JC/docs/enterprise/07_DEVOPS_INFRA_BLUEPRINT.md)
+- [08_TESTING_STRATEGY.md](/c:/EIILM-JC/docs/enterprise/08_TESTING_STRATEGY.md)
+- [09_OBSERVABILITY_STACK.md](/c:/EIILM-JC/docs/enterprise/09_OBSERVABILITY_STACK.md)
+- [10_CODING_STANDARDS.md](/c:/EIILM-JC/docs/enterprise/10_CODING_STANDARDS.md)
+- [11_CICD_ARCHITECTURE.md](/c:/EIILM-JC/docs/enterprise/11_CICD_ARCHITECTURE.md)
+- [12_PHASED_IMPLEMENTATION_PLAN.md](/c:/EIILM-JC/docs/enterprise/12_PHASED_IMPLEMENTATION_PLAN.md)

@@ -1,0 +1,25 @@
+name: CD Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push images
+        run: |
+          echo "TODO: build and push backend/frontend images for staging"
+      - name: Run migrations
+        run: |
+          echo "TODO: execute safe migrations against staging database"
+      - name: Deploy manifests
+        run: |
+          echo "TODO: kubectl apply -k infrastructure/kubernetes/overlays/staging"
+      - name: Smoke test
+        run: |
+          echo "TODO: run staging smoke tests"
