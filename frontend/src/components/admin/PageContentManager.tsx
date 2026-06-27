@@ -11,6 +11,8 @@ const PAGES_CONFIG = [
   { key: 'infrastructure', label: 'Infrastructure Page', icon: '🏛️' },
   { key: 'notices', label: 'Notices & Circulars', icon: '📢' },
   { key: 'events', label: 'Events Page', icon: '📅' },
+  { key: 'about', label: 'About Us Page', icon: 'ℹ️' },
+  { key: 'contact', label: 'Contact Us Page', icon: '📞' },
 ];
 
 const STATS_FIELDS = [
@@ -97,6 +99,7 @@ export default function PageContentManager() {
         setSlides([]);
       }
     } catch (error) {
+      console.error('Slider fetch error:', error);
       showToast('Error', `Failed to load sliders for ${pageKey}`, 'error');
     } finally {
       setLoading(false);
@@ -442,29 +445,31 @@ export default function PageContentManager() {
                 {/* Content Section */}
                 <div className="lg:col-span-3 space-y-5">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Banner Background Color</label>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-gray-200 shrink-0">
-                          <input
-                            type="color"
-                            className="w-full h-full cursor-pointer border-0 p-0 transform scale-150"
-                            value={editingSlide.bgColor || '#fecb00'}
-                            onChange={(e) => setEditingSlide({ ...editingSlide, bgColor: e.target.value })}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-gray-50 hover:bg-white uppercase font-mono"
-                            value={editingSlide.bgColor || '#fecb00'}
-                            onChange={(e) => setEditingSlide({ ...editingSlide, bgColor: e.target.value })}
-                            placeholder="#fecb00"
-                          />
-                          <p className="text-[11px] text-gray-500 mt-1">Changes the background color of the slanted text area (defaults to yellow).</p>
+                    {selectedPage === 'home' && (
+                      <div className="col-span-2">
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Banner Background Color</label>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-gray-200 shrink-0">
+                            <input
+                              type="color"
+                              className="w-full h-full cursor-pointer border-0 p-0 transform scale-150"
+                              value={editingSlide.bgColor || '#fecb00'}
+                              onChange={(e) => setEditingSlide({ ...editingSlide, bgColor: e.target.value })}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-gray-50 hover:bg-white uppercase font-mono"
+                              value={editingSlide.bgColor || '#fecb00'}
+                              onChange={(e) => setEditingSlide({ ...editingSlide, bgColor: e.target.value })}
+                              placeholder="#fecb00"
+                            />
+                            <p className="text-[11px] text-gray-500 mt-1">Changes the background color of the slanted text area (defaults to yellow).</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="col-span-2 mt-2">
                       <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Small Badge / Tagline</label>
@@ -543,52 +548,54 @@ export default function PageContentManager() {
                   </div>
 
 
-                  <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-4">
-                    <h4 className="text-sm font-bold text-gray-800">Logos (e.g., Accreditations, Partners)</h4>
-                    <p className="text-xs text-gray-500">These will appear as small icons at the top right of the banner.</p>
-                    <div className="flex flex-wrap gap-3">
-                      {editingSlide.logos?.map((logoUrl: string, i: number) => (
-                        <div key={i} className="relative group w-14 h-14 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center p-1.5">
-                          <img src={getImageUrl(logoUrl)} alt="Logo" className="max-w-full max-h-full object-contain" />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newLogos = [...editingSlide.logos];
-                              newLogos.splice(i, 1);
-                              setEditingSlide({ ...editingSlide, logos: newLogos });
-                            }}
-                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 shadow-md transition-all z-10"
-                            title="Remove Logo"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                      <label className="w-14 h-14 border-2 border-dashed border-gray-300 hover:border-primary-500 rounded-xl flex items-center justify-center cursor-pointer text-gray-400 hover:text-primary-500 transition-colors bg-white shadow-sm hover:shadow-md">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            try {
-                              const formData = new FormData();
-                              formData.append('file', file);
-                              const res: any = await mediaApi.upload(formData);
-                              if (res?.data?.path || res?.data?.url) {
-                                const newLogos = [...(editingSlide.logos || []), res.data.path || res.data.url];
+                  {selectedPage === 'home' && (
+                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-4">
+                      <h4 className="text-sm font-bold text-gray-800">Logos (e.g., Accreditations, Partners)</h4>
+                      <p className="text-xs text-gray-500">These will appear as small icons at the top right of the banner.</p>
+                      <div className="flex flex-wrap gap-3">
+                        {editingSlide.logos?.map((logoUrl: string, i: number) => (
+                          <div key={i} className="relative group w-14 h-14 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center p-1.5">
+                            <img src={getImageUrl(logoUrl)} alt="Logo" className="max-w-full max-h-full object-contain" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newLogos = [...editingSlide.logos];
+                                newLogos.splice(i, 1);
                                 setEditingSlide({ ...editingSlide, logos: newLogos });
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 shadow-md transition-all z-10"
+                              title="Remove Logo"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                        <label className="w-14 h-14 border-2 border-dashed border-gray-300 hover:border-primary-500 rounded-xl flex items-center justify-center cursor-pointer text-gray-400 hover:text-primary-500 transition-colors bg-white shadow-sm hover:shadow-md">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              try {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                const res: any = await mediaApi.upload(formData);
+                                if (res?.data?.path || res?.data?.url) {
+                                  const newLogos = [...(editingSlide.logos || []), res.data.path || res.data.url];
+                                  setEditingSlide({ ...editingSlide, logos: newLogos });
+                                }
+                              } catch (err) {
+                                showToast('Upload Failed', 'Failed to upload logo.', 'error');
                               }
-                            } catch (err) {
-                              showToast('Upload Failed', 'Failed to upload logo.', 'error');
-                            }
-                          }}
-                        />
-                        <span className="text-xl font-bold">+</span>
-                      </label>
+                            }}
+                          />
+                          <span className="text-xl font-bold">+</span>
+                        </label>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                 </div>
               </div>

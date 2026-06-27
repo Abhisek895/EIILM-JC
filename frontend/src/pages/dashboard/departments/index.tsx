@@ -48,15 +48,15 @@ export default function AdminDepartmentsPage() {
         router.push('/auth/login');
       } else {
         const role = user?.role;
-        const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.departments?.includes('read'));
+        const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.departments?.includes('read'));
         if (!canRead) router.push('/dashboard');
       }
     }
   }, [isHydrated, isAuthenticated, user, router]);
 
   const role = user?.role;
-  const canWrite = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.departments?.includes('write'));
-  const canDelete = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.departments?.includes('delete'));
+  const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.departments?.includes('write'));
+  const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.departments?.includes('delete'));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -149,13 +149,13 @@ export default function AdminDepartmentsPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
+            <h1 className="text-xl font-bold text-gray-900">Departments</h1>
             <p className="text-gray-500 text-sm mt-1">{departments.length} departments total</p>
           </div>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
             >
               + Add Department
             </button>
@@ -231,7 +231,7 @@ export default function AdminDepartmentsPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Department Name', 'Slug', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold text-gray-600">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -240,7 +240,7 @@ export default function AdminDepartmentsPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 4 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -255,15 +255,15 @@ export default function AdminDepartmentsPage() {
                 ) : (
                   departments.map((d) => (
                     <tr key={d.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{d.name}</td>
-                      <td className="px-4 py-3 text-gray-600">{d.slug || '—'}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-medium text-gray-900">{d.name}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{d.slug || '—'}</td>
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[d.status] || STATUS_COLORS.active}`}>
                           {d.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button
                               onClick={() => openEdit(d)}

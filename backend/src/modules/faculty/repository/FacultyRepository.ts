@@ -14,7 +14,7 @@ export class FacultyRepository extends BaseRepository<Faculty> {
       where,
       include: [{ association: 'department', attributes: ['id', 'name', 'slug'] }],
       order: [
-        ['sortOrder', 'ASC'],
+        ['sortOrder', 'DESC'],
         ['name', 'ASC'],
       ],
     });

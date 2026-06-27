@@ -256,4 +256,73 @@ export class AuthController {
       }
     }
   }
+
+  async requestForgotPasswordOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        ApiResponse.error(res, 400, 'Email is required.');
+        return;
+      }
+
+      const user = await this.userService.getUserByEmail(email);
+      if (!user) {
+        // Return success even if user not found to prevent email enumeration
+        ApiResponse.success(res, 200, 'If that email address is in our database, we will send you an OTP to reset your password.');
+        return;
+      }
+
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      user.otpCode = otpCode;
+      user.otpExpiresAt = otpExpiresAt;
+      await user.save();
+
+      await EmailService.sendPasswordChangeOtp(user.email, {
+        fullName: user.name,
+        otpCode,
+      });
+
+      ApiResponse.success(res, 200, 'If that email address is in our database, we will send you an OTP to reset your password.');
+    } catch (error: any) {
+      ApiResponse.error(res, 500, error.message || 'Failed to process password reset request.');
+    }
+  }
+
+  async verifyForgotPasswordOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, otpCode, newPassword } = req.body;
+
+      if (!email || !otpCode || !newPassword) {
+        ApiResponse.error(res, 400, 'Email, OTP code, and new password are required.');
+        return;
+      }
+
+      const user = await this.userService.getUserByEmail(email);
+      if (!user) {
+        ApiResponse.error(res, 400, 'Invalid request.');
+        return;
+      }
+
+      if (!user.otpCode || user.otpCode !== otpCode) {
+        ApiResponse.error(res, 400, 'Invalid verification code.');
+        return;
+      }
+
+      if (!user.otpExpiresAt || new Date() > new Date(user.otpExpiresAt)) {
+        ApiResponse.error(res, 400, 'Verification code has expired. Please request a new one.');
+        return;
+      }
+
+      user.password = newPassword;
+      user.otpCode = null;
+      user.otpExpiresAt = null;
+      await user.save();
+
+      ApiResponse.success(res, 200, 'Password reset successfully. You can now login.');
+    } catch (error: any) {
+      ApiResponse.error(res, 500, error.message || 'Failed to verify OTP and reset password.');
+    }
+  }
 }

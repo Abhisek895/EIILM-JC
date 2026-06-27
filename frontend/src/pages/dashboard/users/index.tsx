@@ -43,8 +43,8 @@ const ROLE_IDS: Record<string, number> = {
 export default function AdminUsersPage() {
   const { isAuthenticated, isHydrated, user } = useAuth();
   const role = user?.role;
-  const canWrite = role === 'super_admin' || user?.permissions?.canManageRbac || (role === 'admin' && user?.permissions?.modules?.users?.includes('write'));
-  const canDelete = role === 'super_admin' || user?.permissions?.canManageRbac || (role === 'admin' && user?.permissions?.modules?.users?.includes('delete'));
+  const canWrite = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('write'));
+  const canDelete = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('delete'));
   const router = useRouter();
   const [users, setUsers] = useState<UserMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
       if (!isAuthenticated) {
         router.push('/auth/login');
       } else {
-        const canRead = role === 'super_admin' || user?.permissions?.canManageRbac || (role === 'admin' && user?.permissions?.modules?.users?.includes('read'));
+        const canRead = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('read'));
         if (!canRead) router.push('/dashboard');
       }
     }
@@ -183,13 +183,13 @@ export default function AdminUsersPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+            <h1 className="text-xl font-bold text-gray-900">User Management</h1>
             <p className="text-gray-500 text-sm mt-1">{users.length} users total</p>
           </div>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
             >
               + Add User
             </button>
@@ -278,7 +278,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* RBAC Permissions Grid */}
-                {(form.roleName === 'admin' || form.roleName === 'super_admin') && (
+                {(form.roleName === 'admin' || form.roleName === 'super_admin' || form.roleName === 'faculty') && (
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 mt-4 space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-3">
                       <div>
@@ -374,7 +374,7 @@ export default function AdminUsersPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Name', 'Email', 'Role', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold text-gray-600">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -383,7 +383,7 @@ export default function AdminUsersPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -398,20 +398,20 @@ export default function AdminUsersPage() {
                 ) : (
                   users.map((u) => (
                     <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{u.name}</td>
-                      <td className="px-4 py-3 text-gray-600">{u.email}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-medium text-gray-900">{u.name}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{u.email}</td>
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs px-2 py-0.5 rounded border ${ROLE_BADGES[u.role] || ROLE_BADGES.student} font-medium capitalize`}>
                           {u.role.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[u.status] || STATUS_COLORS.active}`}>
                           {u.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {u.email === 'sarkarabhisek50@gmail.com' && user?.email !== 'sarkarabhisek50@gmail.com' ? (
                             <span className="text-purple-600 font-bold text-sm italic">Protected</span>
                           ) : canWrite ? (

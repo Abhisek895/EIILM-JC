@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@hooks/useAuth';
 import { Mail, Lock, Eye, EyeOff, GraduationCap, ArrowRight } from 'lucide-react';
 import FadeIn from '@components/FadeIn';
+import { siteSettingsApi } from '@api/endpoints';
+import { getImageUrl } from '@utils/getImageUrl';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,8 +13,23 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const { login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res: any = await siteSettingsApi.getMap();
+        if (res?.data?.logo) {
+          setLogoUrl(getImageUrl(res.data.logo));
+        }
+      } catch (err) {
+        console.error('Failed to fetch site settings', err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,15 +57,19 @@ export default function LoginPage() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
 
         <div className="relative z-10 flex items-center gap-3">
-          <div className="bg-white/20 backdrop-blur-sm p-2 rounded-xl">
-            <GraduationCap size={32} className="text-white" />
-          </div>
-          <span className="text-2xl font-bold font-display tracking-tight">EIILM College</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="College Logo" className="h-14 w-auto object-contain bg-white p-2 rounded-xl shadow-sm" />
+          ) : (
+            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-xl">
+              <GraduationCap size={32} className="text-white" />
+            </div>
+          )}
+          <span className="text-2xl font-bold font-display tracking-tight">EIILM Kolkata Jalpaiguri Campus</span>
         </div>
 
         <FadeIn className="relative z-10 max-w-lg mt-auto mb-auto">
           <h1 className="text-5xl font-display font-bold leading-tight mb-6">
-            Empowering the <br/><span className="text-primary-200">Next Generation</span>
+            Empowering the <br /><span className="text-primary-200">Next Generation</span>
           </h1>
           <p className="text-lg text-primary-100/90 leading-relaxed">
             Welcome to the centralized portal for students, faculty, and administration. Access your courses, schedules, and important notices all in one place.
@@ -56,7 +77,7 @@ export default function LoginPage() {
         </FadeIn>
 
         <div className="relative z-10 flex items-center gap-4 text-sm text-primary-200 font-medium">
-          <span>&copy; {new Date().getFullYear()} EIILM College</span>
+          <span>&copy; {new Date().getFullYear()} EIILM Kolkata Jalpaiguri Campus</span>
           <span className="w-1.5 h-1.5 rounded-full bg-primary-400"></span>
           <span>Enterprise Resource Planning</span>
         </div>
@@ -67,10 +88,14 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile header (only visible on small screens) */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <div className="bg-primary-600 p-2 rounded-xl text-white">
-              <GraduationCap size={28} />
-            </div>
-            <span className="text-3xl font-bold font-display text-gray-900 tracking-tight">EIILM College</span>
+            {logoUrl ? (
+              <img src={logoUrl} alt="College Logo" className="h-12 w-auto object-contain" />
+            ) : (
+              <div className="bg-primary-600 p-2 rounded-xl text-white">
+                <GraduationCap size={28} />
+              </div>
+            )}
+            <span className="text-3xl font-bold font-display text-gray-900 tracking-tight">EIILM Kolkata Jalpaiguri Campus</span>
           </div>
 
           <FadeIn>
@@ -116,9 +141,9 @@ export default function LoginPage() {
                   <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                     Password
                   </label>
-                  <a href="#" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                  <Link href="/auth/forgot-password" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">

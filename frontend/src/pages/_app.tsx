@@ -2,7 +2,7 @@ import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Provider, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { store } from '@store/index';
 import { hydrateAuth, setHydrated } from '@store/slices/authSlice';
@@ -129,6 +129,40 @@ const ThemeHydrator = () => {
   return null;
 };
 
+const PageTracker = () => {
+  const router = useRouter();
+  const lastTrackedUrl = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      // Don't track visits to the admin dashboard
+      if (url.startsWith('/dashboard') || url.startsWith('/admin')) {
+        return;
+      }
+      
+      // Prevent double tracking in React StrictMode
+      if (lastTrackedUrl.current === url) return;
+      lastTrackedUrl.current = url;
+      
+      import('@api/endpoints').then(({ dashboardApi }) => {
+        dashboardApi.trackPageView(url).catch(() => {});
+      });
+    };
+
+    // Track initial page load
+    handleRouteChange(router.asPath);
+
+    // Track subsequent navigation
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router]);
+
+  return null;
+};
+
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
@@ -139,6 +173,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <AuthHydrator />
       <ThemeHydrator />
+      <PageTracker />
       <AnimatePresence mode="wait">
         <motion.div
           key={router.asPath}

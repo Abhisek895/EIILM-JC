@@ -81,7 +81,7 @@ export default function AdminAdmissionsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Admissions Manager</h1>
+            <h1 className="text-xl font-bold text-gray-900">Admissions Manager</h1>
             <p className="text-gray-500 text-sm mt-1">Review and manage dynamic student admission leads in real time.</p>
           </div>
           <button 
@@ -143,7 +143,7 @@ export default function AdminAdmissionsPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 6 }).map((_, j) => (
-                        <td key={j} className="px-6 py-4">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-50 rounded-lg animate-pulse" />
                         </td>
                       ))}
@@ -160,30 +160,30 @@ export default function AdminAdmissionsPage() {
                 ) : (
                   inquiries.map((inq) => (
                     <tr key={inq.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-2.5">
                         <div className="font-bold text-gray-900 text-base">{inq.fullName}</div>
                         <div className="text-xs text-gray-500 mt-1 flex flex-col gap-0.5">
                           <span className="flex items-center gap-1">📧 {inq.email || '—'}</span>
                           <span className="flex items-center gap-1">📞 {inq.phone || '—'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-primary-600">
+                      <td className="px-4 py-2.5 font-semibold text-primary-600">
                         {inq.courseInterest || '—'}
                       </td>
-                      <td className="px-6 py-4 text-gray-600 max-w-sm">
+                      <td className="px-4 py-2.5 text-gray-600 max-w-sm">
                         <p className="text-xs leading-relaxed italic">{inq.message ? `"${inq.message}"` : '—'}</p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${STATUS_COLORS[inq.status] || STATUS_COLORS.new}`}>
                           {inq.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 font-medium">
+                      <td className="px-4 py-2.5 text-gray-500 font-medium">
                         {new Date(inq.createdAt).toLocaleDateString('en-IN', {
                           day: 'numeric', month: 'short', year: 'numeric'
                         })}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-2.5">
                         <select
                           value={inq.status}
                           onChange={(e) => updateStatus(inq.id, e.target.value)}
@@ -205,7 +205,7 @@ export default function AdminAdmissionsPage() {
           {totalPages > 1 && (
             <div className="px-6 py-4 flex justify-between items-center border-t border-gray-50">
               <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Page {page} of {totalPages}</span>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}

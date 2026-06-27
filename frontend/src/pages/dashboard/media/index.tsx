@@ -32,7 +32,7 @@ export default function AdminMediaPage() {
   useEffect(() => {
     if (user) {
       const role = user?.role;
-      const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.media?.includes('read'));
+      const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.media?.includes('read'));
       if (!canRead) {
         window.location.href = '/dashboard';
         return;
@@ -44,8 +44,8 @@ export default function AdminMediaPage() {
   }, [activeTab, user]);
 
   const role = user?.role;
-  const canWrite = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.media?.includes('write'));
-  const canDelete = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.media?.includes('delete'));
+  const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.media?.includes('write'));
+  const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.media?.includes('delete'));
 
   const loadMedia = async () => {
     try {
@@ -150,7 +150,7 @@ export default function AdminMediaPage() {
         {/* Header & Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Media & CMS</h1>
+            <h1 className="text-xl font-bold text-gray-900">Media & CMS</h1>
             <p className="text-gray-500 text-sm mt-1">Manage files, homepage sliders, and infrastructure.</p>
           </div>
           <div className="flex bg-gray-200/60 p-1.5 rounded-2xl w-fit font-semibold text-sm">

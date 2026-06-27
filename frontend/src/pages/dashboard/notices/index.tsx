@@ -5,6 +5,7 @@ import DashboardLayout from '@layouts/DashboardLayout';
 import { noticeApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
 import ConfirmDialogModal, { ConfirmDialogState } from '@components/admin/ConfirmDialogModal';
+import ImageCropperModal from '@components/admin/ImageCropperModal';
 
 type Notice = {
   id: number;
@@ -64,21 +65,28 @@ export default function AdminNoticesPage() {
   // Custom Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>(null);
 
+  // Image Cropper State
+  const [cropperState, setCropperState] = useState<{ isOpen: boolean; imageSrc: string | null; file: File | null }>({
+    isOpen: false,
+    imageSrc: null,
+    file: null,
+  });
+
   useEffect(() => {
     if (isHydrated) {
       if (!isAuthenticated) {
         router.push('/auth/login');
       } else {
         const role = user?.role;
-        const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.notices?.includes('read'));
+        const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.notices?.includes('read'));
         if (!canRead) router.push('/dashboard');
       }
     }
   }, [isHydrated, isAuthenticated, user, router]);
 
   const role = user?.role;
-  const canWrite = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.notices?.includes('write'));
-  const canDelete = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.notices?.includes('delete'));
+  const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.notices?.includes('write'));
+  const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.notices?.includes('delete'));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -169,11 +177,20 @@ export default function AdminNoticesPage() {
     }
   };
 
-  const handleImageUpload = async (file: File) => {
+  const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file');
       return;
     }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setCropperState({ isOpen: true, imageSrc: reader.result?.toString() || null, file });
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setCropperState({ isOpen: false, imageSrc: null, file: null });
     setUploadingImage(true);
     setError('');
     try {
@@ -228,13 +245,13 @@ export default function AdminNoticesPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Notices & Announcements</h1>
+            <h1 className="text-xl font-bold text-gray-900">Notices & Announcements</h1>
             <p className="text-gray-500 text-sm mt-1">{notices.length} notices total</p>
           </div>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
             >
               + Add Notice
             </button>
@@ -332,7 +349,7 @@ export default function AdminNoticesPage() {
                       <div className="text-xs text-primary-600 font-semibold mb-2 flex items-center gap-1.5">
                         <span>📎 Current Attachment:</span>
                         <a 
-                          href={`http://localhost:5002${form.pdfUrl}`} 
+                          href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:3003'}${form.pdfUrl}`} 
                           target="_blank" 
                           rel="noreferrer" 
                           className="underline hover:text-primary-800"
@@ -361,14 +378,14 @@ export default function AdminNoticesPage() {
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file);
+                        if (file) handleImageSelect(file);
                         e.target.value = '';
                       }}
                     />
                     {form.image ? (
                       <div className="relative rounded-xl overflow-hidden border border-gray-200 group w-full h-40">
                         <img
-                          src={form.image.startsWith('http') ? form.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000'}${form.image}`}
+                          src={form.image.startsWith('http') ? form.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:3003'}${form.image}`}
                           alt="Banner preview"
                           className="w-full h-full object-cover"
                         />
@@ -441,7 +458,7 @@ export default function AdminNoticesPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Title', 'Priority', 'Publish Date', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold text-gray-600">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -450,7 +467,7 @@ export default function AdminNoticesPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -465,22 +482,22 @@ export default function AdminNoticesPage() {
                 ) : (
                   notices.map((n) => (
                     <tr key={n.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{n.title}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-medium text-gray-900">{n.title}</td>
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs px-2 py-0.5 rounded border ${PRIORITY_COLORS[n.priority] || PRIORITY_COLORS.medium} capitalize`}>
                           {n.priority}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-2.5 text-gray-600">
                         {n.publishDate ? new Date(n.publishDate).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[n.status] || STATUS_COLORS.draft}`}>
                           {n.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button
                               onClick={() => openEdit(n)}
@@ -522,6 +539,13 @@ export default function AdminNoticesPage() {
       )}
 
       <ConfirmDialogModal dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
+      
+      <ImageCropperModal
+        isOpen={cropperState.isOpen}
+        imageSrc={cropperState.imageSrc}
+        onClose={() => setCropperState({ isOpen: false, imageSrc: null, file: null })}
+        onCropComplete={handleImageUpload}
+      />
     </DashboardLayout>
   );
 }

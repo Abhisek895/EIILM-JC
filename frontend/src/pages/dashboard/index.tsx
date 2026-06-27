@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentInquiries, setRecentInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -37,9 +38,19 @@ export default function DashboardPage() {
     }
 
     const role = user?.role;
-    const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.dashboard?.includes('read')) || role === 'faculty' || role === 'student';
+    const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.dashboard?.includes('read')) || role === 'student';
     if (!canRead) {
-      router.push('/dashboard');
+      // Find the first module they have access to
+      const perms = user?.permissions?.modules || {};
+      const firstModule = Object.keys(perms).find((key) => perms[key]?.includes('read'));
+      
+      if (firstModule && firstModule !== 'dashboard') {
+        router.push(`/dashboard/${firstModule}`);
+        return;
+      }
+
+      setAccessDenied(true);
+      setLoading(false);
       return;
     }
 
@@ -50,11 +61,11 @@ export default function DashboardPage() {
           dashboardApi.getRecentInquiries(5),
         ]);
 
-        if (statsResponse.success) {
+        if (statsResponse?.success) {
           setStats(statsResponse.data);
         }
 
-        if (inquiriesResponse.success) {
+        if (inquiriesResponse?.success) {
           setRecentInquiries(inquiriesResponse.data);
         }
       } catch (error) {
@@ -80,10 +91,17 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
 
         {loading ? (
           <div className="card">Loading dashboard...</div>
+        ) : accessDenied ? (
+          <div className="card text-center py-16 flex flex-col items-center justify-center">
+             <div className="text-5xl mb-4 opacity-80">🔒</div>
+             <h2 className="text-2xl font-bold text-gray-900 mb-2 tracking-tight">Access Restricted</h2>
+             <p className="text-gray-500 text-lg">You don't have permission to view the dashboard statistics.</p>
+             <p className="text-gray-400 mt-2 text-sm font-medium">Please use the sidebar menu to navigate to your authorized modules.</p>
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -101,10 +119,10 @@ export default function DashboardPage() {
                 <table className="w-full">
                   <thead className="border-b border-gray-200">
                     <tr>
-                      <th className="text-left py-2 px-4 font-semibold">Name</th>
-                      <th className="text-left py-2 px-4 font-semibold">Email</th>
-                      <th className="text-left py-2 px-4 font-semibold">Status</th>
-                      <th className="text-left py-2 px-4 font-semibold">Created</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">Name</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">Email</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">Status</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">Created</th>
                     </tr>
                   </thead>
                   <tbody>

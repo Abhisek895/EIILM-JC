@@ -18,4 +18,8 @@ router.post('/change-password/verify-otp', authenticateToken, (req, res) => auth
 // ── Account Setup ────────────────────────────────────────────────────────────
 router.post('/setup-password', (req, res) => authController.setupPassword(req, res));
 
+// ── Forgot Password ──────────────────────────────────────────────────────────
+router.post('/forgot-password/request-otp', (req, res) => authController.requestForgotPasswordOtp(req, res));
+router.post('/forgot-password/verify-otp', (req, res) => authController.verifyForgotPasswordOtp(req, res));
+
 export default router;

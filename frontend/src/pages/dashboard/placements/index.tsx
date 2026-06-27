@@ -4,6 +4,7 @@ import DashboardLayout from '@layouts/DashboardLayout';
 import { placementApi, mediaApi, courseApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
 import ConfirmDialogModal, { ConfirmDialogState } from '@components/admin/ConfirmDialogModal';
+import ImageCropperModal from '@components/admin/ImageCropperModal';
 
 type PlacementRecord = {
   id: number;
@@ -65,21 +66,49 @@ export default function AdminPlacementPage() {
   // Custom Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>(null);
 
+  // Image Cropper State
+  const [cropperState, setCropperState] = useState<{ isOpen: boolean; imageSrc: string | null; file: File | null; field: 'studentImage' | 'companyLogo' | null }>({
+    isOpen: false,
+    imageSrc: null,
+    file: null,
+    field: null,
+  });
+
+  // Media Gallery Modal State
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [galleryField, setGalleryField] = useState<'studentImage' | 'companyLogo' | null>(null);
+
+  const openMediaGallery = async (field: 'studentImage' | 'companyLogo') => {
+    setGalleryField(field);
+    setShowMediaGallery(true);
+    setLoadingMedia(true);
+    try {
+      const res: any = await mediaApi.getAll(1, 100);
+      setMediaItems(res?.data || []);
+    } catch (err) {
+      setError('Failed to load media gallery');
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
   useEffect(() => {
     if (isHydrated) {
       if (!isAuthenticated) {
         router.push('/auth/login');
       } else {
         const role = user?.role;
-        const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.placements?.includes('read'));
+        const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('read'));
         if (!canRead) router.push('/dashboard');
       }
     }
   }, [isHydrated, isAuthenticated, user, router]);
 
   const role = user?.role;
-  const canWrite = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.placements?.includes('write'));
-  const canDelete = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.placements?.includes('delete'));
+  const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('write'));
+  const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('delete'));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -152,11 +181,23 @@ export default function AdminPlacementPage() {
     }
   };
 
-  const handleImageUpload = async (file: File, field: 'studentImage' | 'companyLogo') => {
+  const handleImageSelect = (file: File, field: 'studentImage' | 'companyLogo') => {
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file');
       return;
     }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setCropperState({ isOpen: true, imageSrc: reader.result?.toString() || null, file, field });
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    const field = cropperState.field;
+    setCropperState({ isOpen: false, imageSrc: null, file: null, field: null });
+    if (!field) return;
+    
     setUploadingImage(true);
     setError('');
     try {
@@ -204,13 +245,13 @@ export default function AdminPlacementPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Placement Records</h1>
+            <h1 className="text-xl font-bold text-gray-900">Placement Records</h1>
             <p className="text-gray-500 text-sm mt-1">{placements.length} records total</p>
           </div>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
             >
               + Add Placement
             </button>
@@ -317,7 +358,7 @@ export default function AdminPlacementPage() {
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, 'studentImage');
+                        if (file) handleImageSelect(file, 'studentImage');
                         e.target.value = '';
                       }}
                     />
@@ -328,35 +369,45 @@ export default function AdminPlacementPage() {
                           alt="Student"
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                           <button
                             type="button"
                             onClick={() => imageInputRef.current?.click()}
                             disabled={uploadingImage}
-                            className="bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100"
+                            className="bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100 w-24"
                           >
-                            Replace
+                            Upload New
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openMediaGallery('studentImage')}
+                            className="bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-primary-600 w-24"
+                          >
+                            Gallery
                           </button>
                           <button
                             type="button"
                             onClick={() => setForm((prev) => ({ ...prev, studentImage: '' }))}
-                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-red-600"
+                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-red-600 w-24"
                           >
                             Remove
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div
-                        className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 h-32 flex flex-col items-center justify-center"
-                        onClick={() => imageInputRef.current?.click()}
-                      >
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center h-32 flex flex-col items-center justify-center">
                         {uploadingImage ? (
                           <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <span className="text-xl">📸</span>
+                          <div className="flex flex-col gap-2 w-full px-2">
+                            <button type="button" onClick={() => imageInputRef.current?.click()} className="w-full bg-primary-100 text-primary-700 hover:bg-primary-200 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              Upload New
+                            </button>
+                            <button type="button" onClick={() => openMediaGallery('studentImage')} className="w-full bg-gray-100 text-gray-700 hover:bg-gray-200 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              Browse Gallery
+                            </button>
+                          </div>
                         )}
-                        <p className="text-xs text-gray-500 mt-1">Upload Photo</p>
                       </div>
                     )}
                   </div>
@@ -371,7 +422,7 @@ export default function AdminPlacementPage() {
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, 'companyLogo');
+                        if (file) handleImageSelect(file, 'companyLogo');
                         e.target.value = '';
                       }}
                     />
@@ -382,35 +433,45 @@ export default function AdminPlacementPage() {
                           alt="Company Logo"
                           className="w-full h-full object-contain"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                           <button
                             type="button"
                             onClick={() => logoInputRef.current?.click()}
                             disabled={uploadingImage}
-                            className="bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100"
+                            className="bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100 w-24"
                           >
-                            Replace
+                            Upload New
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openMediaGallery('companyLogo')}
+                            className="bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-primary-600 w-24"
+                          >
+                            Gallery
                           </button>
                           <button
                             type="button"
                             onClick={() => setForm((prev) => ({ ...prev, companyLogo: '' }))}
-                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-red-600"
+                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded hover:bg-red-600 w-24"
                           >
                             Remove
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div
-                        className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 h-32 flex flex-col items-center justify-center bg-gray-50"
-                        onClick={() => logoInputRef.current?.click()}
-                      >
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center h-32 flex flex-col items-center justify-center bg-gray-50">
                         {uploadingImage ? (
                           <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <span className="text-xl">🏢</span>
+                          <div className="flex flex-col gap-2 w-full px-2">
+                            <button type="button" onClick={() => logoInputRef.current?.click()} className="w-full bg-primary-100 text-primary-700 hover:bg-primary-200 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              Upload New
+                            </button>
+                            <button type="button" onClick={() => openMediaGallery('companyLogo')} className="w-full bg-gray-100 text-gray-700 hover:bg-gray-200 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              Browse Gallery
+                            </button>
+                          </div>
                         )}
-                        <p className="text-xs text-gray-500 mt-1">Upload Logo</p>
                       </div>
                     )}
                   </div>
@@ -443,7 +504,7 @@ export default function AdminPlacementPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Type', 'Student', 'Company', 'Package', 'Course', 'Year', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold text-gray-600">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -452,7 +513,7 @@ export default function AdminPlacementPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 7 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -467,23 +528,23 @@ export default function AdminPlacementPage() {
                 ) : (
                   placements.map((p) => (
                     <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded border ${p.placementType === 'internship' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-primary-50 text-primary-600 border-primary-200'}`}>
                           {p.placementType === 'internship' ? 'Internship' : 'Placement'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-medium text-gray-900">{p.studentName}</td>
-                      <td className="px-4 py-3 text-gray-600">{p.companyName}</td>
-                      <td className="px-4 py-3 text-gray-900 font-semibold">{p.package}</td>
-                      <td className="px-4 py-3 text-gray-600">{p.course || '—'}</td>
-                      <td className="px-4 py-3 text-gray-600">{p.year}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-medium text-gray-900">{p.studentName}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{p.companyName}</td>
+                      <td className="px-4 py-2.5 text-gray-900 font-semibold">{p.package}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{p.course || '—'}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{p.year}</td>
+                      <td className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[p.status] || STATUS_COLORS.published}`}>
                           {p.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button
                               onClick={() => openEdit(p)}
@@ -524,7 +585,76 @@ export default function AdminPlacementPage() {
         </div>
       )}
 
+      {/* Media Gallery Picker Modal */}
+      {showMediaGallery && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowMediaGallery(false)} />
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col animate-scaleUp">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-3xl">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Media Gallery</h2>
+                <p className="text-xs text-gray-500 mt-1">Select an image from your library.</p>
+              </div>
+              <button onClick={() => setShowMediaGallery(false)} className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full text-gray-600 shadow-sm border border-gray-200">✕</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
+              {loadingMedia ? (
+                <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                  <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="font-bold">Loading media...</p>
+                </div>
+              ) : mediaItems.filter(item => item.fileType?.includes('image')).length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-5xl mb-4">🖼️</div>
+                  <h3 className="text-lg font-bold text-gray-800">No images found</h3>
+                  <p className="text-sm text-gray-500 mt-1">Upload images via the Media dashboard first.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {mediaItems.filter(item => item.fileType?.includes('image')).map(item => (
+                    <div 
+                      key={item.id} 
+                      onClick={() => {
+                        if (galleryField) {
+                          const imageUrl = item.fileUrl.startsWith('http') ? item.fileUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000'}${item.fileUrl}`;
+                          setCropperState({ isOpen: true, imageSrc: imageUrl, file: null, field: galleryField });
+                        }
+                        setShowMediaGallery(false);
+                      }}
+                      className="group cursor-pointer bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-500 transition-all flex flex-col h-40"
+                    >
+                      <div className="flex-1 bg-gray-100 overflow-hidden relative">
+                        <img src={item.fileUrl.startsWith('http') ? item.fileUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000'}${item.fileUrl}`} alt={item.fileName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="bg-white text-primary-700 text-xs font-bold px-3 py-1 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">Select</span>
+                        </div>
+                      </div>
+                      <div className="p-2 truncate text-[10px] font-bold text-gray-600 text-center border-t border-gray-100 bg-gray-50 group-hover:bg-primary-50 group-hover:text-primary-700 transition-colors">
+                        {item.fileName}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 bg-white rounded-b-3xl flex justify-end">
+              <button onClick={() => setShowMediaGallery(false)} className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors text-sm">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialogModal dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
+      
+      <ImageCropperModal
+        isOpen={cropperState.isOpen}
+        imageSrc={cropperState.imageSrc}
+        aspectRatio={cropperState.field === 'studentImage' ? 1 : undefined} // 1:1 for student photo, free for company logo
+        onClose={() => setCropperState({ isOpen: false, imageSrc: null, file: null, field: null })}
+        onCropComplete={handleImageUpload}
+      />
     </DashboardLayout>
   );
 }

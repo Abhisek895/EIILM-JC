@@ -4,7 +4,7 @@ import { courseApi, siteSettingsApi } from '@api/endpoints';
 import Link from 'next/link';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
-import { GraduationCap, Landmark, ScrollText, Award, Clock, ClipboardCheck, IndianRupee, BookOpen } from 'lucide-react';
+import { GraduationCap, Landmark, ScrollText, Award, Clock, ClipboardCheck, IndianRupee, BookOpen, ArrowRight } from 'lucide-react';
 import { getImageUrl } from '@utils/getImageUrl';
 
 type Course = {
@@ -84,7 +84,13 @@ export default function CoursesPage() {
         fallbackSubheading={siteSettings.courses_hero_subheading || 'Discover world-class programmes designed to shape your future and open doors to global opportunities.'}
       />
 
-      <div className="container mx-auto px-6 py-12">
+      <div className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 pt-16 md:pt-20 lg:pt-24 pb-20 bg-gray-50/50 min-h-screen relative z-20 -mt-10 md:-mt-16 lg:-mt-20 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-12px_40px_rgb(0,0,0,0.06)]">
+        <div className="max-w-7xl mx-auto">
+          {/* Section header */}
+          <FadeIn className="text-center mb-12 md:mb-16">
+            <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-primary-600 mb-3 md:mb-4">Academic Excellence</p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight">Our Programmes</h2>
+          </FadeIn>
         {/* Filter Tabs */}
         {!loading && courses.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-10 justify-center">
@@ -142,109 +148,91 @@ export default function CoursesPage() {
               return (
                 <FadeIn delay={idx * 0.1} key={course.id} className="h-full">
                   <div
-                    className="bg-white rounded-[1.5rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 border border-gray-100/80 group flex flex-col h-full transform hover:-translate-y-1"
+                    className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
                   >
-                    {/* Image / Gradient placeholder */}
-                    <Link href={`/courses/${course.id}`} className="relative h-56 overflow-hidden bg-gray-50 block flex-shrink-0">
+                    <Link href={`/courses/${course.id}`} className="relative block h-40 sm:h-56 overflow-hidden flex-shrink-0">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {course.banner ? (
                         <img
                           src={getImageUrl(course.banner)}
                           alt={course.courseName}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white"><div class="text-white opacity-80"><svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a2 2 0 0 0-.019-3.838L12.83 4.33a2 2 0 0 0-1.66 0L2.6 7.08a2 2 0 0 0 0 3.832l8.57 3.75a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></div></div>`;
-                            }
-                          }}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
-                        <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white group-hover:scale-105 transition-transform duration-700 ease-out`}>
-                          <Icon size={72} className="opacity-90 drop-shadow-md" />
+                        <div className="absolute inset-0 flex items-center justify-center text-white/90">
+                          <Icon size={72} className="drop-shadow-md" />
                         </div>
                       )}
-
-                      {/* Type badge overlay */}
-                      <div className="absolute top-4 left-4 z-10">
-                        <span className={`text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md bg-white/95 text-gray-900 shadow-sm uppercase tracking-wider`}>
+                      <div className="absolute inset-0 bg-slate-950/20" />
+                      <div className="absolute left-4 top-4 z-10">
+                        <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${badgeClass} shadow-sm`}>
                           {course.courseType}
                         </span>
                       </div>
-
-                      {/* Course Code Badge inside image bottom-right */}
                       {course.courseCode && (
                         <div className="absolute bottom-4 right-4 z-10">
-                          <span className="bg-gray-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm uppercase tracking-wider">
+                          <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur">
                             {course.courseCode}
                           </span>
                         </div>
                       )}
                     </Link>
 
-                    {/* Card body */}
-                    <div className="p-7 flex flex-col flex-grow bg-white relative">
-
-                      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 leading-snug group-hover:text-primary-600 transition-colors duration-300 line-clamp-2 min-h-[3.5rem]">
+                    <div className="flex flex-1 flex-col p-4 sm:p-7">
+                      <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                        Student spotlight
+                      </p>
+                      <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700">
                         {course.courseName}
-                      </h2>
+                      </h3>
 
-                      {/* Specialization Wrapper (Fixed height to align grids) */}
-                      <div className="min-h-[28px] mb-5">
+                      <div className="mt-2 sm:mt-3 mb-2 sm:mb-0">
                         {course.specialization && (
-                          <span className="inline-block text-xs font-bold text-primary-700 bg-primary-50 border border-primary-100 px-3 py-1.5 rounded-full uppercase tracking-wider">
+                          <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
                             {course.specialization}
                           </span>
                         )}
                       </div>
 
-                      {/* Meta Grid */}
-                      {(course.duration || course.eligibility) && (
-                        <div className="grid grid-cols-2 gap-3 mb-5 p-4 bg-gray-50 rounded-xl border border-gray-100/60 min-h-[60px]">
-                          {course.duration && (
-                            <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
-                              <Clock size={16} className="text-primary-500 flex-shrink-0" />
-                              <span className="truncate">{course.duration}</span>
-                            </div>
-                          )}
-                          {course.eligibility && (
-                            <div className="flex items-center gap-2 text-sm text-gray-700 font-medium" title={course.eligibility}>
-                              <ClipboardCheck size={16} className="text-primary-500 flex-shrink-0" />
-                              <span className="truncate">{course.eligibility}</span>
-                            </div>
-                          )}
+                      <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
+                          <Clock size={16} className="shrink-0 text-primary-500" />
+                          <span className="truncate">{course.duration || 'Duration TBA'}</span>
                         </div>
-                      )}
-
-                      <div className="flex-grow">
-                        <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-0 break-words">
-                          {course.description || 'Details will be updated soon.'}
-                        </p>
+                        <div
+                          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
+                          title={course.eligibility || ''}
+                        >
+                          <ClipboardCheck size={16} className="shrink-0 text-primary-500" />
+                          <span className="truncate">{course.eligibility || 'Eligibility TBA'}</span>
+                        </div>
                       </div>
 
-                      {/* Footer: Fees & CTA */}
-                      <div className="mt-6 pt-5 border-t border-gray-100 flex items-center justify-between">
+                      <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500 line-clamp-3 break-words">
+                        {course.description || 'Programme details will be updated soon.'}
+                      </p>
+
+                      <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
                         <div>
-                          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Program Fee</p>
-                          {course.showFees !== false ? (
-                            course.fees ? (
-                              <div className="text-lg font-bold text-gray-900 flex items-center gap-0.5">
-                                <IndianRupee size={16} className="text-gray-900" />
-                                {!isNaN(Number(course.fees)) ? Number(course.fees).toLocaleString('en-IN') : course.fees}
-                              </div>
-                            ) : (
-                              <div className="text-sm font-semibold text-gray-500">TBA</div>
-                            )
+                          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            Program Fee
+                          </p>
+                          {course.showFees === false ? (
+                            <div className="text-sm font-semibold text-gray-500">Contact for fees</div>
+                          ) : course.fees ? (
+                            <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
+                              <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
+                              <span className="truncate">{!isNaN(Number(course.fees)) ? Number(course.fees).toLocaleString('en-IN') : course.fees}</span>
+                            </div>
                           ) : (
-                            <div className="text-sm font-semibold text-gray-500">Contact for Fees</div>
+                            <div className="text-sm font-semibold text-gray-500">TBA</div>
                           )}
                         </div>
                         <Link
                           href={`/courses/${course.id}`}
-                          className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                          className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-primary-600 px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg whitespace-nowrap"
                         >
-                          View <span className="hidden sm:inline">Details</span> →
+                          View Details <ArrowRight size={16} className="flex-shrink-0" />
                         </Link>
                       </div>
                     </div>
@@ -255,6 +243,7 @@ export default function CoursesPage() {
           </div>
         )}
 
+        </div>
       </div>
 
       {/* Stats footer (Full Width) */}

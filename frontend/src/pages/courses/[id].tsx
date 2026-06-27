@@ -199,7 +199,7 @@ export default function CourseDetailsPage() {
               <div className="md:w-1/3 flex-shrink-0">
                 <div className="sticky top-24">
                   <div className="w-16 h-2 bg-primary-600 rounded-full mb-6"></div>
-                  <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+                  <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 md:mb-6 leading-tight">
                     About the <br />
                     <span className="text-primary-600">Programme</span>
                   </h2>
@@ -236,7 +236,7 @@ export default function CourseDetailsPage() {
                       <BookOpen className="text-primary-600" size={40} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 tracking-tight">
+                      <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 md:mb-3 tracking-tight">
                         Official Curriculum
                       </h2>
                       <p className="text-gray-500 text-lg max-w-md">
@@ -246,10 +246,8 @@ export default function CourseDetailsPage() {
                   </div>
 
                   <div className="flex-shrink-0">
-                    <a
-                      href={getImageUrl(course.syllabus)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href={`/admissions?intent=syllabus&course=${course.id}`}
                       className="group/btn relative inline-flex items-center justify-center px-10 py-5 font-bold text-white transition-all duration-300 bg-gray-900 rounded-2xl hover:bg-primary-600 overflow-hidden shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_30px_rgba(var(--color-primary-600),0.4)]"
                     >
                       <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover/btn:w-56 group-hover/btn:h-56 opacity-10"></span>
@@ -257,7 +255,7 @@ export default function CourseDetailsPage() {
                         <Download strokeWidth={2.5} size={22} className="group-hover/btn:-translate-y-1 group-hover/btn:scale-110 transition-transform duration-300" />
                         Get Syllabus PDF
                       </span>
-                    </a>
+                    </Link>
                   </div>
 
                 </div>
@@ -279,7 +277,7 @@ export default function CourseDetailsPage() {
             <GraduationCap size={40} className="text-white" strokeWidth={1.5} />
           </div>
 
-          <h2 className="text-5xl md:text-7xl font-black mb-8 leading-[1.1] tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white md:mb-8 leading-[1.1] tracking-tight">
             Your Future <br /> Starts Here.
           </h2>
 

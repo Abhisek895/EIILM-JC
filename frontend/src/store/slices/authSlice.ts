@@ -29,6 +29,44 @@ const initialState: AuthState = {
   isHydrated: false,
 };
 
+const injectLegacyPermissions = (user: User | null): User | null => {
+  if (!user) return null;
+  
+  // Apply legacy fallback only to 'admin' role if modules are missing
+  if (user.role === 'admin' && (!user.permissions || !user.permissions.modules)) {
+    return {
+      ...user,
+      permissions: {
+        ...(user.permissions || {}),
+        modules: {
+          dashboard: ['read', 'write', 'delete'],
+          inquiries: ['read', 'write', 'delete'],
+          notices: ['read', 'write', 'delete'],
+          events: ['read', 'write', 'delete'],
+          media: ['read', 'write', 'delete'],
+          users: ['read', 'write', 'delete'],
+        },
+      },
+    };
+  }
+
+  // Apply fallback for 'faculty' role if modules are missing
+  if (user.role === 'faculty' && (!user.permissions || !user.permissions.modules)) {
+    return {
+      ...user,
+      permissions: {
+        ...(user.permissions || {}),
+        modules: {
+          dashboard: ['read'],
+          inquiries: ['read'],
+        },
+      },
+    };
+  }
+
+  return user;
+};
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -42,7 +80,7 @@ const authSlice = createSlice({
       action: PayloadAction<{ user: User; token: string; refreshToken: string }>
     ) => {
       state.isLoading = false;
-      state.user = action.payload.user;
+      state.user = injectLegacyPermissions(action.payload.user);
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
@@ -68,7 +106,7 @@ const authSlice = createSlice({
         refreshToken: string | null;
       }>
     ) => {
-      state.user = action.payload.user;
+      state.user = injectLegacyPermissions(action.payload.user);
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = Boolean(action.payload.token);

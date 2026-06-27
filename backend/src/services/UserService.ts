@@ -78,6 +78,10 @@ export class UserService {
     });
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    return this.userRepo.findByEmail(email.toLowerCase().trim());
+  }
+
   async updateUser(
     userId: number,
     data: {

@@ -116,13 +116,6 @@ export const authorizePermission = (moduleName: string, action: 'read' | 'write'
       return;
     }
 
-    // Faculty inherently has read access to dashboard and inquiries
-    if (req.user.role === 'faculty') {
-      if ((moduleName === 'dashboard' || moduleName === 'inquiries') && action === 'read') {
-        return next();
-      }
-    }
-
     // canManageRbac inherently grants read/write/delete access to the users module
     if (moduleName === 'users' && perms.canManageRbac) {
       return next();

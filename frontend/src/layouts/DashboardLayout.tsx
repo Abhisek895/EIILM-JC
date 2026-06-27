@@ -42,12 +42,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         if (data?.college_name) {
           setCollegeName(data.college_name);
         } else {
-          setCollegeName('College ERP');
+          setCollegeName('');
         }
         if (data?.logo) setLogo(data.logo);
       })
       .catch(() => {
-        setCollegeName('College ERP');
+        setCollegeName('');
       });
   }, []);
 
@@ -63,6 +63,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     { label: 'Media & CMS', href: '/dashboard/media', icon: '🖼️' },
     { label: 'Users & Roles', href: '/dashboard/users', icon: '👥' },
     { label: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
+    { label: 'AI Chatbot', href: '/dashboard/chatbot', icon: '🤖' },
     { label: 'Analytics', href: '/dashboard/analytics', icon: '📈' },
   ];
 
@@ -73,11 +74,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   };
 
   return (
-    <div className="flex h-screen bg-gray-100/60 font-sans">
+    <div className="flex w-full bg-gray-100/60 font-sans">
       {/* Sidebar aside */}
       <aside
-        className={`${sidebarOpen ? 'w-64' : 'w-20'
-          } bg-slate-900 text-white transition-all duration-300 fixed h-screen overflow-y-auto flex flex-col z-20 shadow-xl border-r border-slate-800`}
+        className={`${sidebarOpen ? 'w-56' : 'w-16'
+          } bg-slate-900 text-white transition-all duration-300 fixed h-screen flex flex-col z-20 shadow-xl border-r border-slate-800`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-800 flex items-center justify-between min-h-[70px]">
@@ -99,25 +100,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 )}
               </>
             ) : (
-              <div className="w-full h-9 bg-slate-800 rounded-lg animate-pulse" />
+              <div className="w-full h-8 bg-slate-800 rounded-lg animate-pulse" />
             )}
           </div>
         </div>
 
         {/* Navigation list */}
-        <nav className="p-4 space-y-1.5 flex-1">
+        <nav className="p-3 space-y-1 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {menuItems
             .filter((item) => {
               const role = user?.role || 'student';
               if (role === 'super_admin') return true;
-              
-              if (role === 'faculty') {
-                return ['/dashboard', '/dashboard/inquiries'].includes(item.href);
-              }
-              
-              if (role === 'admin') {
+
+              if (role === 'admin' || role === 'faculty') {
                 const perms = user?.permissions?.modules || {};
-                
+
                 // Map href to module name
                 const map: Record<string, string> = {
                   '/dashboard': 'dashboard',
@@ -131,15 +128,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   '/dashboard/media': 'media',
                   '/dashboard/users': 'users',
                   '/dashboard/settings': 'settings',
+                  '/dashboard/chatbot': 'dashboard', // anyone with dashboard can access chatbot basics
                   '/dashboard/analytics': 'dashboard', // dashboard read gives analytics access
                 };
-                
+
                 const moduleName = map[item.href];
                 if (!moduleName) return false;
-                
+
                 return perms[moduleName]?.includes('read') || false;
               }
-              
+
               return false;
             })
             .map((item) => {
@@ -148,14 +146,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-250 border ${
-                    isActive
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-250 border ${isActive
                       ? 'bg-primary-600 border-primary-500 text-white shadow-md shadow-primary-500/20 font-bold scale-[1.02]'
                       : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <span className="text-base shrink-0">{item.icon}</span>
-                  {sidebarOpen && <span className="text-sm tracking-tight">{item.label}</span>}
+                  {sidebarOpen && <span className="text-xs font-semibold tracking-tight">{item.label}</span>}
                 </Link>
               );
             })}
@@ -179,19 +176,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           {/* Dynamic Logout trigger button */}
           <button
             onClick={() => setShowLogoutModal(true)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-primary-400 hover:text-white hover:bg-primary-600 hover:shadow-lg hover:shadow-primary-600/10 transition-all font-bold cursor-pointer ${!sidebarOpen && 'justify-center'
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-transparent text-primary-400 hover:text-white hover:bg-primary-600 hover:shadow-lg hover:shadow-primary-600/10 transition-all font-bold cursor-pointer ${!sidebarOpen && 'justify-center'
               }`}
           >
             <span className="text-base shrink-0">🚪</span>
-            {sidebarOpen && <span className="text-sm">Logout Session</span>}
+            {sidebarOpen && <span className="text-xs">Logout Session</span>}
           </button>
         </div>
       </aside>
 
       {/* Main body panel */}
-      <div className={`${sidebarOpen ? 'ml-64' : 'ml-20'} flex-1 flex flex-col transition-all duration-300 min-h-screen`}>
+      <div className={`${sidebarOpen ? 'ml-56' : 'ml-16'} flex-1 flex flex-col transition-all duration-300 min-h-screen`}>
         {/* Top Header navbar */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 p-4 flex items-center justify-between sticky top-0 z-10 min-h-[70px]">
+        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 py-1.5 px-4 flex items-center justify-between sticky top-0 z-10 min-h-[48px]">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -202,9 +199,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="hidden sm:block text-xs font-bold uppercase tracking-wider text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200/40">
-              Environment: Production-ready SaaS
-            </div>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -225,7 +219,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         </header>
 
         {/* Dashboard inner content */}
-        <main className="flex-1 overflow-auto p-6 lg:p-8 bg-gray-50/50">{children}</main>
+        <main className="flex-1 overflow-auto px-3 lg:px-5 pt-4 pb-8 bg-gray-50/50">{children}</main>
       </div>
 
       {/* Premium Glassmorphic Logout Confirmation Modal */}

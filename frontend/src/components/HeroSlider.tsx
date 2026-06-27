@@ -6,12 +6,14 @@ import { getImageUrl } from '@utils/getImageUrl';
 
 interface HeroSliderProps {
   pageKey: string;
-  fallbackTagline: string;
-  fallbackHeading: string;
-  fallbackSubheading: string;
+  fallbackTagline?: string;
+  fallbackHeading?: string;
+  fallbackSubheading?: string;
+  initialSlides?: any[];
+  hideTextOnMobile?: boolean;
 }
 
-export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, fallbackSubheading }: HeroSliderProps) {
+export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, fallbackSubheading, hideTextOnMobile }: HeroSliderProps) {
   const [slides, setSlides] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -55,21 +57,7 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
 
   // Fallback if no dynamic slides are configured for this page
   if (slides.length === 0) {
-    return (
-      <div className="bg-gradient-to-br from-primary-700 via-primary-600 to-indigo-700 text-white py-16 md:py-24 transition-all duration-700">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-200 mb-3 animate-fadeIn">
-            {fallbackTagline}
-          </p>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 animate-slideUp">
-            {fallbackHeading}
-          </h1>
-          <p className="text-lg text-primary-100 max-w-2xl mx-auto animate-slideUp" style={{ animationDelay: '0.1s' }}>
-            {fallbackSubheading}
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const activeSlide = slides[currentSlide];
@@ -217,7 +205,7 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
         ))}
       </div>
 
-      <div className="container relative mx-auto px-6 text-center z-10 transition-all duration-700">
+      <div className={`container relative mx-auto px-6 text-center z-10 transition-all duration-700 ${hideTextOnMobile ? 'hidden sm:block' : ''}`}>
         {activeSlide.badge && (
           <p className="text-sm font-bold uppercase tracking-widest text-primary-200 mb-3 animate-fadeIn">
             {activeSlide.badge}

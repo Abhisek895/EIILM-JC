@@ -10,7 +10,21 @@ export default function HomeSliderManager() {
   const [slides, setSlides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [pageKey, setPageKey] = useState<string>('home');
   const [toast, setToast] = useState<{ visible: boolean; title: string; message: string; type: 'success' | 'error' } | null>(null);
+
+  const PAGE_OPTIONS = [
+    { value: 'home', label: 'Homepage Slider', icon: '🏠' },
+    { value: 'courses', label: 'Courses Page', icon: '📚' },
+    { value: 'departments', label: 'Departments Page', icon: '🏢' },
+    { value: 'faculty', label: 'Faculty Page', icon: '👨‍🏫' },
+    { value: 'placements', label: 'Placements Page', icon: '🏆' },
+    { value: 'infrastructure', label: 'Infrastructure Page', icon: '🏛️' },
+    { value: 'notices', label: 'Notices & Circulars', icon: '📢' },
+    { value: 'events', label: 'Events Page', icon: '📅' },
+    { value: 'about', label: 'About Us Page', icon: 'ℹ️' },
+    { value: 'contact', label: 'Contact Us Page', icon: '📞' },
+  ];
   
   // Custom Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{ visible: boolean; title: string; message: string; onConfirm: () => void; type?: 'danger' | 'warning' | 'info' } | null>(null);
@@ -41,12 +55,12 @@ export default function HomeSliderManager() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [pageKey]);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const res: any = await cmsApi.getPageSections('home');
+      const res: any = await cmsApi.getPageSections(pageKey);
       const sections = res?.data || [];
       const heroSection = sections.find((s: any) => s.sectionKey === 'hero');
 
@@ -71,11 +85,11 @@ export default function HomeSliderManager() {
     try {
       setSaving(true);
       await cmsApi.upsertSection({
-        pageKey: 'home',
+        pageKey: pageKey,
         sectionKey: 'hero',
         config: { slides: newSlides },
       });
-      showToast('Saved Successfully', 'Homepage slider has been updated.');
+      showToast('Saved Successfully', `${PAGE_OPTIONS.find(p => p.value === pageKey)?.label} slider has been updated.`);
     } catch (error) {
       showToast('Save Failed', 'Failed to update the slider.', 'error');
     } finally {
@@ -173,10 +187,28 @@ export default function HomeSliderManager() {
   return (
     <div className="space-y-6 animate-in fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Homepage Slider</h2>
-          <p className="text-gray-500 text-sm mt-1">
-            Manage the auto-swiping hero images and text on the main landing page.
+        <div className="flex-1">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Banner Slider Manager</h2>
+            <div className="relative inline-block min-w-[240px]">
+              <select
+                className="w-full appearance-none bg-white border-2 border-primary-100 hover:border-primary-300 text-primary-800 font-bold px-4 py-2.5 rounded-xl pr-10 focus:outline-none focus:ring-4 focus:ring-primary-500/20 cursor-pointer transition-all shadow-sm"
+                value={pageKey}
+                onChange={(e) => setPageKey(e.target.value)}
+              >
+                {PAGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.icon} {opt.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-primary-600">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-500 text-sm mt-2">
+            Manage the auto-swiping hero images and text on the {PAGE_OPTIONS.find(p => p.value === pageKey)?.label}.
           </p>
         </div>
         {isDev && (

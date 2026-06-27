@@ -5,6 +5,7 @@ import { courseApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
 import ConfirmDialogModal, { ConfirmDialogState } from '@components/admin/ConfirmDialogModal';
 import { getImageUrl } from '@utils/getImageUrl';
+import ImageCropperModal from '@components/admin/ImageCropperModal';
 
 type Course = {
   id: number;
@@ -65,21 +66,46 @@ export default function AdminCoursesPage() {
   // Custom Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>(null);
 
+  // Image Cropper State
+  const [cropperState, setCropperState] = useState<{ isOpen: boolean; imageSrc: string | null; file: File | null }>({
+    isOpen: false,
+    imageSrc: null,
+    file: null,
+  });
+
+  // Media Gallery Modal State
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+
+  const openMediaGallery = async () => {
+    setShowMediaGallery(true);
+    setLoadingMedia(true);
+    try {
+      const res: any = await mediaApi.getAll(1, 100);
+      setMediaItems(res?.data || []);
+    } catch (err) {
+      setError('Failed to load media gallery');
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
   useEffect(() => {
     if (isHydrated) {
       if (!isAuthenticated) {
         router.push('/auth/login');
       } else {
         const role = user?.role;
-        const canRead = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.courses?.includes('read'));
+        const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.courses?.includes('read'));
         if (!canRead) router.push('/dashboard');
       }
     }
   }, [isHydrated, isAuthenticated, user, router]);
 
   const role = user?.role;
-  const canWrite = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.courses?.includes('write'));
-  const canDelete = role === 'super_admin' || (role === 'admin' && user?.permissions?.modules?.courses?.includes('delete'));
+  const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.courses?.includes('write'));
+  const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.courses?.includes('delete'));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -133,7 +159,7 @@ export default function AdminCoursesPage() {
     }
   };
 
-  const handleBannerUpload = async (file: File) => {
+  const handleBannerSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
       setError('Please select an image file (JPG, PNG, GIF, WebP, etc.)');
       return;
@@ -142,6 +168,15 @@ export default function AdminCoursesPage() {
       setError('Image must be smaller than 10MB.');
       return;
     }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setCropperState({ isOpen: true, imageSrc: reader.result?.toString() || null, file });
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleBannerUpload = async (file: File) => {
+    setCropperState({ isOpen: false, imageSrc: null, file: null });
     setUploading(true);
     setError('');
     try {
@@ -217,13 +252,13 @@ export default function AdminCoursesPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
+            <h1 className="text-xl font-bold text-gray-900">Courses</h1>
             <p className="text-gray-500 text-sm mt-1">{courses.length} courses total</p>
           </div>
           {canWrite && (
             <button
               onClick={openCreate}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
             >
               + Add Course
             </button>
@@ -347,7 +382,7 @@ export default function AdminCoursesPage() {
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleBannerUpload(file);
+                        if (file) handleBannerSelect(file);
                         e.target.value = '';
                       }}
                     />
@@ -362,59 +397,53 @@ export default function AdminCoursesPage() {
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                         {/* Hover overlay with actions */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                           <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="bg-white text-gray-800 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1.5"
+                            className="bg-white text-gray-800 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors w-32 flex justify-center items-center gap-1.5"
                           >
                             {uploading ? (
                               <><span className="w-3 h-3 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />Uploading...</>
                             ) : (
-                              <>📁 Replace</>
+                              <>📁 Upload New</>
                             )}
                           </button>
                           <button
                             type="button"
+                            onClick={openMediaGallery}
+                            className="bg-primary-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors w-32"
+                          >
+                            🖼️ Gallery
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setForm((prev) => ({ ...prev, banner: '' }))}
-                            className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors"
+                            className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors w-32"
                           >
                             🗑️ Remove
                           </button>
                         </div>
                       </div>
                     ) : (
-                      /* Drag-and-drop upload zone */
-                      <div
-                        className={`border-2 border-dashed rounded-xl p-6 h-40 text-center cursor-pointer transition-all flex flex-col justify-center items-center ${
-                          dragOver
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-300 bg-gray-50 hover:border-primary-400 hover:bg-primary-50/50'
-                        }`}
-                        onClick={() => fileInputRef.current?.click()}
-                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                        onDragLeave={() => setDragOver(false)}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          setDragOver(false);
-                          const file = e.dataTransfer.files?.[0];
-                          if (file) handleBannerUpload(file);
-                        }}
-                      >
+                      /* Upload zone */
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center h-40 flex flex-col items-center justify-center bg-gray-50">
                         {uploading ? (
                           <div className="flex flex-col items-center gap-2">
                             <div className="w-8 h-8 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
                             <p className="text-sm font-medium text-primary-600">Uploading image...</p>
                           </div>
                         ) : (
-                          <>
-                            <div className="text-3xl mb-2">🖼️</div>
-                            <p className="text-sm font-semibold text-gray-700">
-                              Click to upload
-                            </p>
+                          <div className="flex flex-col gap-2 w-full px-2">
+                            <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full bg-primary-100 text-primary-700 hover:bg-primary-200 py-2 rounded-lg text-sm font-bold transition-colors flex justify-center items-center gap-2">
+                              📁 Upload New Banner
+                            </button>
+                            <button type="button" onClick={openMediaGallery} className="w-full bg-gray-100 text-gray-700 hover:bg-gray-200 py-2 rounded-lg text-sm font-bold transition-colors flex justify-center items-center gap-2">
+                              🖼️ Browse Gallery
+                            </button>
                             <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WebP — max 10MB</p>
-                          </>
+                          </div>
                         )}
                       </div>
                     )}
@@ -525,7 +554,7 @@ export default function AdminCoursesPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Course Name', 'Code', 'Type', 'Duration', 'Specialization', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold text-gray-600">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -534,7 +563,7 @@ export default function AdminCoursesPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 7 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
+                        <td key={j} className="px-4 py-2.5">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -549,18 +578,18 @@ export default function AdminCoursesPage() {
                 ) : (
                   courses.map((c) => (
                     <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{c.courseName}</td>
-                      <td className="px-4 py-3 text-gray-600">{c.courseCode || '—'}</td>
-                      <td className="px-4 py-3 text-gray-600">{c.courseType}</td>
-                      <td className="px-4 py-3 text-gray-600">{c.duration || '—'}</td>
-                      <td className="px-4 py-3 text-gray-600">{c.specialization || '—'}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-medium text-gray-900">{c.courseName}</td>
+                      <td className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{c.courseCode || '—'}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{c.courseType}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{c.duration || '—'}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{c.specialization || '—'}</td>
+                      <td className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status] || STATUS_COLORS.draft}`}>
                           {c.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
+                      <td className="px-4 py-2.5 align-middle">
+                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button
                               onClick={() => openEdit(c)}
@@ -601,7 +630,74 @@ export default function AdminCoursesPage() {
         </div>
       )}
 
+      {/* Media Gallery Picker Modal */}
+      {showMediaGallery && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowMediaGallery(false)} />
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col animate-scaleUp">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-3xl">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Media Gallery</h2>
+                <p className="text-xs text-gray-500 mt-1">Select an image from your library.</p>
+              </div>
+              <button onClick={() => setShowMediaGallery(false)} className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full text-gray-600 shadow-sm border border-gray-200">✕</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
+              {loadingMedia ? (
+                <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                  <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="font-bold">Loading media...</p>
+                </div>
+              ) : mediaItems.filter(item => item.fileType?.includes('image')).length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-5xl mb-4">🖼️</div>
+                  <h3 className="text-lg font-bold text-gray-800">No images found</h3>
+                  <p className="text-sm text-gray-500 mt-1">Upload images via the Media dashboard first.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {mediaItems.filter(item => item.fileType?.includes('image')).map(item => (
+                    <div 
+                      key={item.id} 
+                      onClick={() => {
+                        const imageUrl = item.fileUrl.startsWith('http') ? item.fileUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000'}${item.fileUrl}`;
+                        setCropperState({ isOpen: true, imageSrc: imageUrl, file: null });
+                        setShowMediaGallery(false);
+                      }}
+                      className="group cursor-pointer bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-500 transition-all flex flex-col h-40"
+                    >
+                      <div className="flex-1 bg-gray-100 overflow-hidden relative">
+                        <img src={item.fileUrl.startsWith('http') ? item.fileUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000'}${item.fileUrl}`} alt={item.fileName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="bg-white text-primary-700 text-xs font-bold px-3 py-1 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">Select</span>
+                        </div>
+                      </div>
+                      <div className="p-2 truncate text-[10px] font-bold text-gray-600 text-center border-t border-gray-100 bg-gray-50 group-hover:bg-primary-50 group-hover:text-primary-700 transition-colors">
+                        {item.fileName}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 bg-white rounded-b-3xl flex justify-end">
+              <button onClick={() => setShowMediaGallery(false)} className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors text-sm">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialogModal dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
+      
+      <ImageCropperModal
+        isOpen={cropperState.isOpen}
+        imageSrc={cropperState.imageSrc}
+        aspectRatio={16 / 9} // 16:9 for course banners
+        onClose={() => setCropperState({ isOpen: false, imageSrc: null, file: null })}
+        onCropComplete={handleBannerUpload}
+      />
     </DashboardLayout>
   );
 }

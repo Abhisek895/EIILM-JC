@@ -8,6 +8,7 @@ import dashboardRoutes from './dashboard';
 import userRoutes from './users';
 import studentRoutes from './student';
 import mediaRoutes from './media';
+import chatbotRoutes from '../chatbotRoutes';
 
 // ── New enterprise module routes ───────────────────────────────────────────────
 import departmentRoutes from '@modules/departments/routes/index';
@@ -45,6 +46,9 @@ router.use('/placements', placementRoutes);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 router.use('/dashboard', dashboardRoutes);
+
+// ── Chatbot ───────────────────────────────────────────────────────────────────
+router.use('/chatbot', chatbotRoutes);
 
 // ── Media uploads ─────────────────────────────────────────────────────────────
 router.use('/media', mediaRoutes);

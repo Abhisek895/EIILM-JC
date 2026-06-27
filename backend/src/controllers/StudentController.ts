@@ -3,6 +3,7 @@ import { ApiResponse } from '@utils/responses';
 import { AuthRequest } from '@middlewares/auth';
 import { UserService } from '@services/UserService';
 import { CourseService } from '@services/CourseService';
+import { Grade, FeeRecord } from '@models/index';
 import { parsePagination } from '@utils/pagination';
 
 export class StudentController {
@@ -56,6 +57,53 @@ export class StudentController {
           totalPages: result.totalPages,
         }
       );
+    } catch (error: any) {
+      ApiResponse.error(res, 400, error.message);
+    }
+  }
+
+  async grades(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const grades = await Grade.findAll({
+        where: { student_id: req.user!.id },
+        order: [['semester', 'DESC']],
+      });
+      ApiResponse.success(res, 200, 'Grades fetched successfully', grades);
+    } catch (error: any) {
+      ApiResponse.error(res, 400, error.message);
+    }
+  }
+
+  async fees(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const fees = await FeeRecord.findAll({
+        where: { student_id: req.user!.id },
+        order: [['due_date', 'ASC']],
+      });
+      ApiResponse.success(res, 200, 'Fees fetched successfully', fees);
+    } catch (error: any) {
+      ApiResponse.error(res, 400, error.message);
+    }
+  }
+
+  async payFee(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { feeId } = req.body;
+      const fee = await FeeRecord.findOne({
+        where: { id: feeId, student_id: req.user!.id }
+      });
+      
+      if (!fee) {
+        ApiResponse.error(res, 404, 'Fee record not found');
+        return;
+      }
+      
+      // Mock payment processing logic
+      fee.status = 'Paid';
+      fee.receipt_url = `/receipts/mock-receipt-${fee.id}.pdf`;
+      await fee.save();
+
+      ApiResponse.success(res, 200, 'Payment successful', fee);
     } catch (error: any) {
       ApiResponse.error(res, 400, error.message);
     }

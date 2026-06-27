@@ -52,9 +52,21 @@ export class InquiryService {
   }
 
   async listInquiries(page: number, limit: number) {
-    return this.inquiryRepo.paginate(page, limit, {
+    const result = await this.inquiryRepo.paginate(page, limit, {
+      include: ['course'],
       order: [['id', 'DESC']],
     });
+
+    return {
+      ...result,
+      data: result.data.map((inq: any) => {
+        const plain = typeof inq.toJSON === 'function' ? inq.toJSON() : inq;
+        return {
+          ...plain,
+          courseInterest: plain.course ? (plain.course.courseName || plain.course.course_name) : null,
+        };
+      }),
+    };
   }
 
   async updateInquiry(id: number, data: UpdateInquiryInput): Promise<void> {

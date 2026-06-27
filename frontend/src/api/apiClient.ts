@@ -59,7 +59,11 @@ class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: API_URL,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true', // Required for localtunnel APIs
+        'ngrok-skip-browser-warning': 'true' // In case they use ngrok later
+      },
       timeout: 30_000,
     });
 

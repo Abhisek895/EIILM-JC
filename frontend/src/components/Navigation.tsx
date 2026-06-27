@@ -10,15 +10,16 @@ import { getImageUrl } from '@utils/getImageUrl';
 
 const DEFAULT_NAV_LINKS = [
   { label: 'Home', href: '/' },
+  { label: 'Admissions', href: '/admissions' },
   { label: 'Courses', href: '/courses' },
-  { label: 'Departments', href: '/departments' },
-  { label: 'Faculty', href: '/faculty' },
-  { label: 'Notices', href: '/notices' },
-  { label: 'Events', href: '/events' },
   { label: 'Placements', href: '/placements' },
-  { label: 'Infrastructure', href: '/infrastructure' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Events', href: '/events' },
+  { label: 'Notices', href: '/notices' },
+  { label: 'Departments', href: '/departments' },
+  { label: 'Faculty', href: '/faculty' },
+  { label: 'Infrastructure', href: '/infrastructure' },
 ];
 
 export const Navigation: React.FC = () => {
@@ -37,13 +38,13 @@ export const Navigation: React.FC = () => {
         if (data?.college_name) {
           setCollegeName(data.college_name);
         } else {
-          setCollegeName('College ERP');
+          setCollegeName('');
         }
         if (data?.logo) setLogo(data.logo);
         if (data?.favicon) setFavicon(data.favicon);
       })
       .catch(() => {
-        setCollegeName('College ERP');
+        setCollegeName('');
       });
   }, []);
 
@@ -124,7 +125,7 @@ export const Navigation: React.FC = () => {
                   href="/auth/login"
                   className="text-sm font-semibold text-gray-700 hover:text-primary-600"
                 >
-                  Login
+                  Student Login
                 </Link>
                 <Link
                   href="/admissions"
@@ -171,8 +172,8 @@ export const Navigation: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link href="/auth/login" className="text-gray-700 font-semibold text-sm">
-                    Login
+                <Link href="/auth/login" className="text-gray-700 font-semibold text-sm">
+                    Student Login
                   </Link>
                   <Link
                     href="/admissions"

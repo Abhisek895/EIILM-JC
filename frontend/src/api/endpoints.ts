@@ -19,6 +19,10 @@ export const authApi = {
     apiClient.post('/auth/change-password/verify-otp', { otpCode, newPassword }),
   setupPassword: (data: { token: string; password: string }) =>
     apiClient.post('/auth/setup-password', data),
+  requestForgotPasswordOtp: (email: string) =>
+    apiClient.post('/auth/forgot-password/request-otp', { email }),
+  verifyForgotPasswordOtp: (email: string, otpCode: string, newPassword: string) =>
+    apiClient.post('/auth/forgot-password/verify-otp', { email, otpCode, newPassword }),
 };
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -131,6 +135,8 @@ export const dashboardApi = {
   getStats: () => apiClient.get('/dashboard/stats'),
   getRecentInquiries: (limit = 5) =>
     apiClient.get(`/dashboard/recent-inquiries?limit=${limit}`),
+  getAnalytics: () => apiClient.get('/dashboard/analytics'),
+  trackPageView: (path: string) => apiClient.post('/dashboard/track', { path }),
 };
 
 // ─── Student ─────────────────────────────────────────────────────────────────
@@ -138,6 +144,9 @@ export const studentApi = {
   me: () => apiClient.get('/student/me'),
   courses: (page = 1, limit = 10) =>
     apiClient.get(`/student/courses?page=${page}&limit=${limit}`),
+  grades: () => apiClient.get('/student/grades'),
+  fees: () => apiClient.get('/student/fees'),
+  payFee: (feeId: number) => apiClient.post('/student/fees/pay', { feeId }),
 };
 
 // ─── Media ────────────────────────────────────────────────────────────────────
@@ -146,6 +155,23 @@ export const mediaApi = {
   getAll: (page = 1, limit = 30) => apiClient.get(`/media?page=${page}&limit=${limit}`),
   replace: (id: number, formData: FormData) => apiClient.put(`/media/${id}/replace`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   remove: (id: number) => apiClient.delete(`/media/${id}`),
+};
+
+// ─── Chatbot ──────────────────────────────────────────────────────────────────
+export const chatbotApi = {
+  chat: (sessionId: string, message: string) => apiClient.post('/chatbot/chat', { sessionId, message }),
+  getAllKnowledge: () => apiClient.get('/chatbot/knowledge'),
+  createKnowledge: (data: unknown) => apiClient.post('/chatbot/knowledge', data),
+  updateKnowledge: (id: number, data: unknown) => apiClient.put(`/chatbot/knowledge/${id}`, data),
+  deleteKnowledge: (id: number) => apiClient.delete(`/chatbot/knowledge/${id}`),
+  uploadDocument: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/chatbot/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  getAnalytics: () => apiClient.get('/chatbot/analytics'),
 };
 
 // ─── Placements ───────────────────────────────────────────────────────────────

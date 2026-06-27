@@ -62,6 +62,11 @@ button {
   .text-subheading {
     @apply text-lg font-semibold text-gray-800;
   }
+
+  /* Global Section Heading Style */
+  .heading-global {
+    @apply text-4xl md:text-5xl font-extrabold text-gray-900;
+  }
 }
 
 

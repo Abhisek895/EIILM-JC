@@ -19,7 +19,8 @@ class Inquiry extends Model {
     | 'follow_up'
     | 'converted'
     | 'rejected'
-    | 'closed';
+    | 'closed'
+    | 'enrolled';
   public assignedTo!: number | null;
   public followupDate!: Date | null;
   public notes!: string | null;
@@ -84,7 +85,8 @@ Inquiry.init(
         'follow_up',
         'converted',
         'rejected',
-        'closed'
+        'closed',
+        'enrolled'
       ),
       defaultValue: 'new',
       allowNull: false,

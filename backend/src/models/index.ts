@@ -22,6 +22,12 @@ import { MediaLibrary } from './MediaLibrary';
 import { AuditLog } from './AuditLog';
 import { Infrastructure } from './Infrastructure';
 import { Placement } from './Placement';
+import { PageView } from './PageView';
+import { ChatKnowledgeBase } from './ChatKnowledgeBase';
+import { ChatSession } from './ChatSession';
+import { ChatMessage } from './ChatMessage';
+import { Grade } from './Grade';
+import { FeeRecord } from './FeeRecord';
 
 // ─── ASSOCIATIONS ──────────────────────────────────────────────────────────────
 
@@ -90,4 +96,10 @@ export {
   AuditLog,
   Infrastructure,
   Placement,
+  PageView,
+  ChatKnowledgeBase,
+  ChatSession,
+  ChatMessage,
+  Grade,
+  FeeRecord,
 };
