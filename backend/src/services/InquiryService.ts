@@ -52,8 +52,21 @@ export class InquiryService {
     return inquiry;
   }
 
-  async listInquiries(page: number, limit: number) {
+  async listInquiries(page: number, limit: number, search?: string) {
+    const where: any = {};
+    if (search) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { fullName: { [Op.substring]: search } },
+        { firstName: { [Op.substring]: search } },
+        { lastName: { [Op.substring]: search } },
+        { email: { [Op.substring]: search } },
+        { phone: { [Op.substring]: search } },
+      ];
+    }
+
     const result = await this.inquiryRepo.paginate(page, limit, {
+      where,
       include: ['course'],
       order: [['id', 'DESC']],
     });

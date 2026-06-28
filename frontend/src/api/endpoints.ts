@@ -126,7 +126,11 @@ export const cmsApi = {
 // ─── Inquiries ────────────────────────────────────────────────────────────────
 export const inquiryApi = {
   create: (data: unknown) => apiClient.post('/inquiries', data),
-  getAll: (page = 1, limit = 20) => apiClient.get(`/inquiries?page=${page}&limit=${limit}`),
+  getAll: (page = 1, limit = 20, search?: string) => {
+    let url = `/inquiries?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return apiClient.get(url);
+  },
   update: (id: number, data: unknown) => apiClient.put(`/inquiries/${id}`, data),
 };
 

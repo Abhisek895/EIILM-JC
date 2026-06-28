@@ -5,6 +5,7 @@ import { inquiryApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 type Inquiry = {
   id: number;
@@ -37,6 +38,8 @@ export default function AdminInquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
   const [exporting, setExporting] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
@@ -58,10 +61,10 @@ export default function AdminInquiriesPage() {
   const role = user?.role;
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.inquiries?.includes('write'));
 
-  const load = useCallback(async (p: number) => {
+  const load = useCallback(async (p: number, search: string) => {
     setLoading(true);
     try {
-      const res: any = await inquiryApi.getAll(p, 20);
+      const res: any = await inquiryApi.getAll(p, 12, search);
       setInquiries(res?.data || []);
       setTotalPages(res?.pagination?.totalPages || 1);
     } finally {
@@ -69,7 +72,13 @@ export default function AdminInquiriesPage() {
     }
   }, []);
 
-  useEffect(() => { load(page); }, [page, load]);
+  useEffect(() => { load(page, activeSearch); }, [page, activeSearch, load]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    setActiveSearch(searchQuery);
+  };
 
   const showSuccessToast = (title: string, message: string) => {
     setToast({ visible: true, title, message });
@@ -167,11 +176,29 @@ export default function AdminInquiriesPage() {
             <h1 className="text-xl font-bold text-gray-900">Inquiries</h1>
             <p className="text-gray-500 text-sm mt-1">Admission inquiries from prospective students</p>
           </div>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center px-4 py-2 bg-[#107C41] text-white rounded-lg shadow-sm text-sm font-medium hover:bg-[#185C37] disabled:opacity-50 transition-colors"
-          >
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search inquiries..."
+                value={searchQuery}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim() === '') {
+                    setPage(1);
+                    setActiveSearch('');
+                  }
+                }}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </form>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="w-full sm:w-auto flex justify-center items-center px-4 py-2 bg-[#107C41] text-white rounded-lg shadow-sm text-sm font-medium hover:bg-[#185C37] disabled:opacity-50 transition-colors"
+            >
             {exporting ? (
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -185,6 +212,7 @@ export default function AdminInquiriesPage() {
             {exporting ? 'Exporting...' : 'Export to Excel'}
           </button>
         </div>
+      </div>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -263,29 +291,26 @@ export default function AdminInquiriesPage() {
               </tbody>
             </table>
           </div>
-
-          {totalPages > 1 && (
-            <div className="px-4 py-4 flex justify-between items-center border-t border-gray-100">
-              <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
-              <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1.5 bg-gray-100 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-200"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="px-3 py-1.5 bg-gray-100 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-200"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="w-8 h-8 flex items-center justify-center bg-primary-600 text-white rounded-lg disabled:opacity-40 hover:bg-primary-700 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="w-8 h-8 flex items-center justify-center bg-primary-600 text-white rounded-lg disabled:opacity-40 hover:bg-primary-700 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Details Modal */}
