@@ -18,10 +18,13 @@ export class CourseController {
         ? ['admin', 'super_admin'].includes(req.user.role)
         : false;
 
+      const search = req.query.search as string | undefined;
+
       const result = await this.courseService.listCourses(
         page,
         limit,
-        includeAllStatuses
+        includeAllStatuses,
+        search
       );
 
       ApiResponse.paginated(

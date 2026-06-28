@@ -36,8 +36,12 @@ export const userApi = {
 
 // ─── Courses ──────────────────────────────────────────────────────────────────
 export const courseApi = {
-  getAll: (page = 1, limit = 20, status?: string) =>
-    apiClient.get(`/courses?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+  getAll: (page = 1, limit = 20, status?: string, search?: string) => {
+    let url = `/courses?page=${page}&limit=${limit}`;
+    if (status && status !== 'all') url += `&status=${encodeURIComponent(status)}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return apiClient.get(url);
+  },
   getBySlug: (slug: string) => apiClient.get(`/courses/${slug}`),
   getById: (id: number) => apiClient.get(`/courses/${id}`),
   create: (data: unknown) => apiClient.post('/courses', data),

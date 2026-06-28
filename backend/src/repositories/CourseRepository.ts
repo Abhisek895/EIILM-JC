@@ -6,9 +6,23 @@ export class CourseRepository extends BaseRepository<Course> {
     super(Course);
   }
 
-  async findPublished(page: number, limit: number) {
+  async findAllWithFilters(page: number, limit: number, includeAllStatuses: boolean = false, search?: string) {
+    const where: any = {};
+    if (!includeAllStatuses) {
+      where.status = 'published';
+    }
+
+    if (search) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { courseName: { [Op.substring]: search } },
+        { courseCode: { [Op.substring]: search } },
+        { specialization: { [Op.substring]: search } },
+      ];
+    }
+
     return this.paginate(page, limit, {
-      where: { status: 'published' },
+      where,
       order: [['id', 'DESC']],
     });
   }

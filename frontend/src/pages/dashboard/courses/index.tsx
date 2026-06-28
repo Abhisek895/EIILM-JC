@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { courseApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -50,6 +51,10 @@ export default function AdminCoursesPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<CourseForm>(EMPTY_FORM);
@@ -107,17 +112,24 @@ export default function AdminCoursesPage() {
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.courses?.includes('write'));
   const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.courses?.includes('delete'));
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (p: number, search: string) => {
     setLoading(true);
     try {
-      const res: any = await courseApi.getAll(1, 100);
+      const res: any = await courseApi.getAll(p, 10, 'all', search);
       setCourses(res?.data || []);
+      setTotalPages(res?.meta?.totalPages || 1);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(page, activeSearch); }, [load, page, activeSearch]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    setActiveSearch(searchQuery);
+  };
   
   const showSuccessToast = (title: string, message: string) => {
     setToast({ visible: true, title, message });
@@ -151,7 +163,7 @@ export default function AdminCoursesPage() {
         showSuccessToast('Course Created', 'New course has been created successfully!');
       }
       setShowForm(false);
-      await load();
+      await load(page, activeSearch);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save course');
     } finally {
@@ -233,7 +245,7 @@ export default function AdminCoursesPage() {
         try {
           await courseApi.remove(id);
           showSuccessToast('Course Deleted', 'Course has been deleted successfully!');
-          await load();
+          await load(page, activeSearch);
         } catch {
           showSuccessToast('Deletion Failed', 'Failed to delete course');
         }
@@ -250,19 +262,38 @@ export default function AdminCoursesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Courses</h1>
-            <p className="text-gray-500 text-sm mt-1">{courses.length} courses total</p>
+            <p className="text-gray-500 text-sm mt-1">{courses.length} courses on this page</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
-            >
-              + Add Course
-            </button>
-          )}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={searchQuery}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim() === '') {
+                    setPage(1);
+                    setActiveSearch('');
+                  }
+                }}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </form>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add Course
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -615,6 +646,25 @@ export default function AdminCoursesPage() {
             </table>
           </div>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
       
       {/* Slide-in custom success Toast popup notification */}

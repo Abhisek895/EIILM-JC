@@ -25,15 +25,10 @@ export class CourseService {
   async listCourses(
     page: number,
     limit: number,
-    includeAllStatuses: boolean = false
+    includeAllStatuses: boolean = false,
+    search?: string
   ) {
-    if (!includeAllStatuses) {
-      return this.courseRepo.findPublished(page, limit);
-    }
-
-    return this.courseRepo.paginate(page, limit, {
-      order: [['id', 'DESC']],
-    });
+    return this.courseRepo.findAllWithFilters(page, limit, includeAllStatuses, search);
   }
 
   async getCourseById(id: number): Promise<Course | null> {
