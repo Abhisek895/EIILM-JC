@@ -921,6 +921,7 @@ function SectionRenderer({
           pageKey="home"
           initialSlides={Array.isArray(cfg.slides) ? cfg.slides : undefined}
           fallbackTagline={settings.tagline || 'Excellence in Education'}
+          showTagline={settings.show_tagline !== 'false'}
           fallbackHeading={settings.hero_heading || `Welcome to ${settings.college_name || 'Our College'}`}
           fallbackSubheading={settings.hero_subheading || 'A premier institution committed to academic excellence and holistic development.'}
         />

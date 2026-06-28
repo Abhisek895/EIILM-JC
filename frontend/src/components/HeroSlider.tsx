@@ -11,9 +11,10 @@ interface HeroSliderProps {
   fallbackSubheading?: string;
   initialSlides?: any[];
   hideTextOnMobile?: boolean;
+  showTagline?: boolean;
 }
 
-export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, fallbackSubheading, hideTextOnMobile }: HeroSliderProps) {
+export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, fallbackSubheading, hideTextOnMobile, showTagline = true }: HeroSliderProps) {
   const [slides, setSlides] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -103,9 +104,9 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
               )}
 
               <div className="w-full max-w-lg lg:max-w-xl mt-1 relative z-10 text-left">
-                {activeSlide.badge && (
+                {showTagline && (activeSlide.badge || fallbackTagline) && (
                   <p className="text-sm md:text-base lg:text-lg font-black text-slate-900 mb-0.5 uppercase tracking-tight">
-                    {activeSlide.badge}
+                    {activeSlide.badge || fallbackTagline}
                   </p>
                 )}
 
@@ -206,9 +207,9 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
       </div>
 
       <div className={`container relative mx-auto px-6 text-center z-10 transition-all duration-700 ${hideTextOnMobile ? 'hidden sm:block' : ''}`}>
-        {activeSlide.badge && (
+        {showTagline && (activeSlide.badge || fallbackTagline) && (
           <p className="text-sm font-bold uppercase tracking-widest text-primary-200 mb-3 animate-fadeIn">
-            {activeSlide.badge}
+            {activeSlide.badge || fallbackTagline}
           </p>
         )}
 

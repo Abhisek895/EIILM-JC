@@ -26,6 +26,7 @@ export const Navigation: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const router = useRouter();
   const [collegeName, setCollegeName] = useState('');
+  const [showCollegeName, setShowCollegeName] = useState(true);
   const [logo, setLogo] = useState('');
   const [favicon, setFavicon] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -39,6 +40,11 @@ export const Navigation: React.FC = () => {
           setCollegeName(data.college_name);
         } else {
           setCollegeName('');
+        }
+        if (data?.show_college_name === 'false') {
+          setShowCollegeName(false);
+        } else {
+          setShowCollegeName(true);
         }
         if (data?.logo) setLogo(data.logo);
         if (data?.favicon) setFavicon(data.favicon);
@@ -66,7 +72,7 @@ export const Navigation: React.FC = () => {
           <link rel="apple-touch-icon" href={getImageUrl(favicon)} />
         </Head>
       )}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className={`bg-white shadow-md sticky top-0 z-50 ${router.pathname === '/admissions' ? 'hidden lg:block' : ''}`}>
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -79,7 +85,9 @@ export const Navigation: React.FC = () => {
                     {collegeName.charAt(0)}
                   </div>
                 )}
-                <span className="font-extrabold text-xl text-primary-700">{collegeName}</span>
+                {showCollegeName && (
+                  <span className="font-extrabold text-xl text-primary-700">{collegeName}</span>
+                )}
               </>
             ) : (
               <div className="w-40 h-8 bg-gray-200 rounded animate-pulse" />
@@ -138,13 +146,15 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* Mobile hamburger */}
-          <button
-            className="lg:hidden p-2 rounded-md text-gray-600 hover:text-primary-600"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {router.pathname !== '/admissions' && (
+            <button
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-primary-600"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          )}
         </div>
 
         {/* Mobile menu */}

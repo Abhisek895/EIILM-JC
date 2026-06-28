@@ -5,6 +5,9 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 const DEFAULT_SETTINGS = {
   college_name: '',
+  show_college_name: true,
+  tagline: 'A student-first college experience focused on clear guidance, practical learning, and career outcomes.',
+  show_tagline: true,
   address: 'College Campus, Near NH-17, Jorhat, Assam',
   email: 'info@college.edu',
   phone: '+91 98765 43210',
@@ -22,6 +25,9 @@ export const Footer: React.FC = () => {
         if (data && typeof data === 'object') {
           setSettings({
             college_name: data.college_name || DEFAULT_SETTINGS.college_name,
+            show_college_name: data.show_college_name !== 'false',
+            tagline: data.tagline || DEFAULT_SETTINGS.tagline,
+            show_tagline: data.show_tagline !== 'false',
             address: data.address || DEFAULT_SETTINGS.address,
             email: data.email || DEFAULT_SETTINGS.email,
             phone: data.phone || DEFAULT_SETTINGS.phone,
@@ -39,11 +45,14 @@ export const Footer: React.FC = () => {
       <div className="container mx-auto px-6 py-14">
         <div className="grid grid-cols-1 gap-8 mb-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="mb-3 text-xl font-extrabold text-white">{settings.college_name}</h3>
-            <p className="text-sm leading-relaxed text-gray-400">
-              A student-first college experience focused on clear guidance, practical learning,
-              and career outcomes.
-            </p>
+            {settings.show_college_name && (
+              <h3 className="mb-3 text-xl font-extrabold text-white">{settings.college_name}</h3>
+            )}
+            {settings.show_tagline && (
+              <p className="text-sm leading-relaxed text-gray-400">
+                {settings.tagline}
+              </p>
+            )}
           </div>
 
           <div>

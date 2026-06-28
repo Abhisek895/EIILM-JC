@@ -14,6 +14,8 @@ type Inquiry = {
   courseInterest: string | null;
   message: string | null;
   status: string;
+  applicationDetails?: any;
+  application_details?: any;
   createdAt: string;
 };
 
@@ -36,6 +38,7 @@ export default function AdminInquiriesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [exporting, setExporting] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
   // Custom success Toast State
   const [toast, setToast] = useState<{ visible: boolean; title: string; message: string } | null>(null);
@@ -233,19 +236,26 @@ export default function AdminInquiriesPage() {
                         {inq.createdAt || inq.created_at ? new Date(inq.createdAt || inq.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                       </td>
                       <td className="px-4 py-2.5">
-                        {canWrite ? (
-                          <select
-                            value={inq.status}
-                            onChange={(e) => updateStatus(inq.id, e.target.value)}
-                            className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                          >
-                            {['new', 'contacted', 'interested', 'follow_up', 'converted', 'rejected', 'closed', 'enrolled'].map((s) => (
-                              <option key={s} value={s}>{s.replace('_', ' ')}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span className="text-xs font-medium text-gray-500">{inq.status}</span>
-                        )}
+                        <div className="flex flex-col gap-2">
+                          {canWrite ? (
+                            <select
+                              value={inq.status}
+                              onChange={(e) => updateStatus(inq.id, e.target.value)}
+                              className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            >
+                              {['new', 'contacted', 'interested', 'follow_up', 'converted', 'rejected', 'closed', 'enrolled'].map((s) => (
+                                <option key={s} value={s}>{s.replace('_', ' ')}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="text-xs font-medium text-gray-500">{inq.status}</span>
+                          )}
+                          {(inq.firstName || inq.first_name || inq.bloodGroup || inq.blood_group || inq.caste) && (
+                            <button onClick={() => setSelectedInquiry(inq)} className="text-xs text-primary-600 font-semibold hover:underline text-left">
+                              View Details
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -277,6 +287,41 @@ export default function AdminInquiriesPage() {
           )}
         </div>
       </div>
+
+      {/* Details Modal */}
+      {selectedInquiry && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-900">Application Details</h2>
+              <button onClick={() => setSelectedInquiry(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  'firstName', 'lastName', 'gender', 'bloodGroup', 'caste', 'dob', 'placeOfBirth',
+                  'address', 'state', 'pin', 'altPhone', 'whatsapp', 'fatherName', 'fatherOccupation',
+                  'motherName', 'motherOccupation', 'annualIncome', 'board12th', 'stream12th',
+                  'yearOfPassing12th', 'aggregateMarks12th', 'schoolName', 'mbaCollegeName',
+                  'mbaDegreeName', 'mbaSpecialization', 'mbaGraduationYear', 'mbaUniversity', 'mbaScore', 'sourceName'
+                ].map((key) => {
+                  const dbKey = key.replace(/([A-Z])/g, "_$1").toLowerCase();
+                  const value = selectedInquiry[key as keyof Inquiry] || (selectedInquiry as any)[dbKey];
+                  if (!value) return null;
+                  return (
+                    <div key={key} className="space-y-1">
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                      <p className="text-sm font-medium text-gray-900 bg-gray-50/50 p-2 rounded border border-gray-100">{String(value)}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Slide-in custom success Toast popup notification */}
       {toast && (

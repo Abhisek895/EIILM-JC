@@ -10,6 +10,7 @@ type CreateInquiryInput = {
   city?: string;
   message?: string;
   source?: string;
+  [key: string]: any;
 };
 
 type UpdateInquiryInput = {
