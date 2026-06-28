@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { userApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -47,6 +48,8 @@ export default function AdminUsersPage() {
   const canDelete = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('delete'));
   const router = useRouter();
   const [users, setUsers] = useState<UserMember[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -178,22 +181,55 @@ export default function AdminUsersPage() {
     student: 'text-gray-600 bg-gray-50 border-gray-200',
   };
 
+  const filteredUsers = users.filter((u) => {
+    if (roleFilter && u.role !== roleFilter) return false;
+    if (searchQuery) {
+      const sq = searchQuery.toLowerCase();
+      if (!u.name?.toLowerCase().includes(sq) && !u.email?.toLowerCase().includes(sq)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-xl font-bold text-gray-900">User Management</h1>
-            <p className="text-gray-500 text-sm mt-1">{users.length} users total</p>
+            <p className="text-gray-500 text-sm mt-1">{filteredUsers.length} users total</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </div>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto capitalize"
             >
-              + Add User
-            </button>
-          )}
+              <option value="">All Roles</option>
+              {Object.keys(ROLE_IDS).map((r) => (
+                <option key={r} value={r}>{r.replace('_', ' ')}</option>
+              ))}
+            </select>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add User
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -389,14 +425,14 @@ export default function AdminUsersPage() {
                       ))}
                     </tr>
                   ))
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                      No users yet. Click &quot;Add User&quot; to get started.
+                      No users found.
                     </td>
                   </tr>
                 ) : (
-                  users.map((u) => (
+                  filteredUsers.map((u) => (
                     <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="px-4 py-2.5 font-medium text-gray-900">{u.name}</td>
                       <td className="px-4 py-2.5 text-gray-600">{u.email}</td>
