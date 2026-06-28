@@ -54,6 +54,7 @@ export default function AdminPlacementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [recordTypeFilter, setRecordTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
@@ -116,10 +117,10 @@ export default function AdminPlacementPage() {
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('write'));
   const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('delete'));
 
-  const load = useCallback(async (p: number, search: string, recordType: string) => {
+  const load = useCallback(async (p: number, search: string, recordType: string, status: string) => {
     setLoading(true);
     try {
-      const res: any = await placementApi.getAll(p, 10, 'all', search, recordType);
+      const res: any = await placementApi.getAll(p, 10, status, search, recordType);
       setPlacements(res?.data || []);
       setTotalPages(res?.meta?.totalPages || 1);
       const coursesRes: any = await courseApi.getAll(1, 100);
@@ -132,8 +133,8 @@ export default function AdminPlacementPage() {
   }, []);
 
   useEffect(() => {
-    load(page, activeSearch, recordTypeFilter);
-  }, [load, page, activeSearch, recordTypeFilter]);
+    load(page, activeSearch, recordTypeFilter, statusFilter);
+  }, [load, page, activeSearch, recordTypeFilter, statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,7 +187,7 @@ export default function AdminPlacementPage() {
         showSuccessToast('Placement Created', 'New placement record has been created successfully!');
       }
       setShowForm(false);
-      await load(page, activeSearch, recordTypeFilter);
+      await load(page, activeSearch, recordTypeFilter, statusFilter);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save placement');
     } finally {
@@ -239,7 +240,7 @@ export default function AdminPlacementPage() {
         try {
           await placementApi.remove(id);
           showSuccessToast('Placement Deleted', 'Placement record has been deleted successfully!');
-          await load(page, activeSearch, recordTypeFilter);
+          await load(page, activeSearch, recordTypeFilter, statusFilter);
         } catch {
           showSuccessToast('Deletion Failed', 'Failed to delete placement record');
         }
@@ -256,7 +257,7 @@ export default function AdminPlacementPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Placement Records</h1>
             <p className="text-gray-500 text-sm mt-1">{placements.length} records on this page</p>
@@ -265,7 +266,7 @@ export default function AdminPlacementPage() {
             <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search records..."
                 value={searchQuery}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -290,6 +291,19 @@ export default function AdminPlacementPage() {
               <option value="all">All Types</option>
               <option value="placement">Placement</option>
               <option value="internship">Internship</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+            >
+              <option value="all">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
             </select>
             {canWrite && (
               <button

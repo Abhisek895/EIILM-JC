@@ -1,6 +1,7 @@
 import { getImageUrl } from '@utils/image';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { noticeApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -50,6 +51,8 @@ export default function AdminNoticesPage() {
   const router = useRouter();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<NoticeForm>(EMPTY_FORM);
@@ -240,22 +243,50 @@ export default function AdminNoticesPage() {
     low: 'text-primary-600 bg-primary-50 border-primary-200',
   };
 
+  const filteredNotices = notices.filter(n => {
+    const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter ? n.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Notices & Announcements</h1>
             <p className="text-gray-500 text-sm mt-1">{notices.length} notices total</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search notices..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
             >
-              + Add Notice
-            </button>
-          )}
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="expired">Expired</option>
+            </select>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add Notice
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -473,14 +504,14 @@ export default function AdminNoticesPage() {
                       ))}
                     </tr>
                   ))
-                ) : notices.length === 0 ? (
+                ) : filteredNotices.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                      No notices yet. Click &quot;Add Notice&quot; to get started.
+                      {notices.length === 0 ? 'No notices yet. Click "Add Notice" to get started.' : 'No notices match your filters.'}
                     </td>
                   </tr>
                 ) : (
-                  notices.map((n) => (
+                  filteredNotices.map((n) => (
                     <tr key={n.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="px-4 py-2.5 font-medium text-gray-900">{n.title}</td>
                       <td className="px-4 py-2.5">

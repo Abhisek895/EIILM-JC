@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { eventApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -47,6 +48,8 @@ export default function AdminEventsPage() {
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<EventForm>(EMPTY_FORM);
@@ -244,22 +247,50 @@ export default function AdminEventsPage() {
     completed: 'bg-primary-100 text-primary-700',
   };
 
+  const filteredEvents = events.filter(ev => {
+    const matchesSearch = ev.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter ? ev.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Events Management</h1>
             <p className="text-gray-500 text-sm mt-1">{events.length} events total</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
             >
-              + Add Event
-            </button>
-          )}
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="completed">Completed</option>
+            </select>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add Event
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -460,14 +491,14 @@ export default function AdminEventsPage() {
                       ))}
                     </tr>
                   ))
-                ) : events.length === 0 ? (
+                ) : filteredEvents.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                      No events yet. Click &quot;Add Event&quot; to get started.
+                      {events.length === 0 ? 'No events yet. Click "Add Event" to get started.' : 'No events match your filters.'}
                     </td>
                   </tr>
                 ) : (
-                  events.map((ev) => (
+                  filteredEvents.map((ev) => (
                     <tr key={ev.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="px-4 py-2.5 font-medium text-gray-900">{ev.title}</td>
                       <td className="px-4 py-2.5 text-gray-600">{ev.location || '—'}</td>
