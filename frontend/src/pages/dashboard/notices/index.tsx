@@ -257,8 +257,8 @@ export default function AdminNoticesPage() {
             <h1 className="text-xl font-bold text-gray-900">Notices & Announcements</h1>
             <p className="text-gray-500 text-sm mt-1">{notices.length} notices total</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-auto">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="col-span-2 sm:col-span-1 relative w-full sm:w-auto">
               <input
                 type="text"
                 placeholder="Search notices..."
@@ -271,7 +271,7 @@ export default function AdminNoticesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+              className="px-2 sm:px-4 py-2 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
             >
               <option value="">All Statuses</option>
               <option value="draft">Draft</option>
@@ -281,7 +281,7 @@ export default function AdminNoticesPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+                className="bg-primary-600 text-white px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap w-full sm:w-auto"
               >
                 + Add Notice
               </button>
@@ -485,7 +485,7 @@ export default function AdminNoticesPage() {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm responsive-table">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Title', 'Priority', 'Publish Date', 'Status', 'Actions'].map((h) => (
@@ -513,21 +513,21 @@ export default function AdminNoticesPage() {
                 ) : (
                   filteredNotices.map((n) => (
                     <tr key={n.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-2.5 font-medium text-gray-900">{n.title}</td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Title" className="px-4 py-2.5 font-medium text-gray-900">{n.title}</td>
+                      <td data-label="Priority" className="px-4 py-2.5">
                         <span className={`text-xs px-2 py-0.5 rounded border ${PRIORITY_COLORS[n.priority] || PRIORITY_COLORS.medium} capitalize`}>
                           {n.priority}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-gray-600">
+                      <td data-label="Publish Date" className="px-4 py-2.5 text-gray-600">
                         {n.publishDate ? new Date(n.publishDate).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Status" className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[n.status] || STATUS_COLORS.draft}`}>
                           {n.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Actions" className="px-4 py-2.5">
                         <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button

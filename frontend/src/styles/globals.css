@@ -67,6 +67,41 @@ button {
   .heading-global {
     @apply text-4xl md:text-5xl font-extrabold text-gray-900;
   }
+
+  /* Responsive Data Tables for Mobile */
+  @media (max-width: 768px) {
+    .responsive-table, 
+    .responsive-table thead, 
+    .responsive-table tbody, 
+    .responsive-table th, 
+    .responsive-table td, 
+    .responsive-table tr {
+      display: block;
+      width: 100%;
+    }
+    .responsive-table thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    .responsive-table tr {
+      @apply mb-4 border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden;
+    }
+    .responsive-table td {
+      @apply relative pl-[45%] text-right py-3 pr-4 border-b border-gray-100 min-h-[48px] items-center;
+      word-wrap: break-word;
+    }
+    .responsive-table td:last-child {
+      @apply border-b-0;
+    }
+    .responsive-table td::before {
+      content: attr(data-label);
+      @apply absolute left-4 top-3.5 text-left font-semibold text-xs text-gray-500 uppercase tracking-wider w-[40%] whitespace-nowrap overflow-hidden text-ellipsis;
+    }
+    .responsive-table td > div.flex {
+      @apply justify-end;
+    }
+  }
 }
 
 

@@ -200,8 +200,8 @@ export default function AdminUsersPage() {
             <h1 className="text-xl font-bold text-gray-900">User Management</h1>
             <p className="text-gray-500 text-sm mt-1">{filteredUsers.length} users total</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-auto">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="col-span-2 sm:col-span-1 relative w-full sm:w-auto">
               <input
                 type="text"
                 placeholder="Search by name or email..."
@@ -214,7 +214,7 @@ export default function AdminUsersPage() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto capitalize"
+              className="px-2 sm:px-4 py-2 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto capitalize"
             >
               <option value="">All Roles</option>
               {Object.keys(ROLE_IDS).map((r) => (
@@ -224,7 +224,7 @@ export default function AdminUsersPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+                className="bg-primary-600 text-white px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap w-full sm:w-auto"
               >
                 + Add User
               </button>
@@ -406,7 +406,7 @@ export default function AdminUsersPage() {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm responsive-table">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Name', 'Email', 'Role', 'Status', 'Actions'].map((h) => (
@@ -434,19 +434,19 @@ export default function AdminUsersPage() {
                 ) : (
                   filteredUsers.map((u) => (
                     <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-2.5 font-medium text-gray-900">{u.name}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{u.email}</td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Name" className="px-4 py-2.5 font-medium text-gray-900">{u.name}</td>
+                      <td data-label="Email" className="px-4 py-2.5 text-gray-600">{u.email}</td>
+                      <td data-label="Role" className="px-4 py-2.5">
                         <span className={`text-xs px-2 py-0.5 rounded border ${ROLE_BADGES[u.role] || ROLE_BADGES.student} font-medium capitalize`}>
                           {u.role.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Status" className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[u.status] || STATUS_COLORS.active}`}>
                           {u.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Actions" className="px-4 py-2.5">
                         <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {u.email === 'sarkarabhisek50@gmail.com' && user?.email !== 'sarkarabhisek50@gmail.com' ? (
                             <span className="text-purple-600 font-bold text-sm italic">Protected</span>

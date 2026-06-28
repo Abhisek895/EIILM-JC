@@ -267,8 +267,8 @@ export default function AdminCoursesPage() {
             <h1 className="text-xl font-bold text-gray-900">Courses</h1>
             <p className="text-gray-500 text-sm mt-1">{courses.length} courses on this page</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <form onSubmit={handleSearch} className="col-span-2 sm:col-span-1 relative w-full sm:w-auto">
               <input
                 type="text"
                 placeholder="Search courses..."
@@ -288,7 +288,7 @@ export default function AdminCoursesPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+                className="col-span-2 sm:col-span-1 bg-primary-600 text-white px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap w-full sm:w-auto"
               >
                 + Add Course
               </button>
@@ -581,7 +581,7 @@ export default function AdminCoursesPage() {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm responsive-table">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Course Name', 'Code', 'Type', 'Duration', 'Specialization', 'Status', 'Actions'].map((h) => (
@@ -609,17 +609,17 @@ export default function AdminCoursesPage() {
                 ) : (
                   courses.map((c) => (
                     <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-2.5 font-medium text-gray-900">{c.courseName}</td>
-                      <td className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{c.courseCode || '—'}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{c.courseType}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{c.duration || '—'}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{c.specialization || '—'}</td>
-                      <td className="px-4 py-2.5 whitespace-nowrap">
+                      <td data-label="Course Name" className="px-4 py-2.5 font-medium text-gray-900">{c.courseName}</td>
+                      <td data-label="Code" className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{c.courseCode || '—'}</td>
+                      <td data-label="Type" className="px-4 py-2.5 text-gray-600">{c.courseType}</td>
+                      <td data-label="Duration" className="px-4 py-2.5 text-gray-600">{c.duration || '—'}</td>
+                      <td data-label="Specialization" className="px-4 py-2.5 text-gray-600">{c.specialization || '—'}</td>
+                      <td data-label="Status" className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status] || STATUS_COLORS.draft}`}>
                           {c.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 align-middle">
+                      <td data-label="Actions" className="px-4 py-2.5 align-middle">
                         <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button

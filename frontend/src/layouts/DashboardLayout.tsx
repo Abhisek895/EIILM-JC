@@ -18,6 +18,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const [collegeName, setCollegeName] = useState('');
   const [logo, setLogo] = useState('');
   const [isOnline, setIsOnline] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize(); // Initialize
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    }
+  }, []);
 
   React.useEffect(() => {
     setIsOnline(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -75,10 +91,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   return (
     <div className="flex w-full bg-gray-100/60 font-sans">
+      {/* Mobile Sidebar Overlay Backdrop */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 transition-opacity" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar aside */}
       <aside
-        className={`${sidebarOpen ? 'w-56' : 'w-16'
-          } bg-slate-900 text-white transition-all duration-300 fixed h-screen flex flex-col z-20 shadow-xl border-r border-slate-800`}
+        className={`${isMobile ? (sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64') : (sidebarOpen ? 'w-56' : 'w-16')
+          } bg-slate-900 text-white transition-all duration-300 fixed h-screen flex flex-col z-50 shadow-xl border-r border-slate-800 top-0 left-0`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-800 flex items-center justify-between min-h-[70px]">
@@ -186,7 +210,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       </aside>
 
       {/* Main body panel */}
-      <div className={`${sidebarOpen ? 'ml-56' : 'ml-16'} flex-1 flex flex-col transition-all duration-300 min-h-screen`}>
+      <div className={`${isMobile ? 'ml-0' : (sidebarOpen ? 'ml-56' : 'ml-16')} flex-1 flex flex-col transition-all duration-300 min-h-screen w-full overflow-x-hidden`}>
         {/* Top Header navbar */}
         <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 py-1.5 px-4 flex items-center justify-between sticky top-0 z-10 min-h-[48px]">
           <div className="flex items-center gap-4">

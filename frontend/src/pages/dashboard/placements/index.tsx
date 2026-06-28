@@ -262,8 +262,8 @@ export default function AdminPlacementPage() {
             <h1 className="text-xl font-bold text-gray-900">Placement Records</h1>
             <p className="text-gray-500 text-sm mt-1">{placements.length} records on this page</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+          <div className="grid grid-cols-2 lg:flex lg:flex-row items-center gap-2 lg:gap-3 w-full lg:w-auto">
+            <form onSubmit={handleSearch} className="col-span-2 lg:col-span-1 relative w-full lg:w-auto">
               <input
                 type="text"
                 placeholder="Search records..."
@@ -276,7 +276,7 @@ export default function AdminPlacementPage() {
                     setActiveSearch('');
                   }
                 }}
-                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full lg:w-64"
               />
               <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
             </form>
@@ -286,7 +286,7 @@ export default function AdminPlacementPage() {
                 setRecordTypeFilter(e.target.value);
                 setPage(1);
               }}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+              className="px-2 sm:px-4 py-2 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full lg:w-auto"
             >
               <option value="all">All Types</option>
               <option value="placement">Placement</option>
@@ -298,7 +298,7 @@ export default function AdminPlacementPage() {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+              className="px-2 sm:px-4 py-2 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full lg:w-auto"
             >
               <option value="all">All Statuses</option>
               <option value="draft">Draft</option>
@@ -308,7 +308,7 @@ export default function AdminPlacementPage() {
             {canWrite && (
               <button
                 onClick={openCreate}
-                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+                className="col-span-2 lg:col-span-1 bg-primary-600 text-white px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap w-full lg:w-auto"
               >
                 + Add Placement
               </button>
@@ -558,7 +558,7 @@ export default function AdminPlacementPage() {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm responsive-table">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {['Type', 'Student', 'Company', 'Package', 'Course', 'Year', 'Status', 'Actions'].map((h) => (
@@ -586,22 +586,22 @@ export default function AdminPlacementPage() {
                 ) : (
                   placements.map((p) => (
                     <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-2.5">
+                      <td data-label="Type" className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded border ${p.placementType === 'internship' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-primary-50 text-primary-600 border-primary-200'}`}>
                           {p.placementType === 'internship' ? 'Internship' : 'Placement'}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 font-medium text-gray-900">{p.studentName}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{p.companyName}</td>
-                      <td className="px-4 py-2.5 text-gray-900 font-semibold">{p.package}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{p.course || '—'}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{p.year}</td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Student" className="px-4 py-2.5 font-medium text-gray-900">{p.studentName}</td>
+                      <td data-label="Company" className="px-4 py-2.5 text-gray-600">{p.companyName}</td>
+                      <td data-label="Package" className="px-4 py-2.5 text-gray-900 font-semibold">{p.package}</td>
+                      <td data-label="Course" className="px-4 py-2.5 text-gray-600">{p.course || '—'}</td>
+                      <td data-label="Year" className="px-4 py-2.5 text-gray-600">{p.year}</td>
+                      <td data-label="Status" className="px-4 py-2.5">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[p.status] || STATUS_COLORS.published}`}>
                           {p.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td data-label="Actions" className="px-4 py-2.5">
                         <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
                           {canWrite && (
                             <button
