@@ -25,7 +25,7 @@ export default function HomeSliderManager() {
     { value: 'about', label: 'About Us Page', icon: 'ℹ️' },
     { value: 'contact', label: 'Contact Us Page', icon: '📞' },
   ];
-  
+
   // Custom Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{ visible: boolean; title: string; message: string; onConfirm: () => void; type?: 'danger' | 'warning' | 'info' } | null>(null);
 
@@ -357,7 +357,7 @@ export default function HomeSliderManager() {
                           <div className="text-4xl mb-4">🖼️</div>
                         )}
                         <p className="text-sm font-bold text-gray-600 mb-4">{uploading ? 'Uploading...' : 'No image selected'}</p>
-                        
+
                         {!uploading && (
                           <div className="flex flex-col gap-2 w-full max-w-[200px]">
                             <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-xl text-sm font-bold transition-colors">
@@ -568,7 +568,7 @@ export default function HomeSliderManager() {
               </div>
               <button onClick={() => setShowMediaGallery(false)} className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full text-gray-600 shadow-sm border border-gray-200">✕</button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
               {loadingMedia ? (
                 <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -584,8 +584,8 @@ export default function HomeSliderManager() {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {mediaItems.filter(item => item.fileType?.includes('image')).map(item => (
-                    <div 
-                      key={item.id} 
+                    <div
+                      key={item.id}
                       onClick={() => {
                         setEditingSlide({ ...editingSlide, imageUrl: item.fileUrl });
                         setShowMediaGallery(false);
@@ -606,7 +606,7 @@ export default function HomeSliderManager() {
                 </div>
               )}
             </div>
-            
+
             <div className="p-4 border-t border-gray-100 bg-white rounded-b-3xl flex justify-end">
               <button onClick={() => setShowMediaGallery(false)} className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors text-sm">Close</button>
             </div>
@@ -634,11 +634,10 @@ export default function HomeSliderManager() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setConfirmDialog(null)} />
           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col animate-scaleUp p-6 text-center">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-inner ${
-              confirmDialog.type === 'danger' ? 'bg-red-100 text-red-500' : 
-              confirmDialog.type === 'warning' ? 'bg-yellow-100 text-yellow-500' : 
-              'bg-blue-100 text-blue-500'
-            }`}>
+            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-inner ${confirmDialog.type === 'danger' ? 'bg-red-100 text-red-500' :
+                confirmDialog.type === 'warning' ? 'bg-yellow-100 text-yellow-500' :
+                  'bg-blue-100 text-blue-500'
+              }`}>
               <span className="text-3xl">
                 {confirmDialog.type === 'danger' ? '🗑️' : confirmDialog.type === 'warning' ? '⚠️' : 'ℹ️'}
               </span>
@@ -646,19 +645,18 @@ export default function HomeSliderManager() {
             <h3 className="text-xl font-bold text-gray-900 mb-2">{confirmDialog.title}</h3>
             <p className="text-sm text-gray-500 mb-6">{confirmDialog.message}</p>
             <div className="flex gap-3 justify-center">
-              <button 
-                onClick={() => setConfirmDialog(null)} 
+              <button
+                onClick={() => setConfirmDialog(null)}
                 className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
               >
                 Cancel
               </button>
-              <button 
-                onClick={confirmDialog.onConfirm} 
-                className={`flex-1 px-4 py-2.5 text-white font-bold rounded-xl shadow-md transition-all ${
-                  confirmDialog.type === 'danger' ? 'bg-red-500 hover:bg-red-600' : 
-                  confirmDialog.type === 'warning' ? 'bg-yellow-500 hover:bg-yellow-600' : 
-                  'bg-primary-600 hover:bg-primary-700'
-                }`}
+              <button
+                onClick={confirmDialog.onConfirm}
+                className={`flex-1 px-4 py-2.5 text-white font-bold rounded-xl shadow-md transition-all ${confirmDialog.type === 'danger' ? 'bg-red-500 hover:bg-red-600' :
+                    confirmDialog.type === 'warning' ? 'bg-yellow-500 hover:bg-yellow-600' :
+                      'bg-primary-600 hover:bg-primary-700'
+                  }`}
               >
                 Confirm
               </button>

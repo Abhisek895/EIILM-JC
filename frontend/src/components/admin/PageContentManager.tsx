@@ -4,6 +4,7 @@ import { getImageUrl } from '@utils/getImageUrl';
 
 const PAGES_CONFIG = [
   { key: 'home', label: 'Homepage Slider', icon: '🏠' },
+  { key: 'admissions', label: 'Admissions Page', icon: '🎓' },
   { key: 'courses', label: 'Courses Page', icon: '📚' },
   { key: 'departments', label: 'Departments Page', icon: '🏢' },
   { key: 'faculty', label: 'Faculty Page', icon: '👨‍🏫' },

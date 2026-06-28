@@ -5,6 +5,7 @@ import { departmentApi, siteSettingsApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import SEO from '@components/SEO';
 import FadeIn from '@components/FadeIn';
+import Breadcrumb from '@components/Breadcrumb';
 import { motion } from 'framer-motion';
 import { Library, ChevronRight, BookOpen, FlaskConical, Cpu, Calculator, Globe, Music } from 'lucide-react';
 
@@ -52,6 +53,7 @@ export default function DepartmentsPage() {
         fallbackHeading={siteSettings.dept_hero_heading || 'Our Departments'}
         fallbackSubheading={siteSettings.dept_hero_subheading || 'Explore our diverse academic departments dedicated to excellence in teaching and research.'}
       />
+      <Breadcrumb items={[{ label: 'Departments' }]} />
 
       <section className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 pt-16 md:pt-20 lg:pt-24 pb-20 bg-gray-50/50 min-h-screen relative z-20 -mt-10 md:-mt-16 lg:-mt-20 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-12px_40px_rgb(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto">

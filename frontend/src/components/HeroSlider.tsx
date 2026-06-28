@@ -187,8 +187,8 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
   }
 
   // Subpages Layout (Small Height, Centered Text, Dark Overlay)
-  const containerPadding = "h-[250px] lg:h-[350px]";
-  const headingSize = "text-3xl md:text-5xl mb-3 leading-tight";
+  const containerPadding = "h-[280px] sm:h-[340px] lg:h-[400px]";
+  const headingSize = "text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-3 leading-tight";
 
   return (
     <div className={`relative bg-slate-900 text-white overflow-hidden flex items-center transition-all duration-1000 ${containerPadding}`}>
@@ -201,7 +201,8 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary-700 via-primary-600 to-indigo-700" />
             )}
-            <div className="absolute inset-0 bg-slate-900/60 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+            {/* overlay removed so image color is not modified */}
+            {/* <div className="absolute inset-0 bg-slate-900/60 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div> */}
           </div>
         ))}
       </div>
@@ -247,7 +248,7 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
 
       {/* Slide Indicators */}
       {slides.length > 1 && (
-        <div className="absolute -bottom-10 md:-bottom-16 left-0 right-0 flex justify-center gap-2">
+        <div className="absolute bottom-3 sm:bottom-4 left-0 right-0 flex justify-center gap-2">
           {slides.map((_: any, idx: number) => (
             <button
               key={idx}

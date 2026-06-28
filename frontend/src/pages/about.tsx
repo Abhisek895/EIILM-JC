@@ -3,6 +3,7 @@ import MainLayout from '@layouts/MainLayout';
 import { siteSettingsApi } from '@api/endpoints';
 import FadeIn from '@components/FadeIn';
 import SEO from '@components/SEO';
+import Breadcrumb from '@components/Breadcrumb';
 import { motion } from 'framer-motion';
 import {
   Award, BookOpen, Users, Target, Eye, Heart,
@@ -178,6 +179,7 @@ export default function AboutPage() {
         fallbackHeading={collegeName}
         fallbackSubheading={settings.tagline || 'Shaping futures through excellence in education, innovation, and character.'}
       />
+      <Breadcrumb items={[{ label: 'About Us' }]} />
 
       {/* ── STATS BAND ── */}
       {stats.length > 0 && (

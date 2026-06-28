@@ -162,6 +162,18 @@ export default function AdmissionsContactPage() {
   const selectedCourseObj = courses.find(c => c.id === Number(form.courseId));
   const isMBA = selectedCourseObj && selectedCourseObj.courseName.toLowerCase().includes('mba');
 
+  // Mobile step wizard
+  const [step, setStep] = React.useState(1);
+  const TOTAL_STEPS = 4;
+  const STEP_LABELS = ['Program', 'Personal', 'Academic', 'Submit'];
+
+  const canGoNext = () => {
+    if (step === 1) return !!form.courseId;
+    if (step === 2) return !!(form.firstName && form.lastName && form.gender && form.mobile && form.email && form.city);
+    if (step === 3) return !!(form.board12th && form.yearOfPassing12th);
+    return true;
+  };
+
   return (
     <MainLayout>
       <SEO title="Admissions" siteName="College ERP" description="Apply for admission." />
@@ -174,10 +186,7 @@ export default function AdmissionsContactPage() {
       />
       <div className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 pt-16 md:pt-20 lg:pt-24 pb-20 bg-gray-50/50 min-h-screen relative z-20 -mt-10 md:-mt-16 lg:-mt-20 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-12px_40px_rgb(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto">
-          <FadeIn className="text-center mb-12 md:mb-16">
-            <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-primary-600 mb-3 md:mb-4">Begin Your Journey</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight">Apply for Admission</h2>
-          </FadeIn>
+
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-stretch">
             {/* Information & Map Column */}
@@ -206,8 +215,28 @@ export default function AdmissionsContactPage() {
             {/* Admission Form Column */}
             <FadeIn className="lg:col-span-3 order-first h-full" delay={0.2}>
               <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6 sm:p-8 md:p-10 border border-gray-100 relative overflow-hidden h-full flex flex-col">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 relative z-10">Detailed Application Form</h2>
-                
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 relative z-10">Apply for Admission</h2>
+
+                {/* Mobile Step Progress Bar */}
+                <div className="lg:hidden mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    {STEP_LABELS.map((label, i) => (
+                      <div key={label} className="flex flex-col items-center gap-1">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step > i + 1 ? 'bg-green-500 text-white' : step === i + 1 ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30' : 'bg-gray-100 text-gray-400'}`}>
+                          {step > i + 1 ? '✓' : i + 1}
+                        </div>
+                        <span className={`text-[10px] font-semibold ${step === i + 1 ? 'text-primary-600' : 'text-gray-400'}`}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary-600 to-primary-400 rounded-full transition-all duration-500"
+                      style={{ width: `${((step - 1) / (TOTAL_STEPS - 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
                 {status !== 'idle' && (
                   <div className={`p-4 rounded-xl mb-6 relative z-10 font-medium text-sm flex items-start gap-3 ${status === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
                     {status === 'success' && <CheckCircle2 className="flex-shrink-0 mt-0.5" size={18} />}
@@ -216,9 +245,24 @@ export default function AdmissionsContactPage() {
                 )}
 
                 <form onSubmit={submitAdmission} className="space-y-6 relative z-10">
-                  
-                  {/* Program Selection */}
-                  <div className="space-y-1.5 bg-gray-50 p-4 rounded-xl border border-gray-100">
+
+                  {/* STEP 1 — Program Selection */}
+                  <div className={step === 1 || undefined ? '' : 'hidden lg:block'}>
+                  <div className={`lg:hidden ${step === 1 ? 'block' : 'hidden'}`}>
+                  </div>
+                  <div className="hidden lg:block space-y-1.5 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label className="text-sm font-bold text-gray-800">Select the program you want to apply for: *</label>
+                    <select required name="courseId" value={form.courseId} onChange={handleChange} className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none text-sm text-gray-800">
+                      <option value="">Select a Program</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>{c.courseName} {c.courseType ? `(${c.courseType})` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  </div>
+
+                  {/* Mobile Step 1 */}
+                  <div className={`lg:hidden ${step === 1 ? 'block' : 'hidden'} space-y-1.5 bg-gray-50 p-4 rounded-xl border border-gray-100`}>
                     <label className="text-sm font-bold text-gray-800">Select the program you want to apply for: *</label>
                     <select required name="courseId" value={form.courseId} onChange={handleChange} className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none text-sm text-gray-800">
                       <option value="">Select a Program</option>
@@ -228,10 +272,10 @@ export default function AdmissionsContactPage() {
                     </select>
                   </div>
 
-                  {/* Personal Details */}
-                  <div className="space-y-4">
+                  {/* Personal Details — desktop always visible, mobile only on step 2 */}
+                  <div className={`space-y-4 lg:block ${step === 2 ? 'block' : 'hidden'}`}>
                     <h3 className="text-lg font-bold text-primary-700 border-b pb-2">Personal Information</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600">First Name + Middle Name *</label>
@@ -289,9 +333,9 @@ export default function AdmissionsContactPage() {
                   </div>
 
                   {/* Contact Details */}
-                  <div className="space-y-4 pt-2">
+                  <div className={`space-y-4 pt-2 lg:block ${step === 2 ? 'block' : 'hidden'}`}>
                     <h3 className="text-lg font-bold text-primary-700 border-b pb-2">Contact Details</h3>
-                    
+
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-gray-600">Address *</label>
                       <input type="text" required name="address" value={form.address} onChange={handleChange} className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-sm" />
@@ -336,9 +380,9 @@ export default function AdmissionsContactPage() {
                   </div>
 
                   {/* Family Details */}
-                  <div className="space-y-4 pt-2">
+                  <div className={`space-y-4 pt-2 lg:block ${step === 3 ? 'block' : 'hidden'}`}>
                     <h3 className="text-lg font-bold text-primary-700 border-b pb-2">Family Details</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600">Father's Name *</label>
@@ -368,9 +412,9 @@ export default function AdmissionsContactPage() {
                   </div>
 
                   {/* Academic Details */}
-                  <div className="space-y-4 pt-2">
+                  <div className={`space-y-4 pt-2 lg:block ${step === 3 ? 'block' : 'hidden'}`}>
                     <h3 className="text-lg font-bold text-primary-700 border-b pb-2">Academic Details</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600">Exam Board (12th standard) *</label>
@@ -408,7 +452,7 @@ export default function AdmissionsContactPage() {
                   {isMBA && (
                     <div className="space-y-4 pt-2 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                       <h3 className="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2">Graduation Details (MBA Applicants)</h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-gray-600">College Name</label>
@@ -445,9 +489,9 @@ export default function AdmissionsContactPage() {
                   )}
 
                   {/* Other Details */}
-                  <div className="space-y-4 pt-2">
+                  <div className={`space-y-4 pt-2 lg:block ${step === 4 ? 'block' : 'hidden'}`}>
                     <h3 className="text-lg font-bold text-primary-700 border-b pb-2">Other Details</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600">Who told you about us?</label>
@@ -472,10 +516,52 @@ export default function AdmissionsContactPage() {
                     </div>
                   </div>
 
+                  {/* Mobile Next / Back Step Navigation */}
+                  <div className="lg:hidden flex gap-3 mt-6">
+                    {step > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setStep(s => s - 1)}
+                        className="flex-1 min-h-[48px] py-3 rounded-xl font-bold text-gray-700 border-2 border-gray-200 hover:border-gray-300 bg-white transition-all active:scale-95 text-sm"
+                      >
+                        ← Back
+                      </button>
+                    )}
+                    {step < TOTAL_STEPS ? (
+                      <button
+                        type="button"
+                        onClick={() => { if (canGoNext()) setStep(s => s + 1); }}
+                        disabled={!canGoNext()}
+                        className="flex-1 min-h-[48px] py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-lg shadow-primary-600/30 transition-all active:scale-95 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next →
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex-1 min-h-[48px] py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-lg shadow-primary-600/30 transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Submitting...
+                          </div>
+                        ) : (
+                          <>
+                            {intent === 'syllabus' ? <Download size={16} /> : <Send size={16} />}
+                            {intent === 'syllabus' ? 'Download Syllabus' : 'Submit Application'}
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Desktop Submit Button */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-4 mt-6 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-primary-600/30 shadow-lg hover:-translate-y-0.5 text-sm"
+                    className="hidden lg:flex w-full py-4 mt-6 rounded-xl font-bold text-white transition-all duration-300 items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-primary-600/30 shadow-lg hover:-translate-y-0.5 text-sm active:scale-95"
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ import { courseApi, siteSettingsApi } from '@api/endpoints';
 import Link from 'next/link';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
+import Breadcrumb from '@components/Breadcrumb';
 import { GraduationCap, Landmark, ScrollText, Award, Clock, ClipboardCheck, IndianRupee, BookOpen, ArrowRight } from 'lucide-react';
 import { getImageUrl } from '@utils/getImageUrl';
 
@@ -83,6 +84,7 @@ export default function CoursesPage() {
         fallbackHeading={siteSettings.courses_hero_heading || 'Explore Our Courses'}
         fallbackSubheading={siteSettings.courses_hero_subheading || 'Discover world-class programmes designed to shape your future and open doors to global opportunities.'}
       />
+      <Breadcrumb items={[{ label: 'Courses' }]} />
 
       <div className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 pt-16 md:pt-20 lg:pt-24 pb-20 bg-gray-50/50 min-h-screen relative z-20 -mt-10 md:-mt-16 lg:-mt-20 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-12px_40px_rgb(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto">

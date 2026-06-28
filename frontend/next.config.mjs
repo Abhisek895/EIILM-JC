@@ -12,6 +12,16 @@ const nextConfig = {
         protocol: "https",
         hostname: "**.amazonaws.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3003",
+      },
+      {
+        protocol: "http",
+        hostname: "10.242.209.210",
+        port: "3003",
+      },
     ],
   },
   headers: async () => [

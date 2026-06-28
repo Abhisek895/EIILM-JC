@@ -835,6 +835,91 @@ function FeaturesSection({ settings }: SectionProps & { config?: Record<string, 
   );
 }
 
+const DEFAULT_TESTIMONIALS = [
+  {
+    name: 'Priya Sharma',
+    course: 'BBA, 2023',
+    quote: 'The admissions process was smooth and the counselors were super helpful. I got placed in my dream company within 3 months of graduating!',
+    initials: 'PS',
+    color: 'from-primary-500 to-indigo-600',
+  },
+  {
+    name: 'Rahul Das',
+    course: 'MBA, 2024',
+    quote: 'The faculty here are industry experts. The practical exposure I got during my MBA was invaluable — I felt job-ready from day one.',
+    initials: 'RD',
+    color: 'from-emerald-500 to-teal-600',
+  },
+  {
+    name: 'Ananya Bose',
+    course: 'BCA, 2023',
+    quote: 'Campus life, infrastructure, and the support system here are outstanding. I would recommend this college to anyone looking for a quality education.',
+    initials: 'AB',
+    color: 'from-violet-500 to-purple-600',
+  },
+];
+
+function TestimonialsSection({ settings }: SectionProps) {
+  return (
+    <section className="bg-white py-20">
+      <div className="container mx-auto px-4 sm:px-6">
+        <FadeIn className="mb-12 text-center">
+          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+            Student Stories
+          </p>
+          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+            Hear from our students
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+            Real experiences from students who've studied, grown, and launched careers here.
+          </p>
+        </FadeIn>
+
+        {/* Mobile: horizontal scroll. Desktop: 3-column grid */}
+        <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
+          {DEFAULT_TESTIMONIALS.map((testimonial, index) => (
+            <FadeIn key={testimonial.name} delay={index * 0.1} className="shrink-0 w-[85vw] max-w-xs sm:w-[320px] md:w-auto snap-start">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.12, duration: 0.5 }}
+                whileHover={{ y: -6, boxShadow: '0 24px 48px rgba(0,0,0,0.08)' }}
+                className="h-full rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 transition-all flex flex-col"
+              >
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <blockquote className="flex-1 text-gray-600 text-sm sm:text-base leading-relaxed italic mb-6">
+                  "{testimonial.quote}"
+                </blockquote>
+
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${testimonial.color} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
+                    {testimonial.initials}
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900 text-sm">{testimonial.name}</div>
+                    <div className="text-xs text-gray-500">{testimonial.course}</div>
+                  </div>
+                </div>
+              </motion.div>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTASection({ settings, notices, events }: SectionProps & { config?: Record<string, any> }) {
   return (
     <section className="bg-white py-20">
@@ -938,6 +1023,8 @@ function SectionRenderer({
       return <EventsSection settings={settings} courses={courses} notices={notices} events={events} />;
     case 'features':
       return <FeaturesSection settings={settings} courses={courses} notices={notices} events={events} />;
+    case 'testimonials':
+      return <TestimonialsSection settings={settings} courses={courses} notices={notices} events={events} />;
     case 'cta':
       return <CTASection settings={settings} courses={courses} notices={notices} events={events} />;
     default:
@@ -953,7 +1040,8 @@ const DEFAULT_SECTIONS: PageSection[] = [
   { id: 5, sectionKey: 'features', config: {}, sortOrder: 4 },
   { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 5 },
   { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 6 },
-  { id: 8, sectionKey: 'cta', config: {}, sortOrder: 7 },
+  { id: 8, sectionKey: 'testimonials', config: {}, sortOrder: 7 },
+  { id: 9, sectionKey: 'cta', config: {}, sortOrder: 8 },
 ];
 
 export default function HomePage() {
