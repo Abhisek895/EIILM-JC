@@ -77,6 +77,39 @@ function DropdownMenu({ label, links, activeHref }: { label: string; links: { la
   );
 }
 
+function MobileAccordionMenu({ label, links, activeHref }: { label: string; links: { label: string; href: string }[]; activeHref: string }) {
+  const [open, setOpen] = useState(false);
+  const isActive = links.some(l => l.href === activeHref);
+  return (
+    <div className="overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+          isActive || open ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        <span>{label}</span>
+        <ChevronDown size={16} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <div className={`transition-all duration-300 ease-in-out ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="pl-4 py-1 space-y-1 border-l-2 border-gray-100 ml-4 mt-1">
+          {links.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center min-h-[40px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeHref === link.href ? 'text-primary-600 font-bold' : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const Navigation: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const router = useRouter();
@@ -240,20 +273,26 @@ export const Navigation: React.FC = () => {
               mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="border-t border-gray-100 bg-white px-4 py-3 space-y-1">
-              {ALL_MOBILE_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    router.pathname === link.href
-                      ? 'text-primary-600 bg-primary-50 border-l-4 border-primary-600'
-                      : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="border-t border-gray-100 bg-white px-4 py-3 space-y-1 max-h-[80vh] overflow-y-auto">
+              <Link
+                href="/"
+                className={`flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  router.pathname === '/' ? 'text-primary-600 bg-primary-50 border-l-4 border-primary-600' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                }`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/admissions"
+                className={`flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  router.pathname === '/admissions' ? 'text-primary-600 bg-primary-50 border-l-4 border-primary-600' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                }`}
+              >
+                Admissions
+              </Link>
+              
+              <MobileAccordionMenu label="Academics" links={ACADEMICS_LINKS} activeHref={router.pathname} />
+              <MobileAccordionMenu label="Campus Life" links={CAMPUS_LINKS} activeHref={router.pathname} />
 
               <div className="border-t border-gray-100 pt-3 mt-2 flex gap-3">
                 {isAuthenticated ? (

@@ -104,14 +104,14 @@ export default function ChatbotWidget() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-2xl transition-transform hover:scale-110"
+        className="fixed bottom-20 lg:bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-2xl transition-transform hover:scale-110"
         aria-label="Open chatbot"
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 flex h-[500px] max-h-[80vh] w-80 flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl sm:w-96">
+        <div className="fixed bottom-[136px] lg:bottom-24 right-6 z-50 flex h-[500px] max-h-[75vh] w-80 flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl sm:w-96">
           <div className="flex items-center justify-between bg-gradient-to-r from-primary-600 to-primary-700 p-4 text-white">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
