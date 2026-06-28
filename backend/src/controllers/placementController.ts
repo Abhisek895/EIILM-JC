@@ -23,11 +23,24 @@ export const placementController = {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const status = req.query.status as string;
+      const search = req.query.search as string;
+      const placementType = req.query.placementType as string;
       const offset = (page - 1) * limit;
 
       const whereClause: any = {};
       if (status) {
         whereClause.status = status;
+      }
+      if (placementType && placementType !== 'all') {
+        whereClause.placementType = placementType;
+      }
+      if (search) {
+        const { Op } = require('sequelize');
+        whereClause[Op.or] = [
+          { studentName: { [Op.substring]: search } },
+          { companyName: { [Op.substring]: search } },
+          { course: { [Op.substring]: search } },
+        ];
       }
 
       const { count, rows } = await Placement.findAndCountAll({

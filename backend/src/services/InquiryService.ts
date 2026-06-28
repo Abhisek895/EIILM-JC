@@ -52,8 +52,11 @@ export class InquiryService {
     return inquiry;
   }
 
-  async listInquiries(page: number, limit: number, search?: string) {
+  async listInquiries(page: number, limit: number, search?: string, status?: string) {
     const where: any = {};
+    if (status && status !== 'all') {
+      where.status = status;
+    }
     if (search) {
       const { Op } = require('sequelize');
       where[Op.or] = [

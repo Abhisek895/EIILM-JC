@@ -40,6 +40,7 @@ export default function AdminInquiriesPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [exporting, setExporting] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
@@ -61,10 +62,10 @@ export default function AdminInquiriesPage() {
   const role = user?.role;
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.inquiries?.includes('write'));
 
-  const load = useCallback(async (p: number, search: string) => {
+  const load = useCallback(async (p: number, search: string, status: string) => {
     setLoading(true);
     try {
-      const res: any = await inquiryApi.getAll(p, 12, search);
+      const res: any = await inquiryApi.getAll(p, 12, search, status);
       setInquiries(res?.data || []);
       setTotalPages(res?.pagination?.totalPages || 1);
     } finally {
@@ -72,7 +73,7 @@ export default function AdminInquiriesPage() {
     }
   }, []);
 
-  useEffect(() => { load(page, activeSearch); }, [page, activeSearch, load]);
+  useEffect(() => { load(page, activeSearch, statusFilter); }, [page, activeSearch, statusFilter, load]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,6 +195,24 @@ export default function AdminInquiriesPage() {
               />
               <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
             </form>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+            >
+              <option value="all">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="interested">Interested</option>
+              <option value="follow_up">Follow Up</option>
+              <option value="converted">Converted</option>
+              <option value="rejected">Rejected</option>
+              <option value="closed">Closed</option>
+              <option value="enrolled">Enrolled</option>
+            </select>
             <button
               onClick={handleExport}
               disabled={exporting}

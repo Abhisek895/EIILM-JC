@@ -1,6 +1,7 @@
 import { getImageUrl } from '@utils/image';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { facultyApi, departmentApi, mediaApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -62,6 +63,11 @@ export default function AdminFacultyPage() {
   const [faculty, setFaculty] = useState<FacultyMember[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<FacultyForm>(EMPTY_FORM);
@@ -119,14 +125,15 @@ export default function AdminFacultyPage() {
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.faculty?.includes('write'));
   const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.faculty?.includes('delete'));
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (p: number, search: string, dept: string) => {
     setLoading(true);
     try {
       const [facRes, deptRes]: any = await Promise.all([
-        facultyApi.getAll(1, 100),
+        facultyApi.getAll(p, 10, dept && dept !== 'all' ? Number(dept) : undefined, search),
         departmentApi.getAll(1, 100),
       ]);
       setFaculty(facRes?.data || []);
+      setTotalPages(facRes?.meta?.totalPages || facRes?.pagination?.totalPages || 1);
       setDepartments(deptRes?.data || []);
     } catch (err) {
       console.error('Failed to load faculty details:', err);
@@ -136,8 +143,14 @@ export default function AdminFacultyPage() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    load(page, activeSearch, departmentFilter);
+  }, [load, page, activeSearch, departmentFilter]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    setActiveSearch(searchQuery);
+  };
 
   const showSuccessToast = (title: string, message: string) => {
     setToast({ visible: true, title, message });
@@ -186,13 +199,13 @@ export default function AdminFacultyPage() {
     try {
       if (editId) {
         await facultyApi.update(editId, payload);
-        showSuccessToast('Faculty Modified', 'Faculty member details have been modified successfully!');
+        showSuccessToast('Faculty Updated', 'Faculty member has been updated successfully!');
       } else {
         await facultyApi.create(payload);
         showSuccessToast('Faculty Created', 'New faculty member has been created successfully!');
       }
       setShowForm(false);
-      await load();
+      await load(page, activeSearch, departmentFilter);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save faculty member');
     } finally {
@@ -243,7 +256,7 @@ export default function AdminFacultyPage() {
         try {
           await facultyApi.remove(id);
           showSuccessToast('Faculty Deleted', 'Faculty member has been deleted successfully!');
-          await load();
+          await load(page, activeSearch, departmentFilter);
         } catch {
           showSuccessToast('Deletion Failed', 'Failed to delete faculty member');
         }
@@ -259,19 +272,51 @@ export default function AdminFacultyPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Faculty Members</h1>
-            <p className="text-gray-500 text-sm mt-1">{faculty.length} members total</p>
+            <p className="text-gray-500 text-sm mt-1">Manage teaching staff and departments</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search faculty..."
+                value={searchQuery}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim() === '') {
+                    setPage(1);
+                    setActiveSearch('');
+                  }
+                }}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </form>
+            <select
+              value={departmentFilter}
+              onChange={(e) => {
+                setDepartmentFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
             >
-              + Add Faculty
-            </button>
-          )}
+              <option value="all">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add Faculty
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -532,6 +577,25 @@ export default function AdminFacultyPage() {
             </table>
           </div>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
       
       {/* Slide-in custom success Toast popup notification */}

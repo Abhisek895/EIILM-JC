@@ -6,9 +6,17 @@ export class FacultyRepository extends BaseRepository<Faculty> {
     super(Faculty);
   }
 
-  async findAllActive(page: number, limit: number, departmentId?: number) {
-    const where: Record<string, unknown> = { status: 'active' };
+  async findAllActive(page: number, limit: number, departmentId?: number, search?: string) {
+    const where: any = { status: 'active' };
     if (departmentId) where.departmentId = departmentId;
+    if (search) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { name: { [Op.substring]: search } },
+        { designation: { [Op.substring]: search } },
+        { email: { [Op.substring]: search } },
+      ];
+    }
 
     return this.paginate(page, limit, {
       where,

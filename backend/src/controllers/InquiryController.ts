@@ -29,7 +29,8 @@ export class InquiryController {
     try {
       const { page, limit } = parsePagination(req.query.page, req.query.limit);
       const search = req.query.search as string | undefined;
-      const result = await this.inquiryService.listInquiries(page, limit, search);
+      const status = req.query.status as string | undefined;
+      const result = await this.inquiryService.listInquiries(page, limit, search, status);
 
       ApiResponse.paginated(
         res,

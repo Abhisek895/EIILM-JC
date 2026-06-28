@@ -22,8 +22,8 @@ export class FacultyService {
     this.repo = new FacultyRepository();
   }
 
-  async list(page: number, limit: number, departmentId?: number) {
-    return this.repo.findAllActive(page, limit, departmentId);
+  async list(page: number, limit: number, departmentId?: number, search?: string) {
+    return this.repo.findAllActive(page, limit, departmentId, search);
   }
 
   async getById(id: number): Promise<Faculty | null> {

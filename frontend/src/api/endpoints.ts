@@ -57,10 +57,12 @@ export const departmentApi = {
 
 // ─── Faculty ─────────────────────────────────────────────────────────────────
 export const facultyApi = {
-  getAll: (page = 1, limit = 50, departmentId?: number) =>
-    apiClient.get(
-      `/faculty?page=${page}&limit=${limit}${departmentId ? `&departmentId=${departmentId}` : ''}`
-    ),
+  getAll: (page = 1, limit = 50, departmentId?: number, search?: string) => {
+    let url = `/faculty?page=${page}&limit=${limit}`;
+    if (departmentId) url += `&departmentId=${departmentId}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return apiClient.get(url);
+  },
   getById: (id: number) => apiClient.get(`/faculty/${id}`),
   create: (data: unknown) => apiClient.post('/faculty', data),
   update: (id: number, data: unknown) => apiClient.put(`/faculty/${id}`, data),
@@ -126,9 +128,10 @@ export const cmsApi = {
 // ─── Inquiries ────────────────────────────────────────────────────────────────
 export const inquiryApi = {
   create: (data: unknown) => apiClient.post('/inquiries', data),
-  getAll: (page = 1, limit = 20, search?: string) => {
+  getAll: (page = 1, limit = 20, search?: string, status?: string) => {
     let url = `/inquiries?page=${page}&limit=${limit}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (status && status !== 'all') url += `&status=${encodeURIComponent(status)}`;
     return apiClient.get(url);
   },
   update: (id: number, data: unknown) => apiClient.put(`/inquiries/${id}`, data),
@@ -180,8 +183,13 @@ export const chatbotApi = {
 
 // ─── Placements ───────────────────────────────────────────────────────────────
 export const placementApi = {
-  getAll: (page = 1, limit = 50, status?: string) =>
-    apiClient.get(`/placements?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+  getAll: (page = 1, limit = 50, status?: string, search?: string, placementType?: string) => {
+    let url = `/placements?page=${page}&limit=${limit}`;
+    if (status && status !== 'all') url += `&status=${encodeURIComponent(status)}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (placementType && placementType !== 'all') url += `&placementType=${encodeURIComponent(placementType)}`;
+    return apiClient.get(url);
+  },
   getById: (id: number) => apiClient.get(`/placements/${id}`),
   create: (data: unknown) => apiClient.post('/placements', data),
   update: (id: number, data: unknown) => apiClient.put(`/placements/${id}`, data),

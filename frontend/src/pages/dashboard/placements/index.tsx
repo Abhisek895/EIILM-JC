@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import { Search } from 'lucide-react';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { placementApi, mediaApi, courseApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
@@ -48,6 +49,11 @@ export default function AdminPlacementPage() {
   const router = useRouter();
   const [placements, setPlacements] = useState<PlacementRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
+  const [recordTypeFilter, setRecordTypeFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
@@ -110,11 +116,12 @@ export default function AdminPlacementPage() {
   const canWrite = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('write'));
   const canDelete = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.placements?.includes('delete'));
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (p: number, search: string, recordType: string) => {
     setLoading(true);
     try {
-      const res: any = await placementApi.getAll(1, 100);
+      const res: any = await placementApi.getAll(p, 10, 'all', search, recordType);
       setPlacements(res?.data || []);
+      setTotalPages(res?.meta?.totalPages || 1);
       const coursesRes: any = await courseApi.getAll(1, 100);
       setCourses(coursesRes?.data?.items || coursesRes?.data || []);
     } catch (err) {
@@ -125,8 +132,14 @@ export default function AdminPlacementPage() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    load(page, activeSearch, recordTypeFilter);
+  }, [load, page, activeSearch, recordTypeFilter]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    setActiveSearch(searchQuery);
+  };
 
   const showSuccessToast = (title: string, message: string) => {
     setToast({ visible: true, title, message });
@@ -173,7 +186,7 @@ export default function AdminPlacementPage() {
         showSuccessToast('Placement Created', 'New placement record has been created successfully!');
       }
       setShowForm(false);
-      await load();
+      await load(page, activeSearch, recordTypeFilter);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save placement');
     } finally {
@@ -226,7 +239,7 @@ export default function AdminPlacementPage() {
         try {
           await placementApi.remove(id);
           showSuccessToast('Placement Deleted', 'Placement record has been deleted successfully!');
-          await load();
+          await load(page, activeSearch, recordTypeFilter);
         } catch {
           showSuccessToast('Deletion Failed', 'Failed to delete placement record');
         }
@@ -243,19 +256,50 @@ export default function AdminPlacementPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Placement Records</h1>
-            <p className="text-gray-500 text-sm mt-1">{placements.length} records total</p>
+            <p className="text-gray-500 text-sm mt-1">{placements.length} records on this page</p>
           </div>
-          {canWrite && (
-            <button
-              onClick={openCreate}
-              className="bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors"
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim() === '') {
+                    setPage(1);
+                    setActiveSearch('');
+                  }
+                }}
+                className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-64"
+              />
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+            </form>
+            <select
+              value={recordTypeFilter}
+              onChange={(e) => {
+                setRecordTypeFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
             >
-              + Add Placement
-            </button>
-          )}
+              <option value="all">All Types</option>
+              <option value="placement">Placement</option>
+              <option value="internship">Internship</option>
+            </select>
+            {canWrite && (
+              <button
+                onClick={openCreate}
+                className="bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 font-semibold text-sm transition-colors whitespace-nowrap"
+              >
+                + Add Placement
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Modal */}
@@ -570,6 +614,25 @@ export default function AdminPlacementPage() {
             </table>
           </div>
         </div>
+        
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
       
       {/* Slide-in custom success Toast popup notification */}

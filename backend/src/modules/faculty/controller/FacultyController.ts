@@ -16,7 +16,8 @@ export class FacultyController {
       const departmentId = req.query.departmentId
         ? Number(req.query.departmentId)
         : undefined;
-      const result = await this.service.list(page, limit, departmentId);
+      const search = req.query.search as string | undefined;
+      const result = await this.service.list(page, limit, departmentId, search);
       ApiResponse.paginated(res, 200, 'Faculty fetched', result.data, {
         page: result.page,
         limit,
