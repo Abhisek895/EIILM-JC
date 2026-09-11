@@ -17,6 +17,9 @@ dotenv.config();
 const app: Express = express();
 const configuredPort = Number.parseInt(process.env.PORT || '5000', 10);
 
+// Enable trust proxy for reverse proxies / Cloudflare / Vercel
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: false // Required so that frontend can load static uploaded assets from backend domain

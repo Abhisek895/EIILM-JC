@@ -215,3 +215,59 @@ export const getUploadedFileUrl = (file: Express.Multer.File): string => {
   // Local disk storage — build the relative URL the frontend can resolve
   return `/uploads/files/${file.filename}`;
 };
+
+/**
+ * Cleanly deletes a file from whatever storage provider it was uploaded to:
+ * - Vercel Blob (using REST delete endpoint)
+ * - Cloudinary (using uploader.destroy)
+ * - Local disk (using fs.unlinkSync)
+ */
+export async function deleteRemoteFile(fileUrl: string | null | undefined): Promise<void> {
+  if (!fileUrl) return;
+
+  // 1. Vercel Blob Storage
+  if (fileUrl.includes('blob.vercel-storage.com')) {
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        await fetch('https://blob.vercel-storage.com/delete', {
+          method: 'POST',
+          headers: {
+            authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+            'x-api-version': '7',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ urls: [fileUrl] }),
+        });
+      } catch (blobErr) {
+        console.warn('Vercel Blob delete warning:', blobErr);
+      }
+    }
+    return;
+  }
+
+  // 2. Cloudinary Storage
+  if (fileUrl.startsWith('https://res.cloudinary.com')) {
+    const publicIdMatch = fileUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
+    if (publicIdMatch) {
+      try {
+        await cloudinary.v2.uploader.destroy(publicIdMatch[1]);
+      } catch (cloudErr) {
+        console.warn('Cloudinary delete warning:', cloudErr);
+      }
+    }
+    return;
+  }
+
+  // 3. Local Disk Storage
+  const filenameMatch = fileUrl.match(/\/uploads\/files\/(.+)$/);
+  if (filenameMatch) {
+    const physicalPath = path.join(__dirname, '../../uploads/files', filenameMatch[1]);
+    if (fs.existsSync(physicalPath)) {
+      try {
+        fs.unlinkSync(physicalPath);
+      } catch (diskErr) {
+        console.warn('Local disk delete warning:', diskErr);
+      }
+    }
+  }
+}

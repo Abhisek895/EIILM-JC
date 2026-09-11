@@ -1,13 +1,10 @@
 import { Router } from 'express';
-import { uploadCloud, getUploadedFileUrl } from '@middlewares/uploadCloud';
+import { uploadCloud, getUploadedFileUrl, deleteRemoteFile } from '@middlewares/uploadCloud';
 import { authenticateToken, authorizePermission } from '@middlewares/auth';
 import { ApiResponse } from '@utils/responses';
 import { Request, Response } from 'express';
 import { MediaLibrary } from '@models/MediaLibrary';
 import { parsePagination } from '@utils/pagination';
-import cloudinary from 'cloudinary';
-import fs from 'fs';
-import path from 'path';
 
 const router = Router();
 
@@ -99,19 +96,8 @@ router.put(
 
       const newFileUrl = getUploadedFileUrl(req.file);
 
-      // Delete the old file (Cloudinary or local)
-      if (media.fileUrl && media.fileUrl.startsWith('https://res.cloudinary.com')) {
-        const publicIdMatch = media.fileUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-        if (publicIdMatch) {
-          try { await cloudinary.v2.uploader.destroy(publicIdMatch[1]); } catch (_) { /* non-fatal */ }
-        }
-      } else {
-        const oldFilenameMatch = media.fileUrl.match(/\/uploads\/files\/(.+)$/);
-        if (oldFilenameMatch) {
-          const oldPhysicalPath = path.join(__dirname, '../../../uploads/files', oldFilenameMatch[1]);
-          if (fs.existsSync(oldPhysicalPath)) fs.unlinkSync(oldPhysicalPath);
-        }
-      }
+      // Cleanly delete the old file (Vercel Blob, Cloudinary, or local disk)
+      await deleteRemoteFile(media.fileUrl);
 
       // Update the DB record with new file info
       await media.update({
@@ -141,24 +127,8 @@ router.delete(
         return;
       }
 
-      // Delete from Cloudinary if it's a Cloudinary URL
-      if (media.fileUrl && media.fileUrl.startsWith('https://res.cloudinary.com')) {
-        const publicIdMatch = media.fileUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-        if (publicIdMatch) {
-          try {
-            await cloudinary.v2.uploader.destroy(publicIdMatch[1]);
-          } catch (cloudErr) {
-            console.warn('Cloudinary delete warning:', cloudErr);
-          }
-        }
-      } else {
-        // Local disk
-        const filenameMatch = media.fileUrl.match(/\/uploads\/files\/(.+)$/);
-        if (filenameMatch) {
-          const physicalPath = path.join(__dirname, '../../../uploads/files', filenameMatch[1]);
-          if (fs.existsSync(physicalPath)) fs.unlinkSync(physicalPath);
-        }
-      }
+      // Cleanly delete the file from storage (Vercel Blob, Cloudinary, or local disk)
+      await deleteRemoteFile(media.fileUrl);
 
       await media.destroy();
       ApiResponse.success(res, 200, 'Media deleted');
