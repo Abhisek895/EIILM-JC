@@ -8,6 +8,7 @@ type JwtUser = {
   email: string;
   roleId: number;
   role: string;
+  tenantId?: number | null;
   permissions?: any;
 };
 

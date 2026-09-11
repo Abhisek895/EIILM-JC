@@ -35,6 +35,10 @@ export class CourseService {
     return this.courseRepo.findById(id);
   }
 
+  async getCourseBySlug(slug: string): Promise<Course | null> {
+    return this.courseRepo.findOne({ where: { slug } });
+  }
+
   async createCourse(data: CreateCourseInput): Promise<Course> {
     const slug = this.createSlug(data.courseName);
 

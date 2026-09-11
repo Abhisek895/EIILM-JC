@@ -117,7 +117,7 @@ export default function AdminCoursesPage() {
     try {
       const res: any = await courseApi.getAll(p, 10, 'all', search);
       setCourses(res?.data || []);
-      setTotalPages(res?.meta?.totalPages || 1);
+      setTotalPages(res?.pagination?.totalPages || res?.meta?.totalPages || 1);
     } finally {
       setLoading(false);
     }

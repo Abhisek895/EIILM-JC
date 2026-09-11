@@ -7,9 +7,9 @@ import axios, {
 } from 'axios';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Use NEXT_PUBLIC_API_URL from .env.local. Fallback to port 3003 (backend default).
+// Use NEXT_PUBLIC_API_URL from .env.local. Fallback to port 5000 (backend default).
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 console.log('API_URL is:', API_URL);
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
@@ -178,7 +178,7 @@ class ApiClient {
       if (error?.response?.status === 429) {
         return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
       }
-      throw new Error(`Connection Failed to ${API_URL}: ${error.message}`);
+      throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
   }
 

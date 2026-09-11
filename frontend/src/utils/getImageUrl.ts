@@ -14,8 +14,8 @@ export const getImageUrl = (path: string | null | undefined): string => {
   if (path.startsWith('http') || path.startsWith('data:')) return path;
 
   // Derive the backend origin from NEXT_PUBLIC_API_URL, e.g.:
-  //   "http://localhost:3003/api/v1"  →  "http://localhost:3003"
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1';
+  //   "http://localhost:5000/api/v1"  →  "http://localhost:5000"
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
   const baseUrl = apiUrl.replace(/\/api\/v1\/?$/, '');
 
   // Ensure path starts with /

@@ -122,7 +122,7 @@ export default function AdminPlacementPage() {
     try {
       const res: any = await placementApi.getAll(p, 10, status, search, recordType);
       setPlacements(res?.data || []);
-      setTotalPages(res?.meta?.totalPages || 1);
+      setTotalPages(res?.pagination?.totalPages || res?.meta?.totalPages || 1);
       const coursesRes: any = await courseApi.getAll(1, 100);
       setCourses(coursesRes?.data?.items || coursesRes?.data || []);
     } catch (err) {

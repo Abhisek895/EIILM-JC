@@ -1,4 +1,3 @@
-import { Database } from '../config/database';
 import { SiteSetting } from '../models';
 
 async function run() {

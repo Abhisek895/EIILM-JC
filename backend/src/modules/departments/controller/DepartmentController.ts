@@ -27,8 +27,17 @@ export class DepartmentController {
 
   async getBySlug(req: Request, res: Response): Promise<void> {
     try {
-      const { slug } = req.params;
-      const dept = await this.service.getBySlug(slug);
+      const identifier = req.params.slug;
+      const isNumeric = /^\d+$/.test(identifier);
+
+      let dept = null;
+      if (isNumeric) {
+        dept = await this.service.getById(Number(identifier));
+      }
+      if (!dept) {
+        dept = await this.service.getBySlug(identifier);
+      }
+
       if (!dept) {
         ApiResponse.error(res, 404, 'Department not found');
         return;

@@ -2,10 +2,8 @@ import { Inquiry } from '@models/Inquiry';
 import { Course } from '@models/Course';
 import { User } from '@models/User';
 import { Role } from '@models/Role';
-import { Faculty } from '@models/Faculty';
-import { AuditLog } from '@models/AuditLog';
 import { PageView } from '@models/PageView';
-import { fn, col, Op, literal } from 'sequelize';
+import { fn, col, literal } from 'sequelize';
 import geoip from 'geoip-lite';
 
 export class DashboardService {
@@ -74,12 +72,12 @@ export class DashboardService {
   async getAnalytics() {
     // Extract data from concurrent database queries
     const [
-      _ts, _ti, _ci, _tf, _lt, _fc, _cs, _ac, locationData
+      , _ti, _ci, , _lt, _fc, _cs, _ac, locationData
     ] = await Promise.all([
-      User.count({ include: [{ model: Role, as: 'role', where: { name: 'student' } }] }),
+      Inquiry.count(),
       Inquiry.count(),
       Inquiry.count({ where: { status: ['converted', 'enrolled'] } }),
-      Faculty.count(),
+      Inquiry.count(),
       PageView.count({ where: literal("created_at >= NOW() - INTERVAL 30 DAY") }),
       Inquiry.findAll({ attributes: ['status', [fn('COUNT', col('id')), 'count']], group: ['status'], raw: true }),
       Inquiry.findAll({ where: { status: ['converted', 'enrolled'] }, attributes: ['courseId', [fn('COUNT', col('id')), 'count']], group: ['courseId'], raw: true }),
@@ -110,7 +108,7 @@ export class DashboardService {
     const enrolledCount = countsByStatus['enrolled'] || 0;
 
     const totalLeads = _ti;
-    const leadsContacted = totalLeads - newCount;
+    const leadsContacted = contactedCount || (totalLeads - newCount);
     const highlyInterested = interestedCount + followUpCount + convertedCount + enrolledCount;
     const studentsEnrolled = convertedCount + enrolledCount;
 

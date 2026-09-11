@@ -40,7 +40,16 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      return callback(null, true); // ALLOW ALL ORIGINS FOR TUNNEL TESTING
+      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV !== 'production' &&
+          /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS origin ${origin} is not allowed`));
     },
     credentials: true,
   })

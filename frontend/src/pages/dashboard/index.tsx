@@ -37,8 +37,13 @@ export default function DashboardPage() {
       return;
     }
 
+    if (user?.role === 'student') {
+      router.push('/student');
+      return;
+    }
+
     const role = user?.role;
-    const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.dashboard?.includes('read')) || role === 'student';
+    const canRead = role === 'super_admin' || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.dashboard?.includes('read'));
     if (!canRead) {
       // Find the first module they have access to
       const perms = user?.permissions?.modules || {};

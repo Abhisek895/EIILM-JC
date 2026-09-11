@@ -40,7 +40,7 @@ export default function LoginPage() {
 
     if (result?.success) {
       const role = result.user?.role || 'student';
-      router.push(role === 'admin' || role === 'super_admin' ? '/dashboard' : '/student');
+      router.push(role === 'student' ? '/student' : '/dashboard');
     } else {
       setError(result?.error || 'Login failed');
     }

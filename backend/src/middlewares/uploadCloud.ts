@@ -94,10 +94,37 @@ if (isCloudinaryConfigured) {
   );
 }
 
+const ALLOWED_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif',
+  '.mp4', '.webm', '.pdf', '.doc', '.docx', '.txt',
+]);
+
+const ALLOWED_MIME_PREFIXES = ['image/', 'video/', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument', 'text/plain'];
+
 // ─── Exported multer instance ─────────────────────────────────────────────────
 export const uploadCloud = multer({
   storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+  fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    // Explicitly reject executable / script / stored XSS extensions
+    const dangerousExts = ['.exe', '.sh', '.bat', '.cmd', '.php', '.html', '.htm', '.svg', '.js', '.jsx', '.ts', '.tsx', '.cgi', '.pl'];
+    if (dangerousExts.includes(ext)) {
+      return cb(new Error('File upload rejected: dangerous or executable file extension detected.'));
+    }
+
+    if (!ALLOWED_EXTENSIONS.has(ext)) {
+      return cb(new Error(`File upload rejected: extension '${ext}' is not permitted.`));
+    }
+
+    const mimeAllowed = ALLOWED_MIME_PREFIXES.some(prefix => file.mimetype.startsWith(prefix) || file.mimetype === prefix);
+    if (!mimeAllowed) {
+      return cb(new Error(`File upload rejected: MIME type '${file.mimetype}' is not permitted.`));
+    }
+
+    cb(null, true);
+  },
 });
 
 /**

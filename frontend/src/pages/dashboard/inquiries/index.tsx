@@ -3,8 +3,6 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '@layouts/DashboardLayout';
 import { inquiryApi } from '@api/endpoints';
 import { useAuth } from '@hooks/useAuth';
-import * as ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 type Inquiry = {
@@ -91,6 +89,11 @@ export default function AdminInquiriesPage() {
   const handleExport = async () => {
     setExporting(true);
     try {
+      const [ExcelJS, { saveAs }] = await Promise.all([
+        import('exceljs'),
+        import('file-saver'),
+      ]);
+
       const res: any = await inquiryApi.getAll(1, 10000);
       const allInquiries = res?.data || [];
 

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
 import { UserService } from '@services/UserService';
 import { ApiResponse } from '@utils/responses';
 import { AuthRequest } from '@middlewares/auth';
@@ -15,19 +16,31 @@ export class AuthController {
 
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, password, roleId, roleName } = req.body;
+      const { name, email, password } = req.body;
 
       if (!name || !email || !password) {
         ApiResponse.error(res, 400, 'Name, email and password are required');
         return;
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(String(email).trim())) {
+        ApiResponse.error(res, 400, 'Invalid email address format');
+        return;
+      }
+
+      if (typeof password !== 'string' || password.length < 6) {
+        ApiResponse.error(res, 400, 'Password must be at least 6 characters long');
+        return;
+      }
+
+      // Public registration strictly assigns only the student role
+      // Rejects or ignores any attempt to inject privileged roleId / roleName
       const user = await this.userService.createUser({
-        name,
-        email,
+        name: String(name).trim(),
+        email: String(email).toLowerCase().trim(),
         password,
-        roleId,
-        roleName,
+        roleName: 'student',
       });
 
       ApiResponse.success(res, 201, 'User registered successfully', {
@@ -151,8 +164,8 @@ export class AuthController {
         return;
       }
 
-      // Generate a secure 6-digit numeric OTP code
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      // Generate a cryptographically secure 6-digit numeric OTP code
+      const otpCode = crypto.randomInt(100000, 1000000).toString();
       // OTP valid for 10 minutes
       const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -272,7 +285,7 @@ export class AuthController {
         return;
       }
 
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpCode = crypto.randomInt(100000, 1000000).toString();
       const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
       user.otpCode = otpCode;

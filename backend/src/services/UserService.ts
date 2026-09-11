@@ -15,6 +15,7 @@ export type SafeUser = {
   roleId: number;
   role: string;
   status: string;
+  tenantId?: number | null;
   permissions?: any;
 };
 
@@ -126,12 +127,10 @@ export class UserService {
   async deleteUser(userId: number): Promise<boolean> {
     const db = Database.getInstance();
     return await db.transaction(async (t) => {
-      // Temporarily disable foreign key checks to bypass all 80+ table constraints
-      await db.query('SET FOREIGN_KEY_CHECKS = 0', { transaction: t });
-
+      // Relational cleanup without disabling foreign key checks
+      await AuditLog.destroy({ where: { userId }, transaction: t });
+      await MediaLibrary.update({ uploadedBy: null as any }, { where: { uploadedBy: userId }, transaction: t });
       const affectedRows = await User.destroy({ where: { id: userId }, transaction: t });
-
-      await db.query('SET FOREIGN_KEY_CHECKS = 1', { transaction: t });
       return affectedRows > 0;
     });
   }
@@ -230,6 +229,7 @@ export class UserService {
         email: user.email,
         roleId: user.roleId,
         role: roleName,
+        tenantId: user.tenantId ?? null,
         permissions: user.permissions,
       },
       Config.jwt.secret as Secret,
@@ -257,6 +257,7 @@ export class UserService {
       roleId: user.roleId,
       role: this.normalizeRoleName(user.role?.name || 'student'),
       status: user.status,
+      tenantId: user.tenantId ?? null,
       permissions: user.permissions,
     };
   }

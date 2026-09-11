@@ -123,46 +123,52 @@ export class ChatbotService {
    * Document Processing
    */
   static async processDocumentUpload(filePath: string, originalName: string, mimeType: string) {
-    let extractedText = '';
+    try {
+      let extractedText = '';
 
-    if (mimeType === 'application/pdf' || originalName.endsWith('.pdf')) {
-      const dataBuffer = fs.readFileSync(filePath);
-      const data = await pdfParse(dataBuffer);
-      extractedText = data.text;
-    } else if (
-      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-      originalName.endsWith('.docx')
-    ) {
-      const result = await mammoth.extractRawText({ path: filePath });
-      extractedText = result.value;
-    } else if (mimeType === 'text/plain' || originalName.endsWith('.txt')) {
-      extractedText = fs.readFileSync(filePath, 'utf8');
-    } else {
-      throw new Error('Unsupported file format. Please upload PDF, DOCX, or TXT.');
+      if (mimeType === 'application/pdf' || originalName.endsWith('.pdf')) {
+        const dataBuffer = fs.readFileSync(filePath);
+        const data = await pdfParse(dataBuffer);
+        extractedText = data.text;
+      } else if (
+        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        originalName.endsWith('.docx')
+      ) {
+        const result = await mammoth.extractRawText({ path: filePath });
+        extractedText = result.value;
+      } else if (mimeType === 'text/plain' || originalName.endsWith('.txt')) {
+        extractedText = fs.readFileSync(filePath, 'utf8');
+      } else {
+        throw new Error('Unsupported file format. Please upload PDF, DOCX, or TXT.');
+      }
+
+      // Simple chunking (split by double newlines)
+      const chunks = extractedText.split(/\n\s*\n/).filter(chunk => chunk.trim().length > 30);
+
+      const records = [];
+      for (const chunk of chunks) {
+        // Limit chunk size if it's too large
+        const safeChunk = chunk.substring(0, 1500).trim();
+        const record = await ChatKnowledgeBase.create({
+          category: 'Document Import',
+          question: `Extracted from: ${originalName}`,
+          answer: safeChunk,
+          keywords: originalName,
+          source: originalName,
+        });
+        records.push(record);
+      }
+
+      return records.length;
+    } finally {
+      // Clean up uploaded temp file always
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (unlinkErr) {
+          console.warn('Failed to unlink temporary upload file:', unlinkErr);
+        }
+      }
     }
-
-    // Simple chunking (split by double newlines)
-    const chunks = extractedText.split(/\n\s*\n/).filter(chunk => chunk.trim().length > 30);
-
-    const records = [];
-    for (const chunk of chunks) {
-      // Limit chunk size if it's too large
-      const safeChunk = chunk.substring(0, 1500).trim();
-      const record = await ChatKnowledgeBase.create({
-        category: 'Document Import',
-        question: `Extracted from: ${originalName}`,
-        answer: safeChunk,
-        keywords: originalName,
-        source: originalName,
-      });
-      records.push(record);
-    }
-
-    // Clean up uploaded temp file
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    return records.length;
   }
 }

@@ -19,7 +19,9 @@ async function run() {
   } finally {
     try {
       await Database.getInstance().close();
-    } catch (_) {}
+    } catch (_) {
+      // ignore close errors
+    }
   }
 }
 

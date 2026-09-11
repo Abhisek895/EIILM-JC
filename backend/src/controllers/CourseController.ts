@@ -46,8 +46,12 @@ export class CourseController {
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
-      const id = Number.parseInt(req.params.id, 10);
-      const course = await this.courseService.getCourseById(id);
+      const identifier = req.params.id;
+      const isNumeric = /^\d+$/.test(identifier);
+
+      const course = isNumeric
+        ? await this.courseService.getCourseById(Number.parseInt(identifier, 10))
+        : await this.courseService.getCourseBySlug(identifier);
 
       if (!course) {
         ApiResponse.error(res, 404, 'Course not found');

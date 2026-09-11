@@ -50,9 +50,6 @@ router.use('/dashboard', dashboardRoutes);
 // ── Chatbot ───────────────────────────────────────────────────────────────────
 router.use('/chatbot', chatbotRoutes);
 
-// ── Media uploads ─────────────────────────────────────────────────────────────
-router.use('/media', mediaRoutes);
-
 // ── API info ──────────────────────────────────────────────────────────────────
 router.get('/', (_req, res) => {
   res.json({
