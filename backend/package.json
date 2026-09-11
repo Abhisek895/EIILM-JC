@@ -9,6 +9,7 @@
     "start": "node dist/app.js",
     "seed": "ts-node -r tsconfig-paths/register src/scripts/seed.ts",
     "migrate:vercel": "ts-node -r tsconfig-paths/register src/scripts/migrateAllToVercel.ts",
+    "migrate:blob": "ts-node -r tsconfig-paths/register src/scripts/uploadToBlob.ts",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
     "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
