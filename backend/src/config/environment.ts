@@ -2,12 +2,24 @@ export const Config = {
   app: {
     name: process.env.APP_NAME || 'College ERP',
     env: process.env.NODE_ENV || 'development',
-    port: parseInt(process.env.PORT || '5001'),
-    url: process.env.APP_URL || 'http://localhost:5001',
+    port: parseInt(process.env.PORT || '5000'),
+    url: process.env.APP_URL || 'http://localhost:5000',
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'super-secret-key',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-key',
+    secret: (() => {
+      const secret = process.env.JWT_SECRET || 'super-secret-key';
+      if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'super-secret-key')) {
+        throw new Error('FATAL: JWT_SECRET must be explicitly set to a secure string in production!');
+      }
+      return secret;
+    })(),
+    refreshSecret: (() => {
+      const refreshSecret = process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-key';
+      if (process.env.NODE_ENV === 'production' && (!process.env.JWT_REFRESH_SECRET || process.env.JWT_REFRESH_SECRET === 'super-secret-refresh-key')) {
+        throw new Error('FATAL: JWT_REFRESH_SECRET must be explicitly set to a secure string in production!');
+      }
+      return refreshSecret;
+    })(),
     expiresIn: process.env.JWT_EXPIRATION || '24h',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRATION || '7d',
   },

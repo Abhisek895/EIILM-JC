@@ -10,7 +10,6 @@ import axios, {
 // Use NEXT_PUBLIC_API_URL from .env.local. Fallback to port 5000 (backend default).
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-console.log('API_URL is:', API_URL);
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 const getToken = (): string | null =>
@@ -176,7 +175,7 @@ class ApiClient {
         origin: typeof window !== 'undefined' ? window.location.origin : 'server',
       });
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
@@ -193,7 +192,7 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[apiClient] POST ${url} failed with status`, error?.response?.status);
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
@@ -210,7 +209,7 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[apiClient] PUT ${url} failed with status`, error?.response?.status);
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
@@ -227,7 +226,7 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[apiClient] PATCH ${url} failed with status`, error?.response?.status);
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
@@ -243,7 +242,7 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[apiClient] DELETE ${url} failed with status`, error?.response?.status);
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }
@@ -260,7 +259,7 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[apiClient] UPLOAD ${url} failed with status`, error?.response?.status);
       if (error?.response?.status === 429) {
-        return { data: null, error: 'Rate limit exceeded. Please try again later.' } as unknown as T;
+        throw new Error('Rate limit exceeded. Please try again later.');
       }
       throw new Error(error?.response?.data?.message || error.message || 'API request failed');
     }

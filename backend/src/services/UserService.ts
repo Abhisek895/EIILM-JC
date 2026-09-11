@@ -149,17 +149,13 @@ export class UserService {
     password: string
   ): Promise<LoginResponse | null> {
     const normalizedEmail = email.toLowerCase().trim();
-    console.log('authenticateUser: Finding user by email:', normalizedEmail);
     const user = await this.userRepo.findByEmail(normalizedEmail);
 
     if (!user) {
-      console.log('authenticateUser: User not found');
       return null;
     }
 
-    console.log('authenticateUser: Comparing password...');
     const passwordValid = await user.comparePassword(password);
-    console.log('authenticateUser: Password valid:', passwordValid);
 
     if (!passwordValid) {
       return null;
@@ -169,7 +165,6 @@ export class UserService {
       throw new Error('User account is not active');
     }
 
-    console.log('authenticateUser: Loading role...');
     // Load user with role association if not already loaded
     const userWithRole = user.role
       ? user
@@ -181,14 +176,10 @@ export class UserService {
       return null;
     }
 
-    console.log('authenticateUser: Issuing tokens...');
     const { token, refreshToken } = this.issueTokensForUser(userWithRole);
 
-    console.log('authenticateUser: Updating lastLogin...');
     // Update last login timestamp
     await this.userRepo.update(user.id, { lastLogin: new Date() });
-
-    console.log('authenticateUser: Success');
 
     return {
       user: this.toSafeUser(userWithRole),

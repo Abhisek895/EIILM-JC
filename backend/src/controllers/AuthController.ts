@@ -56,7 +56,6 @@ export class AuthController {
 
   async login(req: Request, res: Response): Promise<void> {
     try {
-      console.log('Login attempt:', req.body.email);
       const { email, password } = req.body;
 
       if (!email || !password) {
@@ -64,9 +63,7 @@ export class AuthController {
         return;
       }
 
-      console.log('Calling authenticateUser...');
       const result = await this.userService.authenticateUser(email, password);
-      console.log('authenticateUser returned', !!result);
 
       if (!result) {
         ApiResponse.error(res, 401, 'Invalid credentials');

@@ -15,12 +15,22 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "3003",
+        port: "5000",
       },
       {
         protocol: "http",
-        hostname: "10.242.209.210",
-        port: "3003",
+        hostname: "127.0.0.1",
+        port: "5000",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5001",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "5001",
       },
     ],
   },
@@ -45,7 +55,7 @@ const nextConfig = {
   ],
   env: {
     NEXT_PUBLIC_API_URL:
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api/v1",
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1",
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "College ERP",
   },
 };
