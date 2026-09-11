@@ -44,6 +44,7 @@ app.use(
       if (!origin) return callback(null, true);
       if (
         allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
         (process.env.NODE_ENV !== 'production' &&
           /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
       ) {

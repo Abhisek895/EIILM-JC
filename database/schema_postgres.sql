@@ -127,46 +127,47 @@ CREATE TABLE IF NOT EXISTS faculty (
 CREATE TABLE IF NOT EXISTS inquiries (
     id BIGSERIAL PRIMARY KEY,
     tenant_id BIGINT NULL,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(50) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(100) NULL,
+    email VARCHAR(255) NULL,
     course_id BIGINT NULL REFERENCES courses(id) ON DELETE SET NULL,
-    department_id BIGINT NULL REFERENCES departments(id) ON DELETE SET NULL,
-    subject VARCHAR(255),
+    specialization_id BIGINT NULL,
+    city VARCHAR(255) NULL,
     message TEXT,
     source VARCHAR(100) DEFAULT 'website',
     source_name VARCHAR(255) NULL,
-    status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new','in_progress','contacted','resolved','closed','enrolled')),
+    status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new','contacted','interested','follow_up','converted','rejected','closed','enrolled')),
+    assigned_to BIGINT NULL REFERENCES users(id) ON DELETE SET NULL,
+    followup_date DATE NULL,
+    notes TEXT,
     first_name VARCHAR(150) NULL,
     last_name VARCHAR(150) NULL,
-    gender VARCHAR(20) NULL,
-    blood_group VARCHAR(10) NULL,
+    gender VARCHAR(50) NULL,
+    blood_group VARCHAR(20) NULL,
     caste VARCHAR(50) NULL,
-    dob DATE NULL,
-    place_of_birth VARCHAR(150) NULL,
+    dob VARCHAR(50) NULL,
+    place_of_birth VARCHAR(255) NULL,
     address TEXT NULL,
     state VARCHAR(100) NULL,
     pin VARCHAR(20) NULL,
     alt_phone VARCHAR(50) NULL,
     whatsapp VARCHAR(50) NULL,
     father_name VARCHAR(255) NULL,
-    father_occupation VARCHAR(150) NULL,
+    father_occupation VARCHAR(255) NULL,
     mother_name VARCHAR(255) NULL,
-    mother_occupation VARCHAR(150) NULL,
-    annual_income VARCHAR(50) NULL,
-    board_12th VARCHAR(150) NULL,
+    mother_occupation VARCHAR(255) NULL,
+    annual_income VARCHAR(100) NULL,
+    board_12th VARCHAR(255) NULL,
     stream_12th VARCHAR(100) NULL,
-    year_of_passing_12th VARCHAR(20) NULL,
-    aggregate_marks_12th VARCHAR(20) NULL,
+    year_of_passing_12th VARCHAR(50) NULL,
+    aggregate_marks_12th VARCHAR(50) NULL,
     school_name VARCHAR(255) NULL,
     mba_college_name VARCHAR(255) NULL,
-    mba_degree_name VARCHAR(150) NULL,
-    mba_specialization VARCHAR(150) NULL,
-    mba_graduation_year VARCHAR(20) NULL,
+    mba_degree_name VARCHAR(255) NULL,
+    mba_specialization VARCHAR(255) NULL,
+    mba_graduation_year VARCHAR(50) NULL,
     mba_university VARCHAR(255) NULL,
     mba_score VARCHAR(50) NULL,
-    assigned_to BIGINT NULL REFERENCES users(id) ON DELETE SET NULL,
-    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -256,18 +257,18 @@ CREATE TABLE IF NOT EXISTS placements (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 14. CMS Page Sections (PageSection.ts)
-CREATE TABLE IF NOT EXISTS cms_page_sections (
+-- 14. Page Sections (PageSection.ts)
+CREATE TABLE IF NOT EXISTS page_sections (
     id BIGSERIAL PRIMARY KEY,
     tenant_id BIGINT NULL,
-    page_slug VARCHAR(100) NOT NULL,
-    section_key VARCHAR(100) NOT NULL,
-    title VARCHAR(255),
-    content JSONB NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    display_order INT DEFAULT 0,
+    page_key VARCHAR(150) NOT NULL,
+    section_key VARCHAR(150) NOT NULL,
+    sort_order INT DEFAULT 0,
+    config JSONB NULL,
+    status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active','inactive')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_page_section UNIQUE (page_slug, section_key)
+    CONSTRAINT uq_page_section UNIQUE (page_key, section_key)
 );
 
 -- 15. Site Settings (SiteSetting.ts)
@@ -283,36 +284,34 @@ CREATE TABLE IF NOT EXISTS site_settings (
 
 -- 16. Chatbot Knowledge Base (ChatKnowledgeBase.ts)
 CREATE TABLE IF NOT EXISTS chat_knowledge_base (
-    id BIGSERIAL PRIMARY KEY,
-    tenant_id BIGINT NULL,
-    category VARCHAR(100) DEFAULT 'general',
+    id SERIAL PRIMARY KEY,
+    category VARCHAR(255) DEFAULT 'General',
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
     keywords TEXT,
-    source VARCHAR(255),
     status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active','inactive')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    source VARCHAR(255) DEFAULT 'manual',
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 17. Chat Sessions (ChatSession.ts)
 CREATE TABLE IF NOT EXISTS chat_sessions (
-    id VARCHAR(100) PRIMARY KEY,
-    tenant_id BIGINT NULL,
-    user_id BIGINT NULL REFERENCES users(id) ON DELETE SET NULL,
-    user_name VARCHAR(150),
-    user_email VARCHAR(150),
-    user_phone VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL UNIQUE,
+    user_ip VARCHAR(255),
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 18. Chat Messages (ChatMessage.ts)
 CREATE TABLE IF NOT EXISTS chat_messages (
-    id BIGSERIAL PRIMARY KEY,
-    session_id VARCHAR(100) NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('user','assistant','system')),
     message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 19. Grades (Grade.ts)

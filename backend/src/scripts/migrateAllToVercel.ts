@@ -93,6 +93,13 @@ async function runMigration() {
 
   // 3. Create Tables in PostgreSQL
   console.log('3️⃣ Initializing PostgreSQL schema (database/schema_postgres.sql)...');
+  await pgClient.query(`
+    DROP TABLE IF EXISTS cms_page_sections CASCADE;
+    DROP TABLE IF EXISTS chat_messages CASCADE;
+    DROP TABLE IF EXISTS chat_sessions CASCADE;
+    DROP TABLE IF EXISTS chat_knowledge_base CASCADE;
+    DROP TABLE IF EXISTS inquiries CASCADE;
+  `).catch(() => {});
   const schemaPath = path.resolve(__dirname, '../../../database/schema_postgres.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
   await pgClient.query(schemaSql);
@@ -102,7 +109,7 @@ async function runMigration() {
   const urlMapping: Record<string, string> = {};
   const uploadsDir = path.resolve(__dirname, '../../uploads/files');
 
-  if (BLOB_TOKEN && fs.existsSync(uploadsDir)) {
+  if (BLOB_TOKEN && BLOB_TOKEN !== '[SENSITIVE]' && BLOB_TOKEN.startsWith('vercel_blob_') && fs.existsSync(uploadsDir)) {
     const files = fs.readdirSync(uploadsDir);
     console.log(`4️⃣ Migrating ${files.length} local media files to Vercel Blob...`);
 
@@ -130,6 +137,8 @@ async function runMigration() {
 
   // Helper to rewrite media URLs inside any string / JSON
   const rewriteUrls = (val: any): any => {
+    if (val === null || val === undefined) return val;
+    if (val instanceof Date) return val;
     if (typeof val === 'string') {
       let str = val;
       for (const [localUrl, blobUrl] of Object.entries(urlMapping)) {
@@ -139,7 +148,7 @@ async function runMigration() {
       }
       return str;
     }
-    if (typeof val === 'object' && val !== null) {
+    if (typeof val === 'object') {
       if (Array.isArray(val)) {
         return val.map(rewriteUrls);
       }
@@ -169,7 +178,7 @@ async function runMigration() {
     { name: 'media_library', pk: 'id' },
     { name: 'infrastructures', pk: 'id' },
     { name: 'placements', pk: 'id' },
-    { name: 'cms_page_sections', pk: 'id' },
+    { name: 'page_sections', pk: 'id' },
     { name: 'site_settings', pk: 'id' },
     { name: 'chat_knowledge_base', pk: 'id' },
     { name: 'chat_sessions', pk: 'id' },
@@ -196,11 +205,14 @@ async function runMigration() {
         // Rewrite any media URLs
         const row = rewriteUrls(rawRow);
 
-        // Convert any JSON string / Date objects
         const cols = Object.keys(row);
-        const vals = Object.values(row).map((v) => {
+        const vals = cols.map((c) => {
+          let v = row[c];
           if (v instanceof Date) return v;
+          if (typeof v === 'boolean') return v;
+          if (tbl === 'courses' && c === 'show_fees') return Boolean(v);
           if (typeof v === 'object' && v !== null) return JSON.stringify(v);
+          if (v === '' && (c.includes('date') || c.includes('at'))) return null;
           return v;
         });
 
