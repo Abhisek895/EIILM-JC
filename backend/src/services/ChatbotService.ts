@@ -34,21 +34,38 @@ export class ChatbotService {
     // 2. Save User Message
     await ChatMessage.create({ session_id: sessionId, role: 'user', message });
 
-    // 3. Retrieve Context via MySQL Fulltext Search
+    // 3. Retrieve Context via Fulltext / Keyword Search
     const sequelize = Database.getInstance();
-    const query = `
-      SELECT id, question, answer, keywords,
-      MATCH(question, answer, keywords) AGAINST (:msg IN NATURAL LANGUAGE MODE) as score
-      FROM chat_knowledge_base
-      WHERE status = 'active' AND MATCH(question, answer, keywords) AGAINST (:msg IN NATURAL LANGUAGE MODE)
-      ORDER BY score DESC
-      LIMIT 3
-    `;
+    const isPostgres = sequelize.getDialect() === 'postgres';
+    let records: any[] = [];
 
-    const records: any[] = await sequelize.query(query, {
-      replacements: { msg: message },
-      type: QueryTypes.SELECT,
-    });
+    if (isPostgres) {
+      records = await sequelize.query(`
+        SELECT question, answer FROM chat_knowledge_base
+        WHERE status = 'active' AND (question ILIKE :msg OR keywords ILIKE :msg OR answer ILIKE :msg)
+        LIMIT 3
+      `, {
+        replacements: { msg: `%${message}%` },
+        type: QueryTypes.SELECT,
+      });
+    } else {
+      const query = `
+        SELECT id, question, answer, keywords,
+        MATCH(question, answer, keywords) AGAINST (:msg IN NATURAL LANGUAGE MODE) as score
+        FROM chat_knowledge_base
+        WHERE status = 'active' AND MATCH(question, answer, keywords) AGAINST (:msg IN NATURAL LANGUAGE MODE)
+        ORDER BY score DESC
+        LIMIT 3
+      `;
+      try {
+        records = await sequelize.query(query, {
+          replacements: { msg: message },
+          type: QueryTypes.SELECT,
+        });
+      } catch {
+        records = [];
+      }
+    }
 
     let contextText = '';
     if (records.length > 0) {
@@ -58,13 +75,12 @@ export class ChatbotService {
       });
       contextText += '---------------------------------------';
     } else {
-      // Fallback: Just grab a few top records using basic LIKE if fulltext fails to find a match
-      // For short phrases fulltext sometimes fails in MySQL if below min word length.
-      const likeRecords: any[] = await sequelize.query(`
-        SELECT question, answer FROM chat_knowledge_base
-        WHERE status = 'active' AND (question LIKE :msg OR keywords LIKE :msg)
-        LIMIT 3
-      `, {
+      // Fallback: Just grab a few top records using basic LIKE
+      const likeQuery = isPostgres
+        ? `SELECT question, answer FROM chat_knowledge_base WHERE status = 'active' AND (question ILIKE :msg OR keywords ILIKE :msg) LIMIT 3`
+        : `SELECT question, answer FROM chat_knowledge_base WHERE status = 'active' AND (question LIKE :msg OR keywords LIKE :msg) LIMIT 3`;
+
+      const likeRecords: any[] = await sequelize.query(likeQuery, {
         replacements: { msg: `%${message}%` },
         type: QueryTypes.SELECT,
       });

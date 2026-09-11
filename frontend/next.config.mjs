@@ -13,6 +13,10 @@ const nextConfig = {
         hostname: "**.amazonaws.com",
       },
       {
+        protocol: "https",
+        hostname: "**.public.blob.vercel-storage.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "5000",

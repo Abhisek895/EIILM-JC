@@ -19,7 +19,7 @@ import multer, { StorageEngine } from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// ─── Detect whether Cloudinary is configured ─────────────────────────────────
+// ─── Detect Storage Provider ──────────────────────────────────────────────────
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 const API_KEY    = process.env.CLOUDINARY_API_KEY    || '';
 const API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
@@ -28,6 +28,73 @@ const isCloudinaryConfigured =
   CLOUD_NAME && CLOUD_NAME !== 'your_cloud_name_here' &&
   API_KEY    && API_KEY    !== 'your_api_key_here'    &&
   API_SECRET && API_SECRET !== 'your_api_secret_here';
+
+const isVercelBlobConfigured = Boolean(
+  process.env.BLOB_READ_WRITE_TOKEN &&
+  process.env.BLOB_READ_WRITE_TOKEN.startsWith('vercel_blob_')
+);
+
+// ─── Vercel Blob Storage Engine ───────────────────────────────────────────────
+class VercelBlobStorage implements StorageEngine {
+  _handleFile(
+    _req: any,
+    file: Express.Multer.File,
+    cb: (error?: any, info?: Partial<Express.Multer.File>) => void
+  ): void {
+    try {
+      const ext = path.extname(file.originalname);
+      const basename = path.basename(file.originalname, ext)
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '_');
+      const pathname = `uploads/${basename}_${Date.now()}${ext}`;
+
+      const chunks: Buffer[] = [];
+      file.stream.on('data', (chunk) => chunks.push(chunk));
+      file.stream.on('error', (err) => cb(err));
+      file.stream.on('end', async () => {
+        try {
+          const buffer = Buffer.concat(chunks);
+          const response = await fetch(
+            `https://blob.vercel-storage.com/${pathname}?access=public`,
+            {
+              method: 'PUT',
+              headers: {
+                authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+                'x-api-version': '7',
+                'x-content-type': file.mimetype || 'application/octet-stream',
+              },
+              body: buffer,
+            }
+          );
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            return cb(new Error(`Vercel Blob upload failed (${response.status}): ${errorText}`));
+          }
+
+          const result = (await response.json()) as { url: string; pathname: string };
+          cb(null, {
+            path: result.url,
+            filename: result.pathname || pathname,
+            size: buffer.length,
+          });
+        } catch (uploadErr) {
+          cb(uploadErr);
+        }
+      });
+    } catch (err) {
+      cb(err);
+    }
+  }
+
+  _removeFile(
+    _req: any,
+    _file: Express.Multer.File,
+    cb: (error: Error | null) => void
+  ): void {
+    cb(null);
+  }
+}
 
 // ─── Local disk fallback ──────────────────────────────────────────────────────
 const buildLocalDiskStorage = (): StorageEngine =>
@@ -51,7 +118,10 @@ const buildLocalDiskStorage = (): StorageEngine =>
 // ─── Build the appropriate storage engine ────────────────────────────────────
 let storage: StorageEngine;
 
-if (isCloudinaryConfigured) {
+if (isVercelBlobConfigured) {
+  storage = new VercelBlobStorage();
+  console.log('📦 Upload storage: Vercel Blob Storage');
+} else if (isCloudinaryConfigured) {
   try {
     cloudinary.v2.config({
       cloud_name: CLOUD_NAME,
@@ -89,8 +159,8 @@ if (isCloudinaryConfigured) {
   storage = buildLocalDiskStorage();
   console.warn(
     '⚠️  Upload storage: LOCAL DISK (images will be lost on server restart!).\n' +
-    '   Set CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET in backend/.env\n' +
-    '   to switch to permanent Cloudinary storage.'
+    '   Set BLOB_READ_WRITE_TOKEN (for Vercel Blob) or CLOUDINARY_* in backend/.env\n' +
+    '   to switch to permanent cloud storage.'
   );
 }
 
