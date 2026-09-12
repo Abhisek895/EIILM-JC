@@ -438,7 +438,7 @@ function StatsSection({ settings }: SectionProps) {
       {/* Decorative top border line */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent pointer-events-none" />
 
-      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         <FadeIn className="mx-auto mb-10 sm:mb-12 lg:mb-16 max-w-3xl text-center">
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 shadow-xl shadow-black/20">
             <span className="relative flex h-2 w-2">
