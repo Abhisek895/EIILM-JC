@@ -451,7 +451,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
         {/* Bottom Navigation & CTA: View all courses */}
         <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           {maxIndex > 0 && (
-            <div className="flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center gap-2.5">
               <button
                 onClick={handlePrev}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
@@ -459,18 +459,6 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
               >
                 <ChevronLeft size={18} />
               </button>
-              <div className="flex items-center gap-1.5 px-1 sm:hidden">
-                {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentIndex(i)}
-                    className={`h-2 rounded-full transition-all ${
-                      currentIndex === i ? 'w-5 bg-primary-600' : 'w-2 bg-gray-300'
-                    }`}
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                ))}
-              </div>
               <button
                 onClick={handleNext}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
@@ -1326,8 +1314,8 @@ function TestimonialsSection({ settings }: SectionProps) {
                 key={dotIndex}
                 onClick={() => setCurrentIndex(dotIndex)}
                 className={`transition-all duration-300 rounded-full ${currentIndex === dotIndex
-                    ? 'w-8 h-2.5 bg-primary-600'
-                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                  ? 'w-8 h-2.5 bg-primary-600'
+                  : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
                   }`}
                 aria-label={`Go to slide ${dotIndex + 1}`}
               />
