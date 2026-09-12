@@ -645,34 +645,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
             <p className="hidden sm:block mt-2 max-w-2xl mx-auto text-sm sm:text-base text-gray-600">
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
-            <div className="mt-5">
-              <Link
-                href="/placements"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-100 hover:border-primary-300 transition-all group"
-              >
-                View all placements <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-              </Link>
-            </div>
           </FadeIn>
-          {/* Controls */}
-          {maxIndex > 0 && (
-            <div className="flex items-center justify-center gap-2.5 mt-6">
-              <button
-                onClick={handlePrev}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
-                aria-label="Previous placement"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                onClick={handleNext}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
-                aria-label="Next placement"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Carousel Track */}
@@ -805,7 +778,34 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
           </div>
         </div>
 
-
+        {/* Bottom Navigation & CTA: View all placements */}
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+          {maxIndex > 0 && (
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={handlePrev}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Previous placement"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Next placement"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+          <Link
+            href="/placements"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm hover:shadow group"
+          >
+            <span>View all placements</span>
+            <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </div>
     </section>
   );
