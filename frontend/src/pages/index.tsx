@@ -430,7 +430,7 @@ function StatsSection({ settings }: SectionProps) {
   return (
     <section className="relative overflow-hidden bg-[#0a0a0a] py-2 sm:py-3 lg:py-4">
       {/* Background gradients styled to match the hero banner size and shape */}
-      <div 
+      <div
         className="hidden md:flex absolute right-0 top-0 h-full w-[35%] z-0 flex-col justify-center items-end pr-16 md:pr-24 lg:pr-32 xl:pr-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]"
         style={{
           clipPath: 'polygon(0px 0px, 100% 0px, 100% 100%, 220px 100%)',
@@ -438,7 +438,7 @@ function StatsSection({ settings }: SectionProps) {
           paddingLeft: '230px'
         }}
       />
-      
+
       {/* Top ambient brand glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[500px] h-[100px] sm:h-[150px] bg-amber-500/10 blur-[40px] sm:blur-[60px] rounded-full pointer-events-none" />
 
@@ -462,9 +462,8 @@ function StatsSection({ settings }: SectionProps) {
         </FadeIn>
 
         <div
-          className={`grid gap-1 sm:gap-2 lg:gap-3 ${
-            active.length <= 2 ? 'grid-cols-2 max-w-xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
-          }`}
+          className={`grid gap-1 sm:gap-2 lg:gap-3 ${active.length <= 2 ? 'grid-cols-2 max-w-xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
+            }`}
         >
           {active.map((stat, index) => {
             const Icon = stat.icon;
@@ -480,7 +479,7 @@ function StatsSection({ settings }: SectionProps) {
                 >
                   {/* Subtle hover gradient background */}
                   <div className={`absolute inset-0 opacity-0 group-hover:opacity-[0.03] bg-gradient-to-br ${stat.color} transition-opacity duration-500`} />
-                  
+
                   {/* Inner top highlight for glass effect */}
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -1251,11 +1250,10 @@ function TestimonialsSection({ settings }: SectionProps) {
               <button
                 key={dotIndex}
                 onClick={() => setCurrentIndex(dotIndex)}
-                className={`transition-all duration-300 rounded-full ${
-                  currentIndex === dotIndex
+                className={`transition-all duration-300 rounded-full ${currentIndex === dotIndex
                     ? 'w-8 h-2.5 bg-primary-600'
                     : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
-                }`}
+                  }`}
                 aria-label={`Go to slide ${dotIndex + 1}`}
               />
             ))}

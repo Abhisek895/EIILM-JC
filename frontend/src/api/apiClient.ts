@@ -7,9 +7,26 @@ import axios, {
 } from 'axios';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Use NEXT_PUBLIC_API_URL from .env.local. Fallback to port 5000 (backend default).
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+// Resolve API base URL: If on production/Vercel (non-localhost browser), default to '/api/v1'
+// so all requests seamlessly route to the Next.js dynamic API routes.
+const getBaseApiUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') {
+    const isLocalhost =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.startsWith('192.168.');
+    if (!isLocalhost) {
+      // If deployed on Vercel or custom domain and envUrl is either empty or points to localhost
+      if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+        return '/api/v1';
+      }
+    }
+  }
+  return envUrl || 'http://localhost:5000/api/v1';
+};
+
+const API_URL = getBaseApiUrl();
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 const getToken = (): string | null =>
