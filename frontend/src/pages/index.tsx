@@ -428,7 +428,7 @@ function StatsSection({ settings }: SectionProps) {
   if (active.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-[#0a0a0a] py-20 sm:py-28 lg:py-32">
+    <section className="relative overflow-hidden bg-[#0a0a0a] py-10 sm:py-16 lg:py-20">
       {/* Background gradients aligned with yellow branding */}
       <div className="absolute inset-x-0 top-0 h-[45%] sm:inset-0 sm:h-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]" />
       
@@ -439,8 +439,8 @@ function StatsSection({ settings }: SectionProps) {
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent pointer-events-none" />
 
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <FadeIn className="mx-auto mb-16 sm:mb-20 lg:mb-24 max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-8 shadow-xl shadow-black/20">
+        <FadeIn className="mx-auto mb-10 sm:mb-12 lg:mb-16 max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 shadow-xl shadow-black/20">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
@@ -449,13 +449,13 @@ function StatsSection({ settings }: SectionProps) {
               Proof at a glance
             </p>
           </div>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/70 tracking-tight leading-tight mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/70 tracking-tight leading-tight mb-4">
             A quick snapshot of the college
           </h2>
         </FadeIn>
 
         <div
-          className={`grid gap-5 sm:gap-6 lg:gap-8 ${
+          className={`grid gap-4 sm:gap-6 lg:gap-8 ${
             active.length <= 2 ? 'grid-cols-2 max-w-2xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-5xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
           }`}
         >
@@ -469,7 +469,7 @@ function StatsSection({ settings }: SectionProps) {
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ delay: index * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.4, ease: 'easeOut' } }}
-                  className="group relative flex flex-col items-center justify-center p-8 sm:p-10 lg:p-12 rounded-[2rem] sm:rounded-[2.5rem] bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/[0.12] shadow-2xl hover:shadow-3xl overflow-hidden"
+                  className="group relative flex flex-col items-center justify-center p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/[0.12] shadow-2xl hover:shadow-3xl overflow-hidden"
                 >
                   {/* Subtle hover gradient background */}
                   <div className={`absolute inset-0 opacity-0 group-hover:opacity-[0.03] bg-gradient-to-br ${stat.color} transition-opacity duration-700`} />
@@ -478,14 +478,14 @@ function StatsSection({ settings }: SectionProps) {
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   {/* Icon Container */}
-                  <div className={`relative mb-8 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-[1.5rem] bg-gradient-to-br ${stat.color} ${stat.glow} shadow-[0_0_20px_rgba(0,0,0,0.2)] ring-1 ring-white/20 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3`}>
-                    <Icon strokeWidth={2} size={32} className="text-white w-7 h-7 sm:w-9 sm:h-9 drop-shadow-md" />
+                  <div className={`relative mb-5 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl sm:rounded-[1.25rem] bg-gradient-to-br ${stat.color} ${stat.glow} shadow-[0_0_20px_rgba(0,0,0,0.2)] ring-1 ring-white/20 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3`}>
+                    <Icon strokeWidth={2} size={28} className="text-white w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md" />
                     {/* Icon internal reflection */}
                     <div className="absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_rgba(255,255,255,0.4)] pointer-events-none" />
                   </div>
 
                   {/* Animated Stat Value */}
-                  <div className="text-4xl sm:text-5xl lg:text-5xl font-black text-white tracking-tighter mb-3 relative">
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tighter mb-2 relative">
                     <AnimatedCounter valueStr={stat.value!} />
                     {/* Subtle text glow on hover */}
                     <div className="absolute -inset-2 blur-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full" />
