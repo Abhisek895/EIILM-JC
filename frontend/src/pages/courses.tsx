@@ -67,8 +67,17 @@ export default function CoursesPage() {
     const load = async () => {
       try {
         const response: any = await courseApi.getAll(1, 50, 'published');
-        if (response.success) {
-          setCourses(response.data || []);
+        if (response?.success) {
+          const list = Array.isArray(response.data)
+            ? response.data
+            : Array.isArray(response.data?.items)
+            ? response.data.items
+            : Array.isArray(response.data?.rows)
+            ? response.data.rows
+            : Array.isArray(response.items)
+            ? response.items
+            : [];
+          setCourses(list);
         }
         const settingsRes: any = await siteSettingsApi.getMap();
         setSiteSettings(settingsRes?.data || {});
@@ -80,8 +89,9 @@ export default function CoursesPage() {
     load();
   }, []);
 
-  const types = ['All', ...Array.from(new Set(courses.map((c) => c.courseType)))];
-  const filtered = filter === 'All' ? courses : courses.filter((c) => c.courseType === filter);
+  const safeCourses = Array.isArray(courses) ? courses : [];
+  const types = ['All', ...Array.from(new Set(safeCourses.map((c) => c?.courseType).filter(Boolean)))];
+  const filtered = filter === 'All' ? safeCourses : safeCourses.filter((c) => c?.courseType === filter);
 
   return (
     <MainLayout>
@@ -105,7 +115,7 @@ export default function CoursesPage() {
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight">Our Programmes</h2>
           </FadeIn>
         {/* Filter Tabs */}
-        {!loading && courses.length > 0 && (
+        {!loading && safeCourses.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-10 justify-center">
             {types.map((t) => (
               <button

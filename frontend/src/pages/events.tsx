@@ -34,13 +34,24 @@ export default function EventsPage() {
     setLoading(true);
     try {
       const res: any = await eventApi.getAll(p, 9);
-      setEvents(res?.data || []);
-      setTotalPages(res?.pagination?.totalPages || 1);
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.items)
+        ? res.data.items
+        : Array.isArray(res?.data?.rows)
+        ? res.data.rows
+        : Array.isArray(res?.items)
+        ? res.items
+        : [];
+      setEvents(list);
+      setTotalPages(res?.pagination?.totalPages || res?.meta?.totalPages || 1);
     } finally { setLoading(false); }
   };
 
   useEffect(() => { load(page); }, [page]);
   useEffect(() => { siteSettingsApi.getMap().then((r: any) => setSiteSettings(r?.data || {})); }, []);
+
+  const safeEvents = Array.isArray(events) ? events : [];
 
   const formatDate = (d: string | null) => {
     if (!d) return null;
@@ -86,7 +97,7 @@ export default function EventsPage() {
           )}
 
           {/* Empty state */}
-          {!loading && events.length === 0 && (
+          {!loading && safeEvents.length === 0 && (
             <FadeIn className="text-center py-20">
               <div className="w-24 h-24 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6">
                 <CalendarDays size={40} className="text-primary-300" />
@@ -97,9 +108,9 @@ export default function EventsPage() {
           )}
 
           {/* Events grid */}
-          {!loading && events.length > 0 && (
+          {!loading && safeEvents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.map((e, idx) => {
+              {safeEvents.map((e, idx) => {
                 const dateObj = e.startDate ? new Date(e.startDate) : null;
                 const gradient = BANNER_GRADIENTS[idx % BANNER_GRADIENTS.length];
                 return (

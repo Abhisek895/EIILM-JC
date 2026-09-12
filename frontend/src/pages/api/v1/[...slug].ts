@@ -132,15 +132,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: r.status,
       }));
 
+      const totalPages = Math.ceil(total / limit) || 1;
       return res.status(200).json({
         success: true,
-        data: {
-          items: mapped,
-          rows: mapped,
-          total,
-          count: total,
+        data: mapped,
+        items: mapped,
+        rows: mapped,
+        pagination: {
           page,
           limit,
+          total,
+          totalPages,
+        },
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages,
         },
       });
     }
@@ -195,15 +203,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: r.status,
       }));
 
+      const totalPages = Math.ceil(total / limit) || 1;
       return res.status(200).json({
         success: true,
-        data: {
-          items: mapped,
-          rows: mapped,
-          total,
-          count: total,
+        data: mapped,
+        items: mapped,
+        rows: mapped,
+        pagination: {
           page,
           limit,
+          total,
+          totalPages,
+        },
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages,
         },
       });
     }
@@ -258,15 +274,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: r.status,
       }));
 
+      const totalPages = Math.ceil(total / limit) || 1;
       return res.status(200).json({
         success: true,
-        data: {
-          items: mapped,
-          rows: mapped,
-          total,
-          count: total,
+        data: mapped,
+        items: mapped,
+        rows: mapped,
+        pagination: {
           page,
           limit,
+          total,
+          totalPages,
+        },
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages,
         },
       });
     }
@@ -386,15 +410,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: r.status || 'published',
       }));
 
+      const totalPages = Math.ceil(total / limit) || 1;
       return res.status(200).json({
         success: true,
-        data: {
-          items: mapped,
-          rows: mapped,
-          total,
-          count: total,
+        data: mapped,
+        items: mapped,
+        rows: mapped,
+        pagination: {
           page,
           limit,
+          total,
+          totalPages,
+        },
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages,
         },
       });
     }

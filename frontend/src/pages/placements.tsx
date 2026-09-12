@@ -31,6 +31,15 @@ function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType
   );
 }
 
+function normalizeList<T>(payload: any): T[] {
+  const raw = payload?.data ?? payload;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.items)) return raw.items;
+  if (Array.isArray(raw?.rows)) return raw.rows;
+  if (Array.isArray(raw?.data)) return normalizeList(raw.data);
+  return [];
+}
+
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<PlacementRecord[]>([]);
   const [siteSettings, setSiteSettings] = useState<any>({});
@@ -46,26 +55,39 @@ export default function PlacementsPage() {
           siteSettingsApi.getMap(),
         ]);
         if (placRes.status === 'fulfilled') {
-          const r: any = placRes.value;
-          if (r.success) setPlacements(r.data || []);
+          setPlacements(normalizeList<PlacementRecord>(placRes.value));
         }
-        if (settRes.status === 'fulfilled') setSiteSettings((settRes.value as any)?.data || {});
+        if (settRes.status === 'fulfilled') {
+          const data = (settRes.value as any)?.data ?? settRes.value;
+          setSiteSettings(data && typeof data === 'object' ? data : {});
+        }
       } finally { setLoading(false); }
     };
     load();
   }, []);
 
-  const years = ['All', ...Array.from(new Set(placements.map(p => p.year?.trim() || ''))).filter(y => y).sort((a, b) => b.localeCompare(a))];
-  const filtered = placements.filter(p => {
-    const matchYear = yearFilter === 'All' || (p.year?.trim() || '') === yearFilter;
-    const matchType = typeFilter === 'All' || p.placementType === typeFilter;
+  const safePlacements = Array.isArray(placements) ? placements : [];
+  const years = [
+    'All',
+    ...Array.from(
+      new Set(
+        safePlacements.map((p) => (p?.year != null ? String(p.year).trim() : ''))
+      )
+    )
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a)),
+  ];
+  const filtered = safePlacements.filter((p) => {
+    const pYear = p?.year != null ? String(p.year).trim() : '';
+    const matchYear = yearFilter === 'All' || pYear === yearFilter;
+    const matchType = typeFilter === 'All' || p?.placementType === typeFilter;
     return matchYear && matchType;
   });
 
   // Compute stats
-  const totalPlacements = placements.filter(p => p.placementType === 'placement').length;
-  const totalInternships = placements.filter(p => p.placementType === 'internship').length;
-  const companies = new Set(placements.map(p => p.companyName)).size;
+  const totalPlacements = safePlacements.filter((p) => p?.placementType === 'placement').length;
+  const totalInternships = safePlacements.filter((p) => p?.placementType === 'internship').length;
+  const companies = new Set(safePlacements.map((p) => p?.companyName).filter(Boolean)).size;
 
   return (
     <MainLayout>
@@ -91,7 +113,7 @@ export default function PlacementsPage() {
           </FadeIn>
 
           {/* Stats row */}
-          {!loading && placements.length > 0 && (
+          {!loading && safePlacements.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
               <StatCard icon={Users} label="Students Placed" value={totalPlacements > 0 ? `${totalPlacements}+` : (siteSettings.stat_placements || '100+')} color="bg-primary-600" />
               <StatCard icon={Briefcase} label="Internships" value={totalInternships > 0 ? `${totalInternships}+` : (siteSettings.stat_internships || '50+')} color="bg-emerald-600" />
@@ -100,7 +122,7 @@ export default function PlacementsPage() {
           )}
 
           {/* Filters */}
-          {!loading && placements.length > 0 && (
+          {!loading && safePlacements.length > 0 && (
             <FadeIn className="flex flex-col items-center gap-4 mb-8">
               {/* Type filter */}
               <div className="flex bg-white border border-gray-200 p-1 rounded-full gap-1">
@@ -167,7 +189,7 @@ export default function PlacementsPage() {
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-50 to-indigo-100">
                         <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center">
                           <span className="text-2xl font-extrabold text-primary-400">
-                            {p.studentName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            {p?.studentName ? p.studentName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'ST'}
                           </span>
                         </div>
                       </div>
@@ -185,8 +207,8 @@ export default function PlacementsPage() {
                   {/* Info */}
                   <div className="p-5 flex flex-col gap-3 flex-grow">
                     <div>
-                      <h3 className="text-base font-extrabold text-gray-900 leading-snug">{p.studentName}</h3>
-                      <p className="text-sm text-primary-600 font-semibold">{p.course || 'Student'} · {p.year}</p>
+                      <h3 className="text-base font-extrabold text-gray-900 leading-snug">{p?.studentName || 'Student'}</h3>
+                      <p className="text-sm text-primary-600 font-semibold">{p?.course || 'Student'} · {p?.year ? String(p.year) : ''}</p>
                     </div>
                     <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100 mt-auto">
                       {p.companyLogo ? (

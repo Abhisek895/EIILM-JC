@@ -34,17 +34,27 @@ export default function NoticesPage() {
     setError(null);
     try {
       const res: any = await noticeApi.getAll(p, 15);
-      setNotices(res?.data || []);
-      setTotalPages(res?.pagination?.totalPages || 1);
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.items)
+        ? res.data.items
+        : Array.isArray(res?.data?.rows)
+        ? res.data.rows
+        : Array.isArray(res?.items)
+        ? res.items
+        : [];
+      setNotices(list);
+      setTotalPages(res?.pagination?.totalPages || res?.meta?.totalPages || 1);
     } catch { setError('Unable to load notices. Please try again later.'); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { load(page); }, [page]);
 
-  const displayed = notices.filter(n => {
-    const matchPriority = priorityFilter === 'all' || n.priority === priorityFilter;
-    const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase());
+  const safeNotices = Array.isArray(notices) ? notices : [];
+  const displayed = safeNotices.filter(n => {
+    const matchPriority = priorityFilter === 'all' || n?.priority === priorityFilter;
+    const matchSearch = !search || (n?.title && n.title.toLowerCase().includes(search.toLowerCase()));
     return matchPriority && matchSearch;
   });
 
