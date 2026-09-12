@@ -395,27 +395,31 @@ function StatsSection({ settings }: SectionProps) {
   const statsMeta = [
     {
       label: 'Years of Excellence',
-      value: settings.stat_years !== undefined ? settings.stat_years : '25+',
+      value: settings.stat_years !== undefined ? settings.stat_years : '15+',
       icon: Award,
       color: 'from-amber-400 to-orange-500',
+      glow: 'shadow-orange-500/30'
     },
     {
       label: 'Students Enrolled',
-      value: settings.stat_students !== undefined ? settings.stat_students : '5000+',
+      value: settings.stat_students !== undefined ? settings.stat_students : '1,500+',
       icon: Users,
       color: 'from-sky-400 to-blue-600',
+      glow: 'shadow-blue-500/30'
     },
     {
       label: 'Faculty Members',
-      value: settings.stat_faculty !== undefined ? settings.stat_faculty : '200+',
+      value: settings.stat_faculty !== undefined ? settings.stat_faculty : '45+',
       icon: GraduationCap,
       color: 'from-emerald-400 to-teal-600',
+      glow: 'shadow-emerald-500/30'
     },
     {
       label: 'Courses Offered',
-      value: settings.stat_courses !== undefined ? settings.stat_courses : '50+',
+      value: settings.stat_courses !== undefined ? settings.stat_courses : '12+',
       icon: BookOpen,
       color: 'from-violet-400 to-purple-600',
+      glow: 'shadow-purple-500/30'
     },
   ];
 
@@ -424,43 +428,35 @@ function StatsSection({ settings }: SectionProps) {
   if (active.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-[#030712] py-16 sm:py-20 lg:py-28">
-      {/* Luxury dark gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1c] via-[#050813] to-[#030712]" />
+    <section className="relative overflow-hidden bg-[#0a0a0a] py-20 sm:py-28 lg:py-32">
+      {/* Background gradients aligned with yellow branding */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]" />
       
-      {/* Top & Bottom hairline luxury borders */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+      {/* Top ambient brand glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[1000px] h-[300px] sm:h-[500px] bg-amber-500/10 blur-[100px] sm:blur-[120px] rounded-full pointer-events-none" />
 
-      {/* Subtle dot pattern texture - very low opacity */}
-      <div
-        className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-screen"
-        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}
-      />
-
-      {/* Ambient glow orbs - elegant and subtle */}
-      <div className="absolute top-0 left-1/4 h-[500px] w-[500px] -translate-y-1/2 -translate-x-1/2 rounded-full bg-blue-500/[0.04] blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] translate-y-1/2 translate-x-1/2 rounded-full bg-indigo-500/[0.04] blur-[100px] pointer-events-none" />
+      {/* Decorative top border line */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent pointer-events-none" />
 
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <FadeIn className="mx-auto mb-12 sm:mb-16 lg:mb-20 max-w-2xl text-center">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 shadow-[0_0_15px_rgba(255,255,255,0.02)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
-            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+        <FadeIn className="mx-auto mb-16 sm:mb-20 lg:mb-24 max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-8 shadow-xl shadow-black/20">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-amber-400/90">
               Proof at a glance
             </p>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 tracking-tight leading-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/70 tracking-tight leading-tight mb-6">
             A quick snapshot of the college
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-md mx-auto leading-relaxed">
-            Key milestones and metrics that demonstrate academic excellence.
-          </p>
         </FadeIn>
 
         <div
-          className={`grid gap-4 sm:gap-6 lg:gap-8 ${
-            active.length <= 2 ? 'grid-cols-2 max-w-2xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
+          className={`grid gap-5 sm:gap-6 lg:gap-8 ${
+            active.length <= 2 ? 'grid-cols-2 max-w-2xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-5xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
           }`}
         >
           {active.map((stat, index) => {
@@ -468,31 +464,35 @@ function StatsSection({ settings }: SectionProps) {
             return (
               <FadeIn key={stat.label} delay={index * 0.1}>
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.3, ease: 'easeOut' } }}
-                  className="group relative flex flex-col items-center rounded-[2rem] border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8 lg:p-10 text-center backdrop-blur-xl transition-all duration-500 hover:border-white/[0.15] hover:bg-white/[0.04] shadow-lg hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
+                  transition={{ delay: index * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.4, ease: 'easeOut' } }}
+                  className="group relative flex flex-col items-center justify-center p-8 sm:p-10 lg:p-12 rounded-[2rem] sm:rounded-[2.5rem] bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/[0.12] shadow-2xl hover:shadow-3xl overflow-hidden"
                 >
-                  {/* Inner subtle glow */}
-                  <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] pointer-events-none" />
+                  {/* Subtle hover gradient background */}
+                  <div className={`absolute inset-0 opacity-0 group-hover:opacity-[0.03] bg-gradient-to-br ${stat.color} transition-opacity duration-700`} />
                   
-                  {/* Subtle top sheen on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-b from-white/[0.08] via-transparent to-transparent pointer-events-none" />
+                  {/* Inner top highlight for glass effect */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  {/* Icon Badge */}
-                  <div className={`relative mb-5 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl sm:rounded-3xl bg-gradient-to-br ${stat.color} shadow-lg shadow-black/40 ring-1 ring-white/25 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-                    <Icon strokeWidth={2.5} size={24} className="text-white w-6 h-6 sm:w-7 sm:h-7" />
+                  {/* Icon Container */}
+                  <div className={`relative mb-8 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-[1.5rem] bg-gradient-to-br ${stat.color} ${stat.glow} shadow-[0_0_20px_rgba(0,0,0,0.2)] ring-1 ring-white/20 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3`}>
+                    <Icon strokeWidth={2} size={32} className="text-white w-7 h-7 sm:w-9 sm:h-9 drop-shadow-md" />
+                    {/* Icon internal reflection */}
+                    <div className="absolute inset-0 rounded-[inherit] shadow-[inset_0_2px_4px_rgba(255,255,255,0.4)] pointer-events-none" />
                   </div>
 
                   {/* Animated Stat Value */}
-                  <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none mb-3">
+                  <div className="text-4xl sm:text-5xl lg:text-5xl font-black text-white tracking-tighter mb-3 relative">
                     <AnimatedCounter valueStr={stat.value!} />
+                    {/* Subtle text glow on hover */}
+                    <div className="absolute -inset-2 blur-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full" />
                   </div>
 
                   {/* Stat Label */}
-                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300 transition-colors duration-300">
+                  <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] text-slate-400/90 group-hover:text-white transition-colors duration-300 text-center leading-relaxed">
                     {stat.label}
                   </div>
                 </motion.div>
