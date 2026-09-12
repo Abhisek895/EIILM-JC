@@ -243,7 +243,7 @@ async function runMigration() {
         const cols = Object.keys(row).filter((c) => pgColMap.has(c));
         const vals = cols.map((c) => {
           const colType = pgColMap.get(c);
-          let v = row[c];
+          const v = row[c];
           if (v === undefined) return null;
           if (v instanceof Date) return v;
           if (colType === 'boolean') return Boolean(v);
