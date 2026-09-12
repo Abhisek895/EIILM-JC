@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { facultyApi, departmentApi, siteSettingsApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
+import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '@utils/getImageUrl';
 import { GraduationCap, Mail, Users, ChevronRight } from 'lucide-react';
@@ -123,6 +124,10 @@ export default function FacultyPage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Faculty Directory"
+        description="Meet the esteemed professors, lecturers, and academic mentors guiding students at EIILM Jalpaiguri Campus."
+      />
       <HeroSlider
         pageKey="faculty"
         fallbackTagline={siteSettings.faculty_hero_tagline || 'Academic Excellence'}

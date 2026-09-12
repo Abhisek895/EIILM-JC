@@ -4,6 +4,7 @@ import { noticeApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import Breadcrumb from '@components/Breadcrumb';
+import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { Bell, FileText, ChevronLeft, ChevronRight, Search, AlertTriangle, Info } from 'lucide-react';
 import { getImageUrl } from '@utils/getImageUrl';
@@ -50,6 +51,10 @@ export default function NoticesPage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Notices & Announcements"
+        description="Stay informed with the latest announcements, examination schedules, and official notices from EIILM Jalpaiguri Campus."
+      />
       <HeroSlider
         pageKey="notices"
         fallbackTagline="Stay Updated"

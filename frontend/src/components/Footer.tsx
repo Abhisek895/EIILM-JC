@@ -32,14 +32,14 @@ const Linkedin = ({ size = 24 }: { size?: number }) => (
 );
 
 const DEFAULT_SETTINGS = {
-  college_name: '',
+  college_name: 'EIILM Kolkata | Jalpaiguri Campus',
   logo: '',
   show_college_name: true,
-  tagline: 'A student-first college experience focused on clear guidance, practical learning, and career outcomes.',
+  tagline: 'A student-first college experience focused on industry-oriented learning and career outcomes.',
   show_tagline: true,
-  address: 'College Campus, Near NH-17, Jorhat, Assam',
-  email: 'info@college.edu',
-  phone: '+91 98765 43210',
+  address: 'EIILM Jalpaiguri Campus, Jalpaiguri, West Bengal - 735101',
+  email: 'admission@eiilm.co.in',
+  phone: '+91 91470 78640',
   copyright: 'Copyright 2026. All rights reserved.',
   social_facebook: '',
   social_instagram: '',
@@ -56,14 +56,15 @@ export const Footer: React.FC = () => {
       .then((res: any) => {
         const data = res?.data;
         if (data && typeof data === 'object') {
+          const isGibberishTagline = data.tagline && (data.tagline.includes('vne rhkje') || data.tagline.trim().length < 10);
           setSettings({
             college_name: data.college_name || DEFAULT_SETTINGS.college_name,
             logo: data.logo || '',
             show_college_name: data.show_college_name !== 'false',
-            tagline: data.tagline || DEFAULT_SETTINGS.tagline,
+            tagline: !isGibberishTagline && data.tagline ? data.tagline : DEFAULT_SETTINGS.tagline,
             show_tagline: data.show_tagline !== 'false',
             address: data.address || DEFAULT_SETTINGS.address,
-            email: data.email || DEFAULT_SETTINGS.email,
+            email: (data.email && !data.email.includes('sarkarabhisek50')) ? data.email : DEFAULT_SETTINGS.email,
             phone: data.phone || DEFAULT_SETTINGS.phone,
             copyright: data.copyright || DEFAULT_SETTINGS.copyright,
             social_facebook: data.social_facebook || '',

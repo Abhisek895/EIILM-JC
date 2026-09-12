@@ -4,6 +4,7 @@ import { placementApi, siteSettingsApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import Breadcrumb from '@components/Breadcrumb';
+import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '@utils/getImageUrl';
 import { TrendingUp, Building2, Award, Users, Briefcase, ChevronRight, ArrowRight } from 'lucide-react';
@@ -69,6 +70,10 @@ export default function PlacementsPage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Placements & Internships"
+        description="Explore corporate placements, career outcomes, and leading industry recruiters at EIILM Jalpaiguri Campus."
+      />
       <HeroSlider
         pageKey="placements"
         fallbackTagline={siteSettings.placement_hero_tagline || 'Career Placements'}
@@ -90,9 +95,9 @@ export default function PlacementsPage() {
           {/* Stats row */}
           {!loading && placements.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-              <StatCard icon={Users} label="Students Placed" value={`${totalPlacements}+`} color="bg-primary-600" />
-              <StatCard icon={Briefcase} label="Internships" value={`${totalInternships}+`} color="bg-emerald-600" />
-              <StatCard icon={Building2} label="Recruiting Companies" value={`${companies}+`} color="bg-violet-600" />
+              <StatCard icon={Users} label="Students Placed" value={totalPlacements > 0 ? `${totalPlacements}+` : (siteSettings.stat_placements || '100+')} color="bg-primary-600" />
+              <StatCard icon={Briefcase} label="Internships" value={totalInternships > 0 ? `${totalInternships}+` : (siteSettings.stat_internships || '50+')} color="bg-emerald-600" />
+              <StatCard icon={Building2} label="Recruiting Companies" value={companies > 0 ? `${companies}+` : (siteSettings.stat_companies || '25+')} color="bg-violet-600" />
             </div>
           )}
 

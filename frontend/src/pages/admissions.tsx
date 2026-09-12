@@ -176,7 +176,11 @@ export default function AdmissionsContactPage() {
 
   return (
     <MainLayout>
-      <SEO title="Admissions" siteName="College ERP" description="Apply for admission." />
+      <SEO
+        title="Admissions 2026-27"
+        siteName="EIILM Kolkata | Jalpaiguri Campus"
+        description="Apply for admission to industry-oriented undergraduate and postgraduate degree courses at EIILM Jalpaiguri Campus."
+      />
       <HeroSlider
         pageKey="admissions"
         hideTextOnMobile={true}

@@ -212,15 +212,16 @@ function normalizeConfig(config: any): Record<string, any> {
 function formatFee(course: Course) {
   if (course.showFees === false) return 'Contact for fees';
   if (!course.fees) return 'TBA';
-  const numeric = Number(course.fees);
-  return Number.isNaN(numeric) ? course.fees : numeric.toLocaleString('en-IN');
+  const cleanFee = String(course.fees).replace(/^[₹\s,INR|Rs\.]+/i, '').trim();
+  const numeric = Number(cleanFee.replace(/,/g, ''));
+  return Number.isNaN(numeric) ? cleanFee : numeric.toLocaleString('en-IN');
 }
 
 function getTrustBadges(settings: SiteSettings) {
   const accreditationBadges = (settings.about_accreditations || '')
     .split(',')
     .map((item) => item.trim())
-    .filter(Boolean);
+    .filter((item) => Boolean(item) && item.toUpperCase() !== 'IRCTC');
 
   const statBadges = [
     settings.stat_years ? `${settings.stat_years} years` : '',

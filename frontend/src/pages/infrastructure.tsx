@@ -4,6 +4,7 @@ import MainLayout from '@layouts/MainLayout';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import Breadcrumb from '@components/Breadcrumb';
+import SEO from '@components/SEO';
 import { infrastructureApi, siteSettingsApi } from '@api/endpoints';
 import { getImageUrl } from '@utils/image';
 import {
@@ -462,6 +463,10 @@ export default function InfrastructurePage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Campus Infrastructure & Facilities"
+        description="Explore our modern campus infrastructure, computer labs, library, smart classrooms, and student amenities at EIILM Jalpaiguri."
+      />
       <HeroSlider
         pageKey="infrastructure"
         fallbackTagline={siteSettings.infra_hero_tagline || 'Campus Infrastructure'}

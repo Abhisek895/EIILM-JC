@@ -11,12 +11,12 @@ interface SEOProps {
 }
 
 export const SEO: React.FC<SEOProps> = ({
-  title = 'Educational Institution',
-  description = 'Welcome to our premier educational institution. Explore our courses, campus, and admissions.',
-  keywords = 'education, college, university, courses, admissions',
+  title = 'EIILM Kolkata | Jalpaiguri Campus',
+  description = 'Welcome to EIILM Kolkata Jalpaiguri Campus. Explore our industry-aligned undergraduate and postgraduate courses, modern infrastructure, faculty, and career placements.',
+  keywords = 'EIILM, EIILM Jalpaiguri, college, university, BBA, BCA, MBA, courses, admissions, placements',
   image = '/logo.png', // Fallback to local logo if no image is provided
   url = '',
-  siteName = 'College ERP',
+  siteName = 'EIILM Kolkata | Jalpaiguri Campus',
 }) => {
   // Format the title correctly
   const formattedTitle = title === siteName ? title : `${title} | ${siteName}`;

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import Breadcrumb from '@components/Breadcrumb';
+import SEO from '@components/SEO';
 import { GraduationCap, Landmark, ScrollText, Award, Clock, ClipboardCheck, IndianRupee, BookOpen, ArrowRight } from 'lucide-react';
 import { getImageUrl } from '@utils/getImageUrl';
 
@@ -23,6 +24,14 @@ type Course = {
   status: string;
   slug?: string;
 };
+
+function formatFee(course: Course) {
+  if (course.showFees === false) return 'Contact for fees';
+  if (!course.fees) return 'TBA';
+  const cleanFee = String(course.fees).replace(/^[₹\s,INR|Rs\.]+/i, '').trim();
+  const numeric = Number(cleanFee.replace(/,/g, ''));
+  return Number.isNaN(numeric) ? cleanFee : numeric.toLocaleString('en-IN');
+}
 
 const COURSE_TYPE_COLORS: Record<string, string> = {
   UG: 'bg-primary-100 text-primary-700',
@@ -77,6 +86,10 @@ export default function CoursesPage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Academic Courses & Programmes"
+        description="Explore industry-oriented undergraduate and postgraduate degree courses at EIILM Jalpaiguri Campus."
+      />
       {/* Hero Banner Slider */}
       <HeroSlider
         pageKey="courses"
@@ -224,7 +237,7 @@ export default function CoursesPage() {
                           ) : course.fees ? (
                             <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
                               <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
-                              <span className="truncate">{!isNaN(Number(course.fees)) ? Number(course.fees).toLocaleString('en-IN') : course.fees}</span>
+                              <span className="truncate">{formatFee(course)}</span>
                             </div>
                           ) : (
                             <div className="text-sm font-semibold text-gray-500">TBA</div>

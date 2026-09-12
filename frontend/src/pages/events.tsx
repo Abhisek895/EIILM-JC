@@ -4,6 +4,7 @@ import { eventApi, siteSettingsApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import Breadcrumb from '@components/Breadcrumb';
+import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, CalendarDays, ChevronLeft, ChevronRight, ExternalLink, ArrowRight } from 'lucide-react';
 import { getImageUrl } from '@utils/getImageUrl';
@@ -49,6 +50,10 @@ export default function EventsPage() {
 
   return (
     <MainLayout>
+      <SEO
+        title="Campus Events & Activities"
+        description="Discover academic seminars, workshops, cultural fests, and student activities happening at EIILM Jalpaiguri Campus."
+      />
       <HeroSlider
         pageKey="events"
         fallbackTagline={siteSettings.events_hero_tagline || 'Campus Life'}
