@@ -448,8 +448,26 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
           </div>
         )}
 
+        {/* Pagination Dots */}
+        {maxIndex > 0 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
+              <button
+                key={dotIndex}
+                onClick={() => setCurrentIndex(dotIndex)}
+                className={`transition-all duration-300 rounded-full ${
+                  currentIndex === dotIndex
+                    ? 'w-8 h-2.5 bg-primary-600'
+                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${dotIndex + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Bottom Navigation & CTA: View all courses */}
-        <div className="mt-8 sm:mt-10 flex flex-col items-center justify-center gap-4 sm:gap-5">
+        <div className="mt-6 sm:mt-8 flex flex-col items-center justify-center gap-4 sm:gap-5">
           {maxIndex > 0 && (
             <div className="hidden sm:flex items-center gap-2.5">
               <button
@@ -852,8 +870,26 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
           </div>
         </div>
 
+        {/* Pagination Dots */}
+        {maxIndex > 0 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
+              <button
+                key={dotIndex}
+                onClick={() => setCurrentIndex(dotIndex)}
+                className={`transition-all duration-300 rounded-full ${
+                  currentIndex === dotIndex
+                    ? 'w-8 h-2.5 bg-primary-600'
+                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${dotIndex + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Bottom Navigation & CTA: View all placements */}
-        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <div className="mt-6 sm:mt-8 flex flex-col items-center justify-center gap-4 sm:gap-5">
           {maxIndex > 0 && (
             <div className="hidden sm:flex items-center gap-2.5">
               <button
