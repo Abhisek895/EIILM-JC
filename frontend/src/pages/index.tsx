@@ -136,29 +136,6 @@ const DEFAULT_FEATURES = [
   },
 ];
 
-const STUDENT_ACTIONS = [
-  {
-    title: 'Apply for Admission',
-    desc: 'Submit an inquiry and get guided support from the admissions team.',
-    href: '/admissions',
-    icon: Send,
-    chip: 'Start here',
-  },
-  {
-    title: 'Explore Courses',
-    desc: 'Compare duration, eligibility, and fees before you decide.',
-    href: '/courses',
-    icon: BookOpen,
-    chip: 'Compare options',
-  },
-  {
-    title: 'Talk to a Counselor',
-    desc: 'Ask about scholarships, documents, hostel, or campus life.',
-    href: '/contact',
-    icon: MessageSquare,
-    chip: 'Get answers',
-  },
-];
 
 const COURSE_TYPE_META: Record<string, { icon: React.ElementType; gradient: string; badgeClass: string }> = {
   UG: {
@@ -224,28 +201,6 @@ function formatFee(course: Course) {
   return Number.isNaN(numeric) ? cleanFee : numeric.toLocaleString('en-IN');
 }
 
-function getTrustBadges(settings: SiteSettings) {
-  const accreditationBadges = (settings.about_accreditations || '')
-    .split(',')
-    .map((item) => item.trim())
-    .filter((item) => Boolean(item) && item.toUpperCase() !== 'IRCTC');
-
-  const statBadges = [
-    settings.stat_years ? `${settings.stat_years} years` : '',
-    settings.stat_students ? `${settings.stat_students} students` : '',
-    settings.stat_courses ? `${settings.stat_courses} courses` : '',
-    settings.stat_faculty ? `${settings.stat_faculty} faculty` : '',
-  ].filter(Boolean);
-
-  const defaults = [
-    'Admissions support',
-    'Scholarship guidance',
-    'Placement focus',
-    'Campus life',
-  ];
-
-  return Array.from(new Set([...statBadges, ...accreditationBadges, ...defaults].filter(Boolean))).slice(0, 6);
-}
 
 function AnimatedCounter({ valueStr }: { valueStr: string }) {
   const match = valueStr.match(/^(\d+)(.*)$/);
@@ -289,104 +244,6 @@ function AnimatedCounter({ valueStr }: { valueStr: string }) {
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
-function StudentFirstSection({ settings }: SectionProps) {
-  const trustBadges = getTrustBadges(settings);
-
-  const heroTitle = settings.home_hero_title || 'Find the right path in minutes';
-  const heroSubtitle = settings.home_hero_subtitle || 'Most first-time visitors want three answers quickly: what can I study, how do I apply, and will this help my career?';
-
-  let actions = STUDENT_ACTIONS;
-  try {
-    if (settings.home_actions) {
-      actions = JSON.parse(settings.home_actions).map((item: any) => ({
-        ...item,
-        icon: ICON_MAP[item.icon] || Send
-      }));
-    }
-  } catch (e) {
-    // silently fallback to defaults if JSON is invalid
-  }
-
-  return (
-    <section className="relative overflow-hidden bg-white py-20">
-      <div
-        className="absolute inset-0 opacity-50"
-        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
-      />
-      <div className="container relative mx-auto px-6">
-        <FadeIn className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
-            Start here
-          </p>
-          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
-            {heroTitle}
-          </h2>
-          <p className="mt-4 text-lg leading-relaxed text-gray-600">
-            {heroSubtitle}
-          </p>
-        </FadeIn>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {actions.map((action, index) => {
-            const Icon = action.icon;
-            return (
-              <FadeIn key={action.title} delay={index * 0.06}>
-                <Link href={action.href} className="group block h-full">
-                  <motion.div
-                    whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
-                    className="flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-6 transition-all"
-                  >
-                    <div className="mb-5 flex items-center justify-between">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white">
-                        <Icon size={26} />
-                      </div>
-                      <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                        {action.chip}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-primary-700">
-                      {action.title}
-                    </h3>
-                    <p className="mt-3 flex-grow text-sm leading-relaxed text-gray-500">
-                      {action.desc}
-                    </p>
-                    <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary-600">
-                      Continue <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </motion.div>
-                </Link>
-              </FadeIn>
-            );
-          })}
-        </div>
-
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          {trustBadges.map((badge) => (
-            <span
-              key={badge}
-              className="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-600"
-            >
-              {badge}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-gray-500">
-          {settings.phone && (
-            <a href={`tel:${settings.phone}`} className="transition-colors hover:text-primary-600">
-              {settings.phone}
-            </a>
-          )}
-          {settings.email && (
-            <a href={`mailto:${settings.email}`} className="transition-colors hover:text-primary-600">
-              {settings.email}
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function FeaturedProgramsSection({ courses }: SectionProps) {
   const featuredCourses = courses.slice(0, 3);
@@ -1414,7 +1271,7 @@ function SectionRenderer({
         />
       );
     case 'student_first':
-      return <StudentFirstSection settings={settings} courses={courses} notices={notices} events={events} />;
+      return null;
     case 'featured_courses':
       return <FeaturedProgramsSection settings={settings} courses={courses} notices={notices} events={events} />;
     case 'stats':
@@ -1438,15 +1295,14 @@ function SectionRenderer({
 
 const DEFAULT_SECTIONS: PageSection[] = [
   { id: 1, sectionKey: 'hero', config: { slides: [] }, sortOrder: 0 },
-  { id: 2, sectionKey: 'student_first', config: {}, sortOrder: 1 },
-  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 2 },
-  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 3 },
-  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 4 },
-  { id: 5, sectionKey: 'features', config: {}, sortOrder: 5 },
-  { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 6 },
-  { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 7 },
-  { id: 8, sectionKey: 'testimonials', config: {}, sortOrder: 8 },
-  { id: 9, sectionKey: 'cta', config: {}, sortOrder: 9 },
+  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 1 },
+  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 2 },
+  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 3 },
+  { id: 5, sectionKey: 'features', config: {}, sortOrder: 4 },
+  { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 5 },
+  { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 6 },
+  { id: 8, sectionKey: 'testimonials', config: {}, sortOrder: 7 },
+  { id: 9, sectionKey: 'cta', config: {}, sortOrder: 8 },
 ];
 
 export default function HomePage() {
