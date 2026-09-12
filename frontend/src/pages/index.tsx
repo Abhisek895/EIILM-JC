@@ -643,68 +643,119 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
               transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
             }}
           >
-            {displayPlacements.map((p, index) => (
-              <div
-                key={`${p.studentName}-${index}`}
-                className="shrink-0 px-3"
-                style={{ width: `${100 / itemsPerPage}%` }}
-              >
-                <div className="h-full rounded-3xl border border-gray-100 bg-white p-6 sm:p-7 transition-all flex flex-col hover:shadow-xl hover:-translate-y-1 duration-300 shadow-sm">
-                  {/* Top: Avatar/Photo + Package */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="relative">
+            {displayPlacements.map((p, index) => {
+              const gradient = PLACEHOLDER_GRADIENTS[index % PLACEHOLDER_GRADIENTS.length];
+              const packageDisplay = p.package.toUpperCase().includes('LPA') ? p.package : `${p.package} LPA`;
+
+              return (
+                <div
+                  key={`${p.studentName}-${index}`}
+                  className="shrink-0 px-3"
+                  style={{ width: `${100 / itemsPerPage}%` }}
+                >
+                  <motion.article
+                    whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
+                    className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all shadow-sm"
+                  >
+                    {/* Top Banner / Student Visual */}
+                    <Link href="/placements" className="relative block h-40 sm:h-56 overflow-hidden">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {p.studentImage ? (
                         <img
                           src={getImageUrl(p.studentImage)}
                           alt={p.studentName}
-                          className="w-14 h-14 rounded-2xl object-cover border-2 border-primary-100 shadow-sm"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-sm">
-                          {p.studentName.slice(0, 2).toUpperCase()}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 text-2xl font-black text-white shadow-xl backdrop-blur-md border border-white/30 transition-transform duration-500 group-hover:scale-110">
+                            {p.studentName.slice(0, 2).toUpperCase()}
+                          </div>
                         </div>
                       )}
-                    </div>
-                    <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm px-3.5 py-1.5 rounded-xl shadow-sm">
-                      {p.package.toUpperCase().includes('LPA') ? p.package : `${p.package} LPA`}
-                    </span>
-                  </div>
+                      <div className="absolute inset-0 bg-slate-950/20" />
 
-                  {/* Student Details */}
-                  <h3 className="text-lg font-bold text-gray-900 leading-snug">
-                    {p.studentName}
-                  </h3>
-                  <p className="text-xs font-semibold text-primary-600 mt-1">
-                    {p.course || 'Degree'} · Batch {p.year}
-                  </p>
+                      {/* Top-left pill: Placement / Course */}
+                      <div className="absolute left-4 top-4 z-10">
+                        <span className="rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700 shadow-sm backdrop-blur">
+                          {p.course || 'Degree'}
+                        </span>
+                      </div>
 
-                  {/* Company Box */}
-                  <div className="mt-6 flex items-center gap-3 rounded-2xl bg-gray-50 p-3.5 border border-gray-100 mt-auto">
-                    {p.companyLogo ? (
-                      <div className="w-10 h-10 bg-white rounded-xl p-1 border border-gray-200 flex-shrink-0 flex items-center justify-center">
-                        <img
-                          src={getImageUrl(p.companyLogo)}
-                          alt={p.companyName}
-                          className="max-w-full max-h-full object-contain"
-                        />
+                      {/* Bottom-right dark badge: Package */}
+                      <div className="absolute bottom-4 right-4 z-10">
+                        <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 backdrop-blur">
+                          {packageDisplay}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="w-10 h-10 bg-white rounded-xl border border-gray-200 flex-shrink-0 flex items-center justify-center text-primary-600 shadow-xs">
-                        <Building2 size={18} />
+                    </Link>
+
+                    {/* Card Body */}
+                    <div className="flex flex-1 flex-col p-4 sm:p-7">
+                      <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                        Placement spotlight
+                      </p>
+                      <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700">
+                        {p.studentName}
+                      </h3>
+
+                      <div className="mt-2 sm:mt-3 mb-2 sm:mb-0">
+                        <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
+                          {p.course || 'Degree'} · Batch {p.year}
+                        </span>
                       </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                        {p.placementType === 'internship' ? 'Interning At' : 'Placed At'}
+
+                      {/* 2-Column Info Grid */}
+                      <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
+                          {p.companyLogo ? (
+                            <img
+                              src={getImageUrl(p.companyLogo)}
+                              alt={p.companyName}
+                              className="h-4 w-4 object-contain shrink-0"
+                            />
+                          ) : (
+                            <Building2 size={16} className="shrink-0 text-primary-500" />
+                          )}
+                          <span className="truncate" title={p.companyName}>{p.companyName}</span>
+                        </div>
+                        <div
+                          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
+                          title={p.placementType === 'internship' ? 'Internship' : 'Placed Candidate'}
+                        >
+                          <Award size={16} className="shrink-0 text-primary-500" />
+                          <span className="truncate">{p.placementType === 'internship' ? 'Internship' : 'Placed Candidate'}</span>
+                        </div>
+                      </div>
+
+                      <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500">
+                        Successfully secured campus placement at {p.companyName} through EIILM Kolkata recruitment.
                       </p>
-                      <p className="text-sm font-extrabold text-gray-900 truncate">
-                        {p.companyName}
-                      </p>
+
+                      {/* Footer with Divider */}
+                      <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
+                        <div>
+                          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            Package Offered
+                          </p>
+                          <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
+                            <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
+                            <span className="truncate font-extrabold text-emerald-600">{packageDisplay.replace(/^₹\s*/, '')}</span>
+                          </div>
+                        </div>
+
+                        <Link
+                          href="/placements"
+                          className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-primary-600 px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg whitespace-nowrap"
+                        >
+                          View Details <ChevronRight size={16} />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
+                  </motion.article>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
