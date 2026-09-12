@@ -660,7 +660,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                     className="group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-100 bg-white transition-all shadow-sm"
                   >
                     {/* Top Banner / Student Visual */}
-                    <Link href="/placements" className="relative block h-48 sm:h-52 overflow-hidden">
+                    <Link href="/placements" className="relative block h-60 sm:h-64 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {p.studentImage ? (
                         <img
@@ -670,7 +670,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white/20 text-xl sm:text-2xl font-black text-white shadow-md backdrop-blur-md border border-white/30 transition-transform duration-500 group-hover:scale-110">
+                          <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl bg-white/20 text-2xl sm:text-3xl font-black text-white shadow-lg backdrop-blur-md border border-white/30 transition-transform duration-500 group-hover:scale-110">
                             {p.studentName.slice(0, 2).toUpperCase()}
                           </div>
                         </div>
