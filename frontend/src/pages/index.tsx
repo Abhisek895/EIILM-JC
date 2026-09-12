@@ -550,8 +550,10 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         setItemsPerPage(1);
       } else if (window.innerWidth < 1024) {
         setItemsPerPage(2);
-      } else {
+      } else if (window.innerWidth < 1280) {
         setItemsPerPage(3);
+      } else {
+        setItemsPerPage(4);
       }
     };
     handleResize();
@@ -593,37 +595,37 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   };
 
   return (
-    <section className="bg-white py-20 overflow-hidden">
+    <section className="bg-white py-14 sm:py-16 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-4">
           <FadeIn className="text-center md:text-left">
-            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+            <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
               Career Proof
             </p>
-            <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+            <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl">
               Top Placement Achievers
             </h2>
-            <p className="mt-3 max-w-2xl text-lg text-gray-600">
+            <p className="mt-2 max-w-2xl text-sm sm:text-base text-gray-600">
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
           </FadeIn>
 
           {/* Controls */}
           {maxIndex > 0 && (
-            <div className="hidden sm:flex items-center justify-center md:justify-end gap-3 shrink-0">
+            <div className="hidden sm:flex items-center justify-center md:justify-end gap-2.5 shrink-0">
               <button
                 onClick={handlePrev}
-                className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
                 aria-label="Previous placement"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={18} />
               </button>
               <button
                 onClick={handleNext}
-                className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
                 aria-label="Next placement"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </button>
             </div>
           )}
@@ -638,7 +640,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
           onTouchEnd={onTouchEnd}
         >
           <div
-            className="flex transition-transform duration-700 ease-out py-4"
+            className="flex transition-transform duration-700 ease-out py-2"
             style={{
               transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
             }}
@@ -650,15 +652,15 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
               return (
                 <div
                   key={`${p.studentName}-${index}`}
-                  className="shrink-0 px-3"
+                  className="shrink-0 px-2 sm:px-2.5"
                   style={{ width: `${100 / itemsPerPage}%` }}
                 >
                   <motion.article
-                    whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
-                    className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all shadow-sm"
+                    whileHover={{ y: -4, boxShadow: '0 16px 32px rgba(0,0,0,0.08)' }}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-100 bg-white transition-all shadow-sm"
                   >
                     {/* Top Banner / Student Visual */}
-                    <Link href="/placements" className="relative block h-40 sm:h-56 overflow-hidden">
+                    <Link href="/placements" className="relative block h-32 sm:h-40 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {p.studentImage ? (
                         <img
@@ -668,87 +670,87 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 text-2xl font-black text-white shadow-xl backdrop-blur-md border border-white/30 transition-transform duration-500 group-hover:scale-110">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-lg font-black text-white shadow-md backdrop-blur-md border border-white/30 transition-transform duration-500 group-hover:scale-110">
                             {p.studentName.slice(0, 2).toUpperCase()}
                           </div>
                         </div>
                       )}
                       <div className="absolute inset-0 bg-slate-950/20" />
 
-                      {/* Top-left pill: Placement / Course */}
-                      <div className="absolute left-4 top-4 z-10">
-                        <span className="rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700 shadow-sm backdrop-blur">
+                      {/* Top-left pill: Course */}
+                      <div className="absolute left-3 top-3 z-10">
+                        <span className="rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-primary-700 shadow-sm backdrop-blur">
                           {p.course || 'Degree'}
                         </span>
                       </div>
 
                       {/* Bottom-right dark badge: Package */}
-                      <div className="absolute bottom-4 right-4 z-10">
-                        <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 backdrop-blur">
+                      <div className="absolute bottom-3 right-3 z-10">
+                        <span className="rounded-lg bg-slate-950/80 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-emerald-400 backdrop-blur">
                           {packageDisplay}
                         </span>
                       </div>
                     </Link>
 
                     {/* Card Body */}
-                    <div className="flex flex-1 flex-col p-4 sm:p-7">
-                      <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                    <div className="flex flex-1 flex-col p-3.5 sm:p-5">
+                      <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-primary-600">
                         Placement spotlight
                       </p>
-                      <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700">
+                      <h3 className="mt-1 text-base sm:text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700 truncate">
                         {p.studentName}
                       </h3>
 
-                      <div className="mt-2 sm:mt-3 mb-2 sm:mb-0">
-                        <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
+                      <div className="mt-1.5 mb-1 sm:mb-0">
+                        <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary-700">
                           {p.course || 'Degree'} · Batch {p.year}
                         </span>
                       </div>
 
                       {/* 2-Column Info Grid */}
-                      <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
+                      <div className="mt-2.5 grid grid-cols-2 gap-1.5 sm:gap-2 rounded-xl border border-gray-100 bg-gray-50 p-2 sm:p-2.5">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700 min-w-0">
                           {p.companyLogo ? (
                             <img
                               src={getImageUrl(p.companyLogo)}
                               alt={p.companyName}
-                              className="h-4 w-4 object-contain shrink-0"
+                              className="h-3.5 w-3.5 object-contain shrink-0"
                             />
                           ) : (
-                            <Building2 size={16} className="shrink-0 text-primary-500" />
+                            <Building2 size={14} className="shrink-0 text-primary-500" />
                           )}
                           <span className="truncate" title={p.companyName}>{p.companyName}</span>
                         </div>
                         <div
-                          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
-                          title={p.placementType === 'internship' ? 'Internship' : 'Placed Candidate'}
+                          className="flex items-center gap-1.5 text-xs font-medium text-gray-700 min-w-0"
+                          title={p.placementType === 'internship' ? 'Internship' : 'Placed'}
                         >
-                          <Award size={16} className="shrink-0 text-primary-500" />
-                          <span className="truncate">{p.placementType === 'internship' ? 'Internship' : 'Placed Candidate'}</span>
+                          <Award size={14} className="shrink-0 text-primary-500" />
+                          <span className="truncate">{p.placementType === 'internship' ? 'Internship' : 'Placed'}</span>
                         </div>
                       </div>
 
-                      <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500">
-                        Successfully secured campus placement at {p.companyName} through EIILM Kolkata recruitment.
+                      <p className="mt-2 flex-grow text-xs leading-relaxed text-gray-500 line-clamp-2">
+                        Secured campus placement at {p.companyName} with {p.package} package.
                       </p>
 
                       {/* Footer with Divider */}
-                      <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
+                      <div className="mt-3 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5">
                         <div>
-                          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
                             Package Offered
                           </p>
-                          <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
-                            <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
-                            <span className="truncate font-extrabold text-emerald-600">{packageDisplay.replace(/^₹\s*/, '')}</span>
+                          <div className="flex items-center gap-0.5 text-sm sm:text-base font-extrabold text-gray-900 truncate">
+                            <IndianRupee size={14} className="text-gray-900 flex-shrink-0" />
+                            <span className="truncate text-emerald-600">{packageDisplay.replace(/^₹\s*/, '')}</span>
                           </div>
                         </div>
 
                         <Link
                           href="/placements"
-                          className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-primary-600 px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg whitespace-nowrap"
+                          className="inline-flex flex-shrink-0 items-center justify-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow whitespace-nowrap"
                         >
-                          View Details <ChevronRight size={16} />
+                          View Details <ChevronRight size={14} />
                         </Link>
                       </div>
                     </div>
