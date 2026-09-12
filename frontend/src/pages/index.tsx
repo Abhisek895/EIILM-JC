@@ -429,8 +429,15 @@ function StatsSection({ settings }: SectionProps) {
 
   return (
     <section className="relative overflow-hidden bg-[#0a0a0a] py-10 sm:py-16 lg:py-20">
-      {/* Background gradients aligned with yellow branding */}
-      <div className="absolute inset-x-0 top-0 h-[45%] sm:inset-0 sm:h-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]" />
+      {/* Background gradients styled to match the hero banner size and shape */}
+      <div 
+        className="hidden md:flex absolute right-0 top-0 h-full w-[35%] z-0 flex-col justify-center items-end pr-16 md:pr-24 lg:pr-32 xl:pr-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]"
+        style={{
+          clipPath: 'polygon(0px 0px, 100% 0px, 100% 100%, 220px 100%)',
+          marginLeft: '-220px',
+          paddingLeft: '230px'
+        }}
+      />
       
       {/* Top ambient brand glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[1000px] h-[300px] sm:h-[500px] bg-amber-500/10 blur-[100px] sm:blur-[120px] rounded-full pointer-events-none" />
