@@ -61,11 +61,6 @@ export default function DepartmentsPage() {
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight">
               Departments &amp; Schools
             </h2>
-            {!loading && departments.length > 0 && (
-              <p className="text-gray-500 mt-3 text-lg">
-                {departments.length} academic department{departments.length !== 1 ? 's' : ''} under one roof
-              </p>
-            )}
           </FadeIn>
 
           {error && <div className="text-center py-10 text-red-600 font-semibold">{error}</div>}
