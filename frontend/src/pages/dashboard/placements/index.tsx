@@ -585,7 +585,7 @@ export default function AdminPlacementPage() {
                   </tr>
                 ) : (
                   placements.map((p) => (
-                    <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={p.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td data-label="Image" className="px-4 py-3">
                         {p.studentImage || p.companyLogo ? (
                           // eslint-disable-next-line @next/next/no-img-element

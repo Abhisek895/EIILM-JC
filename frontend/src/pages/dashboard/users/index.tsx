@@ -433,7 +433,7 @@ export default function AdminUsersPage() {
                   </tr>
                 ) : (
                   filteredUsers.map((u) => (
-                    <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={u.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td data-label="Name" className="px-4 py-2.5 font-medium text-gray-900">{u.name}</td>
                       <td data-label="Email" className="px-4 py-2.5 text-gray-600">{u.email}</td>
                       <td data-label="Role" className="px-4 py-2.5">

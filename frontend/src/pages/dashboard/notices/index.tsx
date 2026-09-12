@@ -512,7 +512,7 @@ export default function AdminNoticesPage() {
                   </tr>
                 ) : (
                   filteredNotices.map((n) => (
-                    <tr key={n.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={n.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td data-label="Title" className="px-4 py-2.5 font-medium text-gray-900">{n.title}</td>
                       <td data-label="Priority" className="px-4 py-2.5">
                         <span className={`text-xs px-2 py-0.5 rounded border ${PRIORITY_COLORS[n.priority] || PRIORITY_COLORS.medium} capitalize`}>
