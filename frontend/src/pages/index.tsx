@@ -261,6 +261,14 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
           <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
             Compare a few strong options before you dive into the full course list.
           </p>
+          <div className="mt-6">
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-100 hover:border-primary-300 transition-all group"
+            >
+              View all courses <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
         </FadeIn>
 
         {featuredCourses.length === 0 ? (
@@ -378,14 +386,6 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
           </div>
         )}
 
-        <FadeIn className="mt-12 flex justify-center">
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 font-semibold text-primary-600 transition-colors hover:text-primary-700"
-          >
-            View all courses <ArrowRight size={16} />
-          </Link>
-        </FadeIn>
       </div>
     </section>
   );
@@ -646,6 +646,14 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
             <p className="mt-1.5 max-w-2xl mx-auto text-[11px] sm:text-sm text-gray-500 sm:text-gray-600 truncate sm:truncate-none sm:whitespace-normal px-4 sm:px-0">
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
+            <div className="mt-5">
+              <Link
+                href="/placements"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-100 hover:border-primary-300 transition-all group"
+              >
+                View all placements <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
           </FadeIn>
           {/* Controls */}
           {maxIndex > 0 && (
@@ -798,15 +806,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
           </div>
         </div>
 
-        {/* View all placements CTA before ending section */}
-        <FadeIn className="mt-12 flex justify-center">
-          <Link
-            href="/placements"
-            className="inline-flex items-center gap-2 font-semibold text-primary-600 transition-colors hover:text-primary-700 text-base group"
-          >
-            View all placements <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </Link>
-        </FadeIn>
+
       </div>
     </section>
   );
