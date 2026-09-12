@@ -105,34 +105,56 @@ async function runMigration() {
   await pgClient.query(schemaSql);
   console.log('   ✅ PostgreSQL schema created/verified.\n');
 
-  // 4. Migrate Media Files to Vercel Blob (if token available)
+  // 4. Migrate Media Files to Vercel Blob (map existing + upload missing)
   const urlMapping: Record<string, string> = {};
   const uploadsDir = path.resolve(__dirname, '../../uploads/files');
 
-  if (BLOB_TOKEN && BLOB_TOKEN !== '[SENSITIVE]' && BLOB_TOKEN.startsWith('vercel_blob_') && fs.existsSync(uploadsDir)) {
-    const files = fs.readdirSync(uploadsDir);
-    console.log(`4️⃣ Migrating ${files.length} local media files to Vercel Blob...`);
+  if (BLOB_TOKEN && BLOB_TOKEN.startsWith('vercel_blob_')) {
+    console.log('4️⃣ Checking Vercel Blob storage for existing uploaded assets...');
+    try {
+      const listRes = await fetch('https://blob.vercel-storage.com/?limit=100', {
+        headers: { authorization: `Bearer ${BLOB_TOKEN}` },
+      });
+      if (listRes.ok) {
+        const listData = (await listRes.json()) as { blobs: { pathname: string; url: string }[] };
+        for (const b of listData.blobs || []) {
+          const fn = b.pathname.replace(/^uploads\//, '');
+          urlMapping[`/uploads/files/${fn}`] = b.url;
+          urlMapping[`http://localhost:5000/uploads/files/${fn}`] = b.url;
+          urlMapping[`http://127.0.0.1:5000/uploads/files/${fn}`] = b.url;
+          urlMapping[`https://localhost:5000/uploads/files/${fn}`] = b.url;
+        }
+        console.log(`   ✅ Pre-mapped ${Object.keys(urlMapping).length / 4} existing blobs directly from Vercel Blob store.\n`);
+      }
+    } catch (e: any) {
+      console.warn(`   ⚠️ Could not list existing blobs: ${e.message}`);
+    }
 
-    let uploadedCount = 0;
-    for (const file of files) {
-      const fullPath = path.join(uploadsDir, file);
-      if (fs.statSync(fullPath).isFile()) {
-        try {
-          process.stdout.write(`   Uploading ${file}... `);
-          const blobUrl = await uploadFileToVercelBlob(fullPath, file);
-          urlMapping[`/uploads/files/${file}`] = blobUrl;
-          urlMapping[`http://localhost:5000/uploads/files/${file}`] = blobUrl;
-          urlMapping[`http://127.0.0.1:5000/uploads/files/${file}`] = blobUrl;
-          uploadedCount++;
-          console.log(`✅ OK -> ${blobUrl}`);
-        } catch (e: any) {
-          console.log(`⚠️ Failed: ${e.message}`);
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      let newlyUploaded = 0;
+      for (const file of files) {
+        if (urlMapping[`/uploads/files/${file}`]) continue; // Already mapped!
+        const fullPath = path.join(uploadsDir, file);
+        if (fs.statSync(fullPath).isFile()) {
+          try {
+            process.stdout.write(`   Uploading new file ${file}... `);
+            const blobUrl = await uploadFileToVercelBlob(fullPath, file);
+            urlMapping[`/uploads/files/${file}`] = blobUrl;
+            urlMapping[`http://localhost:5000/uploads/files/${file}`] = blobUrl;
+            urlMapping[`http://127.0.0.1:5000/uploads/files/${file}`] = blobUrl;
+            urlMapping[`https://localhost:5000/uploads/files/${file}`] = blobUrl;
+            newlyUploaded++;
+            console.log(`✅ OK -> ${blobUrl}`);
+          } catch (e: any) {
+            console.log(`⚠️ Failed: ${e.message}`);
+          }
         }
       }
+      console.log(`   ✅ Finished media mapping. Newly uploaded: ${newlyUploaded}, Total mapped: ${Object.keys(urlMapping).length / 4}\n`);
     }
-    console.log(`   ✅ Finished uploading ${uploadedCount}/${files.length} files to Vercel Blob.\n`);
   } else {
-    console.log('4️⃣ ⚠️ Skipping Vercel Blob upload (BLOB_READ_WRITE_TOKEN not set or uploads folder missing).\n');
+    console.log('4️⃣ ⚠️ Skipping Vercel Blob upload (BLOB_READ_WRITE_TOKEN not set).\n');
   }
 
   // Helper to rewrite media URLs inside any string / JSON
@@ -186,6 +208,7 @@ async function runMigration() {
     { name: 'grades', pk: 'id' },
     { name: 'fee_records', pk: 'id' },
     { name: 'page_views', pk: 'id' },
+    { name: 'audit_logs', pk: 'id' },
   ];
 
   console.log('5️⃣ Migrating database records from MySQL to PostgreSQL...');
@@ -193,7 +216,7 @@ async function runMigration() {
   for (const { name: tbl, pk } of tablesToMigrate) {
     try {
       // Check if table exists in MySQL
-      const [rows]: [any[], any] = await mysqlConn.query(`SELECT * FROM ${tbl}`);
+      const [rows]: any = await mysqlConn.query(`SELECT * FROM ${tbl}`).catch(() => [[], null]);
       if (!rows || rows.length === 0) {
         console.log(`   ℹ️  Table '${tbl}': 0 rows in MySQL (Skipping)`);
         continue;
@@ -201,18 +224,45 @@ async function runMigration() {
 
       console.log(`   📦 Migrating '${tbl}' (${rows.length} rows)...`);
 
+      // Fetch column names and types for target table in Postgres
+      const pColsRes = await pgClient.query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = $1
+      `, [tbl]);
+      
+      const pgColMap = new Map<string, string>();
+      for (const r of pColsRes.rows) {
+        pgColMap.set(r.column_name, r.data_type);
+      }
+
       for (const rawRow of rows) {
-        // Rewrite any media URLs
         const row = rewriteUrls(rawRow);
 
-        const cols = Object.keys(row);
+        // Filter to only columns that exist in Postgres
+        const cols = Object.keys(row).filter((c) => pgColMap.has(c));
         const vals = cols.map((c) => {
-          const v = row[c];
+          const colType = pgColMap.get(c);
+          let v = row[c];
+          if (v === undefined) return null;
           if (v instanceof Date) return v;
+          if (colType === 'boolean') return Boolean(v);
           if (typeof v === 'boolean') return v;
-          if (tbl === 'courses' && c === 'show_fees') return Boolean(v);
+          if (colType === 'json' || colType === 'jsonb') {
+            if (typeof v === 'object' && v !== null) return JSON.stringify(v);
+            if (typeof v === 'string') {
+              try {
+                // Ensure valid JSON
+                JSON.parse(v);
+                return v;
+              } catch {
+                return JSON.stringify(v);
+              }
+            }
+            return null;
+          }
           if (typeof v === 'object' && v !== null) return JSON.stringify(v);
-          if (v === '' && (c.includes('date') || c.includes('at'))) return null;
+          if (v === '' && (colType?.includes('timestamp') || colType?.includes('date'))) return null;
           return v;
         });
 

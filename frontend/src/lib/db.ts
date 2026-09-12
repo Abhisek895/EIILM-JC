@@ -4,7 +4,7 @@ const connectionString =
   process.env.POSTGRES_URL ||
   process.env.DATABASE_URL ||
   process.env.PRISMA_DATABASE_URL ||
-  'postgres://9352450170d3f05d3da9068d697e1bb14ea78d5858dbd463a206ab1291697ed8:sk_yLaf1OsiHQAwbmymecm8F@db.prisma.io:5432/postgres?sslmode=require';
+  'postgres://b705848675fcaeaaffd19fa01dfe8d0a734054357e3fd4df4d2941a82bcd444f:sk_4qKR3Mulr3zj64OfJHyz_@db.prisma.io:5432/postgres?sslmode=require';
 
 let pool: Pool | null = null;
 
