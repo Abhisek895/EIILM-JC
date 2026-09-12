@@ -1,3 +1,4 @@
+import pg from 'pg';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
@@ -19,6 +20,7 @@ class Database {
         const uri = postgresUri || `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`;
         Database.instance = new Sequelize(uri, {
           dialect: 'postgres',
+          dialectModule: pg,
           dialectOptions: {
             ssl: process.env.DB_SSL === 'false' ? false : {
               require: true,

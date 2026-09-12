@@ -7,15 +7,23 @@ const logDir = path.join(__dirname, '../../logs');
 let appLogStream: fs.WriteStream | null = null;
 let errorLogStream: fs.WriteStream | null = null;
 
-try {
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+if (process.env.VERCEL !== '1') {
+  try {
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    appLogStream = fs.createWriteStream(path.join(logDir, 'app.log'), { flags: 'a' });
+    appLogStream.on('error', () => {
+      appLogStream = null;
+    });
+    errorLogStream = fs.createWriteStream(path.join(logDir, 'error.log'), { flags: 'a' });
+    errorLogStream.on('error', () => {
+      errorLogStream = null;
+    });
+  } catch (err) {
+    // If filesystem logging is not permitted (e.g. read-only container), fallback to stdout
+    console.warn('Filesystem logging unavailable, falling back to stdout/stderr only:', err);
   }
-  appLogStream = fs.createWriteStream(path.join(logDir, 'app.log'), { flags: 'a' });
-  errorLogStream = fs.createWriteStream(path.join(logDir, 'error.log'), { flags: 'a' });
-} catch (err) {
-  // If filesystem logging is not permitted (e.g. read-only container), fallback to stdout
-  console.warn('Filesystem logging unavailable, falling back to stdout/stderr only:', err);
 }
 
 // Helper to sanitize sensitive fields before logging
