@@ -449,7 +449,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
         )}
 
         {/* Bottom Navigation & CTA: View all courses */}
-        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <div className="mt-8 sm:mt-10 flex flex-col items-center justify-center gap-4 sm:gap-5">
           {maxIndex > 0 && (
             <div className="hidden sm:flex items-center gap-2.5">
               <button
