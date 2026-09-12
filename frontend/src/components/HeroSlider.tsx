@@ -71,20 +71,20 @@ export default function HeroSlider({ pageKey, fallbackTagline, fallbackHeading, 
             key={idx}
             className={`absolute inset-0 flex transition-opacity duration-1000 ${idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           >
-            {/* Image section: dynamically sizes its exact width, no white gaps! */}
+            {/* Image section: full width on mobile/small screens, max 65% on md+ */}
             {slide.imageUrl ? (
               <img
                 src={getImageUrl(slide.imageUrl)}
                 alt="Hero Banner"
-                className="h-full w-auto max-w-[65%] object-contain object-left shrink-0 z-0"
+                className="h-full w-full object-cover md:w-auto md:max-w-[65%] md:object-contain md:object-left shrink-0 z-0"
               />
             ) : (
-              <div className="h-full w-[50%] bg-slate-200 shrink-0 z-0" />
+              <div className="h-full w-full md:w-[50%] bg-slate-200 shrink-0 z-0" />
             )}
 
-            {/* Slanted Overlay: fills all remaining space and perfectly overlaps the slant! */}
+            {/* Slanted Overlay: hidden on small screens, displayed on md+ */}
             <div
-              className="flex-1 h-full z-10 flex flex-col justify-center items-end pr-16 md:pr-24 lg:pr-32 xl:pr-40 relative"
+              className="hidden md:flex flex-1 h-full z-10 flex-col justify-center items-end pr-16 md:pr-24 lg:pr-32 xl:pr-40 relative"
               style={{
                 backgroundColor: slide.bgColor || '#fecb00',
                 clipPath: 'polygon(0 0, 100% 0, 100% 100%, 220px 100%)',
