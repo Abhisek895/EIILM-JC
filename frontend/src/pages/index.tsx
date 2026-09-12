@@ -593,7 +593,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   };
 
   return (
-    <section className="bg-white py-20 overflow-hidden border-t border-gray-100">
+    <section className="bg-white py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <FadeIn className="text-center md:text-left">
@@ -1295,9 +1295,9 @@ function SectionRenderer({
 
 const DEFAULT_SECTIONS: PageSection[] = [
   { id: 1, sectionKey: 'hero', config: { slides: [] }, sortOrder: 0 },
-  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 1 },
-  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 2 },
-  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 3 },
+  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 1 },
+  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 2 },
+  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 3 },
   { id: 5, sectionKey: 'features', config: {}, sortOrder: 4 },
   { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 5 },
   { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 6 },
