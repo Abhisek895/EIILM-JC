@@ -207,7 +207,7 @@ async function runMigration() {
 
         const cols = Object.keys(row);
         const vals = cols.map((c) => {
-          let v = row[c];
+          const v = row[c];
           if (v instanceof Date) return v;
           if (typeof v === 'boolean') return v;
           if (tbl === 'courses' && c === 'show_fees') return Boolean(v);
