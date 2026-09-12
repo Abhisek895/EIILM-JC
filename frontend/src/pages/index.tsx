@@ -1164,23 +1164,6 @@ function TestimonialsSection({ settings }: SectionProps) {
               Real experiences from students who've studied, grown, and launched careers here.
             </p>
           </FadeIn>
-          {/* Manual Arrow Controls */}
-          <div className="hidden sm:flex items-center justify-center gap-3 mt-6">
-            <button
-              onClick={handlePrev}
-              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
-              aria-label="Previous testimonial"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={handleNext}
-              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
-              aria-label="Next testimonial"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
         </div>
 
         {/* Sliding Cards Carousel Track */}
@@ -1260,6 +1243,26 @@ function TestimonialsSection({ settings }: SectionProps) {
                 aria-label={`Go to slide ${dotIndex + 1}`}
               />
             ))}
+          </div>
+        )}
+
+        {/* Manual Arrow Controls (Bottom, only for big screens) */}
+        {maxIndex > 0 && (
+          <div className="hidden sm:flex items-center justify-center gap-3 mt-6">
+            <button
+              onClick={handlePrev}
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={handleNext}
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         )}
       </div>
