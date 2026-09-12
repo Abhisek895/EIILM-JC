@@ -595,8 +595,12 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   };
 
   return (
-    <section className="bg-white py-14 sm:py-16 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section className="relative bg-white py-14 sm:py-16 overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
+      />
+      <div className="container relative mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-4">
           <FadeIn className="text-center md:text-left">
             <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
@@ -1348,9 +1352,9 @@ function SectionRenderer({
 
 const DEFAULT_SECTIONS: PageSection[] = [
   { id: 1, sectionKey: 'hero', config: { slides: [] }, sortOrder: 0 },
-  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 1 },
-  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 2 },
-  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 3 },
+  { id: 4, sectionKey: 'stats', config: {}, sortOrder: 1 },
+  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 2 },
+  { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 3 },
   { id: 5, sectionKey: 'features', config: {}, sortOrder: 4 },
   { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 5 },
   { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 6 },
