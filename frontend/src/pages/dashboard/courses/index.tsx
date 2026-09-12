@@ -608,7 +608,7 @@ export default function AdminCoursesPage() {
                   </tr>
                 ) : (
                   courses.map((c) => (
-                    <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={c.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td data-label="Course Name" className="px-4 py-2.5 font-medium text-gray-900">{c.courseName}</td>
                       <td data-label="Code" className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{c.courseCode || '—'}</td>
                       <td data-label="Type" className="px-4 py-2.5 text-gray-600">{c.courseType}</td>

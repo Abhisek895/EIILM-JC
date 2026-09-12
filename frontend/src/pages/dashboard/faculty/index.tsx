@@ -540,7 +540,7 @@ export default function AdminFacultyPage() {
                   </tr>
                 ) : (
                   faculty.map((f) => (
-                    <tr key={f.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={f.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td data-label="Image" className="px-4 py-3">
                         {f.photo ? (
                           // eslint-disable-next-line @next/next/no-img-element

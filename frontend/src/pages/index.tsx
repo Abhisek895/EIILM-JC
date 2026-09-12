@@ -246,140 +246,240 @@ function AnimatedCounter({ valueStr }: { valueStr: string }) {
 
 
 function FeaturedProgramsSection({ courses }: SectionProps) {
-  const featuredCourses = courses.slice(0, 3);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const touchStartX = useRef<number | null>(null);
+
+  const displayCourses = courses.length > 0 ? courses.slice(0, 6) : [];
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerPage(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerPage(2);
+      } else {
+        setItemsPerPage(3);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, displayCourses.length - itemsPerPage);
+
+  useEffect(() => {
+    if (isPaused || maxIndex === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isPaused, maxIndex, displayCourses.length]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    if (deltaX > 50) {
+      handleNext();
+    } else if (deltaX < -50) {
+      handlePrev();
+    }
+    touchStartX.current = null;
+  };
 
   return (
-    <section className="bg-gray-50 py-20">
+    <section className="relative bg-gray-50 py-16 sm:py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-12 text-center">
-          <p className="text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
+        <FadeIn className="mb-10 sm:mb-12 text-center">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
             Popular choices
           </p>
-          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+          <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl lg:text-5xl">
             Programs students explore first
           </h2>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+          <p className="mt-2 sm:mt-4 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-gray-600">
             Compare a few strong options before you dive into the full course list.
           </p>
         </FadeIn>
 
-        {featuredCourses.length === 0 ? (
+        {displayCourses.length === 0 ? (
           <FadeIn className="rounded-3xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center text-gray-500">
             <BookOpen size={48} className="mx-auto mb-4 text-gray-300" />
             <p className="text-lg font-semibold text-gray-700">No courses published yet.</p>
             <p className="mt-1">Check back soon or contact admissions for guidance.</p>
           </FadeIn>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-3">
-            {featuredCourses.map((course, index) => {
-              const meta = COURSE_TYPE_META[course.courseType] || {
-                icon: GraduationCap,
-                gradient: PLACEHOLDER_GRADIENTS[index % PLACEHOLDER_GRADIENTS.length],
-                badgeClass: 'bg-gray-100 text-gray-600',
-              };
-              const Icon = meta.icon;
+          <div
+            className="relative overflow-hidden cursor-grab active:cursor-grabbing"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <div
+              className="flex transition-transform duration-700 ease-out py-2"
+              style={{
+                transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+              }}
+            >
+              {displayCourses.map((course, index) => {
+                const meta = COURSE_TYPE_META[course.courseType] || {
+                  icon: GraduationCap,
+                  gradient: PLACEHOLDER_GRADIENTS[index % PLACEHOLDER_GRADIENTS.length],
+                  badgeClass: 'bg-gray-100 text-gray-600',
+                };
+                const Icon = meta.icon;
 
-              return (
-                <FadeIn key={course.id} delay={index * 0.08}>
-                  <motion.article
-                    whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
-                    className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all"
+                return (
+                  <div
+                    key={course.id}
+                    className="shrink-0 px-2 sm:px-3 flex flex-col"
+                    style={{ width: `${100 / itemsPerPage}%` }}
                   >
-                    <Link href={`/courses/${course.id}`} className="relative block h-40 sm:h-56 overflow-hidden">
-                      <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient}`} />
-                      {course.banner ? (
-                        <img
-                          src={getImageUrl(course.banner)}
-                          alt={course.courseName}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white/90">
-                          <Icon size={72} className="drop-shadow-md" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-slate-950/20" />
-                      <div className="absolute left-4 top-4 z-10">
-                        <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${meta.badgeClass} shadow-sm`}>
-                          {course.courseType}
-                        </span>
-                      </div>
-                      {course.courseCode && (
-                        <div className="absolute bottom-4 right-4 z-10">
-                          <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur">
-                            {course.courseCode}
-                          </span>
-                        </div>
-                      )}
-                    </Link>
-
-                    <div className="flex flex-1 flex-col p-4 sm:p-7">
-                      <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
-                        Student spotlight
-                      </p>
-                      <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700">
-                        {course.courseName}
-                      </h3>
-
-                      <div className="mt-2 sm:mt-3 mb-2 sm:mb-0">
-                        {course.specialization && (
-                          <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
-                            {course.specialization}
-                          </span>
+                    <motion.article
+                      whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
+                      className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all shadow-sm"
+                    >
+                      <Link href={`/courses/${course.id}`} className="relative block h-44 sm:h-56 overflow-hidden shrink-0">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient}`} />
+                        {course.banner ? (
+                          <img
+                            src={getImageUrl(course.banner)}
+                            alt={course.courseName}
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-white/90">
+                            <Icon size={72} className="drop-shadow-md" />
+                          </div>
                         )}
-                      </div>
-
-                      <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
-                          <Clock size={16} className="shrink-0 text-primary-500" />
-                          <span className="truncate">{course.duration || 'Duration TBA'}</span>
+                        <div className="absolute inset-0 bg-slate-950/20" />
+                        <div className="absolute left-4 top-4 z-10">
+                          <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${meta.badgeClass} shadow-sm`}>
+                            {course.courseType}
+                          </span>
                         </div>
-                        <div
-                          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
-                          title={course.eligibility || ''}
-                        >
-                          <ClipboardCheck size={16} className="shrink-0 text-primary-500" />
-                          <span className="truncate">{course.eligibility || 'Eligibility TBA'}</span>
+                        {course.courseCode && (
+                          <div className="absolute bottom-4 right-4 z-10">
+                            <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur">
+                              {course.courseCode}
+                            </span>
+                          </div>
+                        )}
+                      </Link>
+
+                      <div className="flex flex-1 flex-col p-4 sm:p-7">
+                        <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                          Student spotlight
+                        </p>
+                        <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700 line-clamp-1">
+                          {course.courseName}
+                        </h3>
+
+                        <div className="mt-2 sm:mt-3 mb-2 sm:mb-0 min-h-[26px]">
+                          {course.specialization ? (
+                            <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-700">
+                              {course.specialization}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
+                          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
+                            <Clock size={16} className="shrink-0 text-primary-500" />
+                            <span className="truncate">{course.duration || 'Duration TBA'}</span>
+                          </div>
+                          <div
+                            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
+                            title={course.eligibility || ''}
+                          >
+                            <ClipboardCheck size={16} className="shrink-0 text-primary-500" />
+                            <span className="truncate">{course.eligibility || 'Eligibility TBA'}</span>
+                          </div>
+                        </div>
+
+                        <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500 line-clamp-3">
+                          {course.description || 'Programme details will be updated soon.'}
+                        </p>
+
+                        <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                              Program Fee
+                            </p>
+                            {course.showFees === false ? (
+                              <div className="text-sm font-semibold text-gray-500">Contact for fees</div>
+                            ) : course.fees ? (
+                              <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
+                                <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
+                                <span className="truncate">{formatFee(course)}</span>
+                              </div>
+                            ) : (
+                              <div className="text-sm font-semibold text-gray-500">TBA</div>
+                            )}
+                          </div>
+                          <Link
+                            href={`/courses/${course.id}`}
+                            className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-primary-600 px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg whitespace-nowrap"
+                          >
+                            View Details <ArrowRight size={16} className="flex-shrink-0" />
+                          </Link>
                         </div>
                       </div>
-
-                      <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500">
-                        {course.description || 'Programme details will be updated soon.'}
-                      </p>
-
-                      <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
-                        <div>
-                          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                            Program Fee
-                          </p>
-                          {course.showFees === false ? (
-                            <div className="text-sm font-semibold text-gray-500">Contact for fees</div>
-                          ) : course.fees ? (
-                            <div className="flex items-center gap-0.5 text-base sm:text-lg font-bold text-gray-900 truncate">
-                              <IndianRupee size={16} className="text-gray-900 flex-shrink-0" />
-                              <span className="truncate">{formatFee(course)}</span>
-                            </div>
-                          ) : (
-                            <div className="text-sm font-semibold text-gray-500">TBA</div>
-                          )}
-                        </div>
-                        <Link
-                          href={`/courses/${course.id}`}
-                          className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-primary-600 px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg whitespace-nowrap"
-                        >
-                          View Details <ArrowRight size={16} className="flex-shrink-0" />
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.article>
-                </FadeIn>
-              );
-            })}
+                    </motion.article>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Bottom CTA: View all courses */}
-        <div className="mt-10 sm:mt-12 flex items-center justify-center">
+        {/* Bottom Navigation & CTA: View all courses */}
+        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+          {maxIndex > 0 && (
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={handlePrev}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Previous course"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="flex items-center gap-1.5 px-1 sm:hidden">
+                {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    className={`h-2 rounded-full transition-all ${
+                      currentIndex === i ? 'w-5 bg-primary-600' : 'w-2 bg-gray-300'
+                    }`}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={handleNext}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Next course"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
           <Link
             href="/courses"
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm hover:shadow group"

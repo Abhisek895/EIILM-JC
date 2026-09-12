@@ -139,7 +139,7 @@ export default function DashboardPage() {
                       </tr>
                     ) : (
                       recentInquiries.map((item) => (
-                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                           <td className="py-3 px-4">{item.fullName}</td>
                           <td className="py-3 px-4">{item.email || '-'}</td>
                           <td className="py-3 px-4 capitalize">{item.status}</td>
