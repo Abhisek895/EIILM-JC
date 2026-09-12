@@ -704,9 +704,12 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         </span>
                       </div>
 
-                      {/* Bottom-right dark badge: Package */}
-                      <div className="absolute bottom-3 right-3 z-10">
-                        <span className="rounded-lg bg-slate-950/80 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-emerald-400 backdrop-blur">
+                      {/* Bottom-right dark badge: Package Offered & Package */}
+                      <div className="absolute bottom-3 right-3 z-10 flex flex-col items-end rounded-xl bg-slate-950/85 px-2.5 py-1.5 backdrop-blur border border-white/10 shadow-lg text-right">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-300 leading-tight">
+                          Package Offered
+                        </span>
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-400 leading-tight mt-0.5">
                           {packageDisplay}
                         </span>
                       </div>
@@ -750,29 +753,9 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         </div>
                       </div>
 
-                      <p className="mt-2 flex-grow text-xs leading-relaxed text-gray-500 line-clamp-2">
+                      <p className="mt-2 text-xs leading-relaxed text-gray-500 line-clamp-2">
                         Secured campus placement at {p.companyName} with {p.package} package.
                       </p>
-
-                      {/* Footer with Divider */}
-                      <div className="mt-3 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5">
-                        <div>
-                          <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                            Package Offered
-                          </p>
-                          <div className="flex items-center gap-0.5 text-sm sm:text-base font-extrabold text-gray-900 truncate">
-                            <IndianRupee size={14} className="text-gray-900 flex-shrink-0" />
-                            <span className="truncate text-emerald-600">{packageDisplay.replace(/^₹\s*/, '')}</span>
-                          </div>
-                        </div>
-
-                        <Link
-                          href="/placements"
-                          className="inline-flex flex-shrink-0 items-center justify-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow whitespace-nowrap"
-                        >
-                          View Details <ChevronRight size={14} />
-                        </Link>
-                      </div>
                     </div>
                   </motion.article>
                 </div>
