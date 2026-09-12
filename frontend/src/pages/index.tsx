@@ -810,14 +810,6 @@ function NoticesSection({ notices }: SectionProps) {
           <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
             <Bell size={32} className="text-primary-600" /> Latest notices
           </h2>
-          <div className="mt-4">
-            <Link
-              href="/notices"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
-            >
-              View all notices <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
         </div>
 
         {notices.length === 0 ? (
@@ -858,6 +850,17 @@ function NoticesSection({ notices }: SectionProps) {
             ))}
           </div>
         )}
+
+        {/* Bottom CTA: View all notices */}
+        <div className="mt-10 sm:mt-12 flex items-center justify-center">
+          <Link
+            href="/notices"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm hover:shadow group"
+          >
+            <span>View all notices</span>
+            <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </FadeIn>
     </section>
   );
@@ -876,14 +879,6 @@ function EventsSection({ events }: SectionProps) {
           <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
             <Calendar size={32} className="text-primary-600" /> Upcoming events
           </h2>
-          <div className="mt-4">
-            <Link
-              href="/events"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
-            >
-              View all events <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
         </div>
 
         {events.length === 0 ? (
@@ -957,6 +952,17 @@ function EventsSection({ events }: SectionProps) {
             })}
           </div>
         )}
+
+        {/* Bottom CTA: View all events */}
+        <div className="mt-10 sm:mt-12 flex items-center justify-center">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm hover:shadow group"
+          >
+            <span>View all events</span>
+            <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </FadeIn>
     </section>
   );
