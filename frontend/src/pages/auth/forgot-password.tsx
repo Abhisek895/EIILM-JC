@@ -41,10 +41,10 @@ export default function ForgotPasswordPage() {
 
     try {
       const res: any = await authApi.requestForgotPasswordOtp(email);
-      setSuccessMsg(res?.data?.message || 'OTP sent successfully.');
+      setSuccessMsg(res?.data?.message || res?.message || 'OTP sent successfully.');
       setStep(2);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to request OTP');
+      setError(err?.response?.data?.message || err?.message || 'Failed to request OTP');
     } finally {
       setLoading(false);
     }
@@ -58,12 +58,12 @@ export default function ForgotPasswordPage() {
 
     try {
       const res: any = await authApi.verifyForgotPasswordOtp(email, otpCode, newPassword);
-      setSuccessMsg(res?.data?.message || 'Password reset successfully!');
+      setSuccessMsg(res?.data?.message || res?.message || 'Password reset successfully!');
       setTimeout(() => {
         router.push('/auth/login');
       }, 2000);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to verify OTP');
+      setError(err?.response?.data?.message || err?.message || 'Failed to verify OTP');
     } finally {
       setLoading(false);
     }

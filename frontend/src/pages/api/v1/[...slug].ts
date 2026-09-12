@@ -1,5 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { queryDb } from '@/lib/db';
+import { sendOtpEmail } from '@/lib/email';
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  hashPassword,
+  comparePassword,
+  normalizeRoleName,
+} from '@/lib/auth';
 
 export const config = {
   api: {
@@ -28,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const subEndpoint = pathParts[1] || '';
 
   try {
-    // ── 1. Health ─────────────────────────────────────────────────────────────
+    // ── 0. Health ─────────────────────────────────────────────────────────────
     if (endpoint === 'health') {
       return res.status(200).json({
         success: true,
@@ -37,6 +47,350 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         dynamic: true,
         timestamp: new Date().toISOString(),
       });
+    }
+
+    // ── 1. Authentication ─────────────────────────────────────────────────────
+    if (endpoint === 'auth') {
+      // POST /api/v1/auth/forgot-password/request-otp
+      if (subEndpoint === 'forgot-password' && pathParts[2] === 'request-otp') {
+        if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
+        const { email } = req.body || {};
+        if (!email) {
+          return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+        const cleanEmail = String(email).toLowerCase().trim();
+        const rows = await queryDb(
+          'SELECT id, name, email, status FROM users WHERE LOWER(email) = $1 LIMIT 1',
+          [cleanEmail]
+        );
+        if (rows.length === 0) {
+          return res.status(200).json({
+            success: true,
+            message: 'If that email address is in our database, we will send you an OTP to reset your password.',
+            data: { message: 'If that email address is in our database, we will send you an OTP to reset your password.' },
+          });
+        }
+        const user = rows[0];
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await queryDb(
+          'UPDATE users SET otp_code = $1, otp_expires_at = $2, updated_at = NOW() WHERE id = $3',
+          [otpCode, otpExpiresAt, user.id]
+        );
+
+        await sendOtpEmail(user.email, user.name, otpCode);
+
+        const hasSmtp = Boolean(process.env.SMTP_USER || process.env.GMAIL_USER);
+        const successNotice = hasSmtp
+          ? 'If that email address is in our database, we will send you an OTP to reset your password.'
+          : `If that email address is in our database, we will send you an OTP to reset your password. (Demo OTP: ${otpCode})`;
+
+        return res.status(200).json({
+          success: true,
+          message: successNotice,
+          data: {
+            message: successNotice,
+            ...(!hasSmtp ? { demoOtp: otpCode } : {}),
+          },
+        });
+      }
+
+      // POST /api/v1/auth/forgot-password/verify-otp
+      if (subEndpoint === 'forgot-password' && pathParts[2] === 'verify-otp') {
+        if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
+        const { email, otpCode, newPassword } = req.body || {};
+        if (!email || !otpCode || !newPassword) {
+          return res.status(400).json({
+            success: false,
+            message: 'Email, OTP code, and new password are required.',
+          });
+        }
+        const cleanEmail = String(email).toLowerCase().trim();
+        const cleanOtp = String(otpCode).trim();
+        const rows = await queryDb(
+          'SELECT id, name, email, otp_code, otp_expires_at FROM users WHERE LOWER(email) = $1 LIMIT 1',
+          [cleanEmail]
+        );
+        if (rows.length === 0 || !rows[0].otp_code || rows[0].otp_code !== cleanOtp) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid verification code.',
+          });
+        }
+        const user = rows[0];
+        if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Verification code has expired. Please request a new one.',
+          });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+        await queryDb(
+          'UPDATE users SET password = $1, otp_code = NULL, otp_expires_at = NULL, updated_at = NOW() WHERE id = $2',
+          [hashedPassword, user.id]
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: 'Password reset successfully. You can now login.',
+          data: { message: 'Password reset successfully. You can now login.' },
+        });
+      }
+
+      // POST /api/v1/auth/login
+      if (subEndpoint === 'login') {
+        if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
+        const { email, password } = req.body || {};
+        if (!email || !password) {
+          return res.status(400).json({ success: false, message: 'Email and password are required' });
+        }
+        const cleanEmail = String(email).toLowerCase().trim();
+        const rows = await queryDb(
+          `SELECT u.id, u.tenant_id, u.name, u.email, u.password, u.role_id, u.status, u.permissions, r.name as role_name
+           FROM users u
+           LEFT JOIN roles r ON u.role_id = r.id
+           WHERE LOWER(u.email) = $1
+           LIMIT 1`,
+          [cleanEmail]
+        );
+        if (rows.length === 0) {
+          return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+        const user = rows[0];
+        const isMatch = await comparePassword(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+        if (user.status !== 'active') {
+          return res.status(403).json({ success: false, message: 'Your account is inactive or pending approval' });
+        }
+
+        const roleName = normalizeRoleName(
+          user.role_name || (user.role_id === '1' ? 'super_admin' : user.role_id === '2' ? 'admin' : user.role_id === '3' ? 'faculty' : 'student')
+        );
+        const safeUser = {
+          id: Number(user.id),
+          name: user.name,
+          email: user.email,
+          roleId: Number(user.role_id),
+          role: roleName,
+          status: user.status,
+          tenantId: user.tenant_id ? Number(user.tenant_id) : 1,
+          permissions: user.permissions || null,
+        };
+
+        const token = signAccessToken(safeUser);
+        const refreshToken = signRefreshToken({ id: Number(user.id), email: user.email });
+
+        await queryDb('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]).catch(() => {});
+
+        return res.status(200).json({
+          success: true,
+          message: 'Login successful',
+          data: {
+            user: safeUser,
+            token,
+            refreshToken,
+          },
+        });
+      }
+
+      // GET /api/v1/auth/me
+      if (subEndpoint === 'me') {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+        try {
+          const decoded = verifyAccessToken(authHeader.split(' ')[1]);
+          const rows = await queryDb(
+            `SELECT u.id, u.tenant_id, u.name, u.email, u.role_id, u.status, u.permissions, r.name as role_name
+             FROM users u
+             LEFT JOIN roles r ON u.role_id = r.id
+             WHERE u.id = $1 LIMIT 1`,
+            [decoded.id]
+          );
+          if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+          }
+          const user = rows[0];
+          const roleName = normalizeRoleName(user.role_name || decoded.role);
+          return res.status(200).json({
+            success: true,
+            data: {
+              id: Number(user.id),
+              name: user.name,
+              email: user.email,
+              roleId: Number(user.role_id),
+              role: roleName,
+              status: user.status,
+              tenantId: user.tenant_id ? Number(user.tenant_id) : 1,
+              permissions: user.permissions || null,
+            },
+          });
+        } catch (err: any) {
+          return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+        }
+      }
+
+      // POST /api/v1/auth/refresh
+      if (subEndpoint === 'refresh') {
+        const { refreshToken } = req.body || {};
+        if (!refreshToken) {
+          return res.status(400).json({ success: false, message: 'Refresh token is required' });
+        }
+        try {
+          const decoded = verifyRefreshToken(refreshToken);
+          const rows = await queryDb(
+            `SELECT u.id, u.tenant_id, u.name, u.email, u.role_id, u.status, u.permissions, r.name as role_name
+             FROM users u
+             LEFT JOIN roles r ON u.role_id = r.id
+             WHERE u.id = $1 LIMIT 1`,
+            [decoded.id]
+          );
+          if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+          }
+          const user = rows[0];
+          if (user.status !== 'active') {
+            return res.status(403).json({ success: false, message: 'User account is not active' });
+          }
+          const roleName = normalizeRoleName(user.role_name);
+          const safeUser = {
+            id: Number(user.id),
+            name: user.name,
+            email: user.email,
+            roleId: Number(user.role_id),
+            role: roleName,
+            status: user.status,
+            tenantId: user.tenant_id ? Number(user.tenant_id) : 1,
+            permissions: user.permissions || null,
+          };
+          const newToken = signAccessToken(safeUser);
+          const newRefreshToken = signRefreshToken({ id: Number(user.id), email: user.email });
+          return res.status(200).json({
+            success: true,
+            message: 'Token refreshed',
+            data: {
+              token: newToken,
+              refreshToken: newRefreshToken,
+              user: safeUser,
+            },
+          });
+        } catch (err: any) {
+          return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+        }
+      }
+
+      // POST /api/v1/auth/logout
+      if (subEndpoint === 'logout') {
+        return res.status(200).json({ success: true, message: 'Logged out successfully' });
+      }
+
+      // POST /api/v1/auth/register
+      if (subEndpoint === 'register') {
+        const { name, email, password, roleName } = req.body || {};
+        if (!name || !email || !password) {
+          return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
+        }
+        const cleanEmail = String(email).toLowerCase().trim();
+        const existing = await queryDb('SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1', [cleanEmail]);
+        if (existing.length > 0) {
+          return res.status(409).json({ success: false, message: 'Email is already registered' });
+        }
+        const roleTarget = normalizeRoleName(roleName || 'student');
+        const roleRows = await queryDb('SELECT id FROM roles WHERE LOWER(name) = $1 LIMIT 1', [roleTarget]);
+        const roleId = roleRows.length > 0 ? roleRows[0].id : 4;
+        const hashedPassword = await hashPassword(password);
+        await queryDb(
+          `INSERT INTO users (tenant_id, name, email, password, role_id, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+          [1, name.trim(), cleanEmail, hashedPassword, roleId, 'active']
+        );
+        return res.status(201).json({ success: true, message: 'User registered successfully' });
+      }
+
+      // POST /api/v1/auth/setup-password
+      if (subEndpoint === 'setup-password') {
+        const { token, password } = req.body || {};
+        if (!token || !password) {
+          return res.status(400).json({ success: false, message: 'Token and password are required' });
+        }
+        try {
+          const decoded = verifyAccessToken(token);
+          const hashedPassword = await hashPassword(password);
+          await queryDb('UPDATE users SET password = $1, status = $2, updated_at = NOW() WHERE id = $3', [
+            hashedPassword,
+            'active',
+            decoded.id,
+          ]);
+          return res.status(200).json({ success: true, message: 'Password setup successfully. You can now login.' });
+        } catch (err: any) {
+          return res.status(400).json({ success: false, message: 'Invalid or expired setup token' });
+        }
+      }
+
+      // POST /api/v1/auth/change-password/request-otp
+      if (subEndpoint === 'change-password' && pathParts[2] === 'request-otp') {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+        try {
+          const decoded = verifyAccessToken(authHeader.split(' ')[1]);
+          const userRows = await queryDb('SELECT id, name, email FROM users WHERE id = $1 LIMIT 1', [decoded.id]);
+          if (userRows.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+          const user = userRows[0];
+          const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+          const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+          await queryDb('UPDATE users SET otp_code = $1, otp_expires_at = $2, updated_at = NOW() WHERE id = $3', [
+            otpCode,
+            otpExpiresAt,
+            user.id,
+          ]);
+          await sendOtpEmail(user.email, user.name, otpCode);
+          const hasSmtp = Boolean(process.env.SMTP_USER || process.env.GMAIL_USER);
+          return res.status(200).json({
+            success: true,
+            message: hasSmtp ? 'OTP sent successfully' : `OTP sent successfully (Demo OTP: ${otpCode})`,
+          });
+        } catch (err: any) {
+          return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+        }
+      }
+
+      // POST /api/v1/auth/change-password/verify-otp
+      if (subEndpoint === 'change-password' && pathParts[2] === 'verify-otp') {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+        const { otpCode, newPassword } = req.body || {};
+        if (!otpCode || !newPassword) {
+          return res.status(400).json({ success: false, message: 'OTP code and new password are required' });
+        }
+        try {
+          const decoded = verifyAccessToken(authHeader.split(' ')[1]);
+          const userRows = await queryDb('SELECT id, otp_code, otp_expires_at FROM users WHERE id = $1 LIMIT 1', [decoded.id]);
+          if (userRows.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+          const user = userRows[0];
+          if (!user.otp_code || user.otp_code !== String(otpCode).trim()) {
+            return res.status(400).json({ success: false, message: 'Invalid verification code' });
+          }
+          if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
+            return res.status(400).json({ success: false, message: 'Verification code has expired' });
+          }
+          const hashedPassword = await hashPassword(newPassword);
+          await queryDb('UPDATE users SET password = $1, otp_code = NULL, otp_expires_at = NULL, updated_at = NOW() WHERE id = $2', [
+            hashedPassword,
+            user.id,
+          ]);
+          return res.status(200).json({ success: true, message: 'Password updated successfully' });
+        } catch (err: any) {
+          return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+        }
+      }
     }
 
     // ── 2. CMS Page Sections ───────────────────────────────────────────────────
