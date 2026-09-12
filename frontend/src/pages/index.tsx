@@ -424,27 +424,43 @@ function StatsSection({ settings }: SectionProps) {
   if (active.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#0a1128] to-primary-900 py-16">
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}
-      />
-      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-primary-500/20 blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#030712] py-16 sm:py-20 lg:py-28">
+      {/* Luxury dark gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1c] via-[#050813] to-[#030712]" />
+      
+      {/* Top & Bottom hairline luxury borders */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
 
-      <div className="container relative mx-auto px-6">
-        <FadeIn className="mx-auto mb-10 max-w-3xl text-center">
-          <p className="text-sm font-bold uppercase tracking-widest text-primary-200 mb-2">
-            Proof at a glance
-          </p>
-          <h2 className="text-3xl font-extrabold text-white md:text-5xl">
+      {/* Subtle dot pattern texture - very low opacity */}
+      <div
+        className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-screen"
+        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}
+      />
+
+      {/* Ambient glow orbs - elegant and subtle */}
+      <div className="absolute top-0 left-1/4 h-[500px] w-[500px] -translate-y-1/2 -translate-x-1/2 rounded-full bg-blue-500/[0.04] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] translate-y-1/2 translate-x-1/2 rounded-full bg-indigo-500/[0.04] blur-[100px] pointer-events-none" />
+
+      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <FadeIn className="mx-auto mb-12 sm:mb-16 lg:mb-20 max-w-2xl text-center">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 shadow-[0_0_15px_rgba(255,255,255,0.02)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+              Proof at a glance
+            </p>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 tracking-tight leading-tight">
             A quick snapshot of the college
           </h2>
+          <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-md mx-auto leading-relaxed">
+            Key milestones and metrics that demonstrate academic excellence.
+          </p>
         </FadeIn>
 
         <div
-          className={`grid gap-6 ${
-            active.length <= 2 ? 'grid-cols-2' : active.length === 3 ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'
+          className={`grid gap-4 sm:gap-6 lg:gap-8 ${
+            active.length <= 2 ? 'grid-cols-2 max-w-2xl mx-auto' : active.length === 3 ? 'grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'
           }`}
         >
           {active.map((stat, index) => {
@@ -452,20 +468,31 @@ function StatsSection({ settings }: SectionProps) {
             return (
               <FadeIn key={stat.label} delay={index * 0.1}>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 30 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.15, type: 'spring', stiffness: 100 }}
-                  whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
-                  className="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-sm transition-all hover:bg-white/10"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.3, ease: 'easeOut' } }}
+                  className="group relative flex flex-col items-center rounded-[2rem] border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8 lg:p-10 text-center backdrop-blur-xl transition-all duration-500 hover:border-white/[0.15] hover:bg-white/[0.04] shadow-lg hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
                 >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
-                    <Icon size={22} className="text-white" />
+                  {/* Inner subtle glow */}
+                  <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] pointer-events-none" />
+                  
+                  {/* Subtle top sheen on hover */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-b from-white/[0.08] via-transparent to-transparent pointer-events-none" />
+
+                  {/* Icon Badge */}
+                  <div className={`relative mb-5 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl sm:rounded-3xl bg-gradient-to-br ${stat.color} shadow-lg shadow-black/40 ring-1 ring-white/25 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                    <Icon strokeWidth={2.5} size={24} className="text-white w-6 h-6 sm:w-7 sm:h-7" />
                   </div>
-                  <div className="text-3xl font-extrabold text-white md:text-4xl">
+
+                  {/* Animated Stat Value */}
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none mb-3">
                     <AnimatedCounter valueStr={stat.value!} />
                   </div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-primary-200">
+
+                  {/* Stat Label */}
+                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300 transition-colors duration-300">
                     {stat.label}
                   </div>
                 </motion.div>
