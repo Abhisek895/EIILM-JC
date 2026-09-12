@@ -643,7 +643,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
             <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl">
               Top Placement Achievers
             </h2>
-            <p className="mt-1.5 max-w-2xl mx-auto text-[11px] sm:text-sm text-gray-500 sm:text-gray-600 truncate sm:truncate-none sm:whitespace-normal px-4 sm:px-0">
+            <p className="hidden sm:block mt-2 max-w-2xl mx-auto text-sm sm:text-base text-gray-600">
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
             <div className="mt-5">
