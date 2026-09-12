@@ -303,7 +303,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
   };
 
   return (
-    <section className="relative bg-gray-50 py-16 sm:py-20 overflow-hidden">
+    <section className="relative bg-gray-50 pt-20 pb-16 sm:pt-24 sm:pb-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
         <FadeIn className="mb-10 sm:mb-12 text-center">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
