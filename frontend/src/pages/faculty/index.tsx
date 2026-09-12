@@ -138,10 +138,10 @@ export default function FacultyPage() {
       <div className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 pt-16 md:pt-20 lg:pt-24 pb-20 bg-gray-50/50 min-h-screen relative z-20 -mt-10 md:-mt-16 lg:-mt-20 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-12px_40px_rgb(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto">
           {/* Section header */}
-          <FadeIn className="text-center mb-6 md:mb-8">
-            <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-primary-600 mb-3 md:mb-4">The People Behind Your Growth</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-3">
-              <Users size={40} className="text-primary-600" /> Meet Our Team
+          <FadeIn className="text-center mb-3 md:mb-4">
+            <p className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.2em] text-primary-600 mb-2">The People Behind Your Growth</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-2.5">
+              <Users size={32} className="text-primary-600" /> Meet Our Team
             </h2>
           </FadeIn>
 
