@@ -261,14 +261,6 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
           <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
             Compare a few strong options before you dive into the full course list.
           </p>
-          <div className="mt-6">
-            <Link
-              href="/courses"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-100 hover:border-primary-300 transition-all group"
-            >
-              View all courses <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
         </FadeIn>
 
         {featuredCourses.length === 0 ? (
@@ -385,6 +377,17 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
             })}
           </div>
         )}
+
+        {/* Bottom CTA: View all courses */}
+        <div className="mt-10 sm:mt-12 flex items-center justify-center">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary-200 bg-primary-50 text-primary-700 text-sm font-semibold hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm hover:shadow group"
+          >
+            <span>View all courses</span>
+            <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
 
       </div>
     </section>
