@@ -635,7 +635,8 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
       />
       <div className="container relative mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-8 sm:mb-10 text-center">
+        <div className="text-center mb-8 sm:mb-10">
+          <FadeIn>
             <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
               Career Proof
             </p>
@@ -646,11 +647,9 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
           </FadeIn>
-        <div className="flex justify-center mb-8 sm:mb-10 gap-4">
-
           {/* Controls */}
           {maxIndex > 0 && (
-            <div className="hidden sm:flex items-center justify-center md:justify-end gap-2.5 shrink-0">
+            <div className="flex items-center justify-center gap-2.5 mt-6">
               <button
                 onClick={handlePrev}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
@@ -1151,8 +1150,8 @@ function TestimonialsSection({ settings }: SectionProps) {
   return (
     <section className="bg-white py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <FadeIn className="text-center">
+        <div className="text-center mb-12">
+          <FadeIn>
             <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
               Student Stories
             </p>
@@ -1163,9 +1162,8 @@ function TestimonialsSection({ settings }: SectionProps) {
               Real experiences from students who've studied, grown, and launched careers here.
             </p>
           </FadeIn>
-
           {/* Manual Arrow Controls */}
-          <div className="hidden sm:flex items-center justify-center md:justify-end gap-3 shrink-0">
+          <div className="flex items-center justify-center gap-3 mt-6">
             <button
               onClick={handlePrev}
               className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
