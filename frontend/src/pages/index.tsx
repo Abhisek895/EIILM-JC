@@ -251,14 +251,14 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
   return (
     <section className="bg-gray-50 py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-12">
+        <FadeIn className="mb-12 text-center">
           <p className="text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
             Popular choices
           </p>
           <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
             Programs students explore first
           </h2>
-          <p className="mt-4 max-w-2xl text-lg text-gray-600">
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
             Compare a few strong options before you dive into the full course list.
           </p>
         </FadeIn>
@@ -635,18 +635,18 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
       />
       <div className="container relative mx-auto px-4 sm:px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-4">
-          <FadeIn className="text-center md:text-left">
+        <FadeIn className="mb-8 sm:mb-10 text-center">
             <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
               Career Proof
             </p>
             <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl">
               Top Placement Achievers
             </h2>
-            <p className="mt-2 max-w-2xl text-sm sm:text-base text-gray-600">
+            <p className="mt-2 max-w-2xl mx-auto text-sm sm:text-base text-gray-600">
               Our graduates land high-growth roles at industry leaders and multinational corporations.
             </p>
           </FadeIn>
+        <div className="flex justify-center mb-8 sm:mb-10 gap-4">
 
           {/* Controls */}
           {maxIndex > 0 && (
@@ -819,21 +819,21 @@ function NoticesSection({ notices }: SectionProps) {
   return (
     <section className="bg-gray-50 py-20">
       <FadeIn className="container mx-auto px-4 sm:px-6">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
-              Stay updated
-            </p>
-            <h2 className="flex items-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
-              <Bell size={32} className="text-primary-600" /> Latest notices
-            </h2>
+        <div className="mb-10 text-center">
+          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+            Stay updated
+          </p>
+          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
+            <Bell size={32} className="text-primary-600" /> Latest notices
+          </h2>
+          <div className="mt-4">
+            <Link
+              href="/notices"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
+            >
+              View all notices <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
-          <Link
-            href="/notices"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
-          >
-            View all notices <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </Link>
         </div>
 
         {notices.length === 0 ? (
@@ -885,21 +885,21 @@ function EventsSection({ events }: SectionProps) {
   return (
     <section className="bg-white py-20">
       <FadeIn className="container mx-auto px-4 sm:px-6">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
-              What is happening
-            </p>
-            <h2 className="flex items-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
-              <Calendar size={32} className="text-primary-600" /> Upcoming events
-            </h2>
+        <div className="mb-10 text-center">
+          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+            What is happening
+          </p>
+          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
+            <Calendar size={32} className="text-primary-600" /> Upcoming events
+          </h2>
+          <div className="mt-4">
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
+            >
+              View all events <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
-          <Link
-            href="/events"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700"
-          >
-            View all events <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </Link>
         </div>
 
         {events.length === 0 ? (
@@ -1152,14 +1152,14 @@ function TestimonialsSection({ settings }: SectionProps) {
     <section className="bg-white py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <FadeIn className="text-center md:text-left">
+          <FadeIn className="text-center">
             <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
               Student Stories
             </p>
             <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
               Hear from our students
             </h2>
-            <p className="mt-3 max-w-2xl text-lg text-gray-600">
+            <p className="mt-3 max-w-2xl mx-auto text-lg text-gray-600">
               Real experiences from students who've studied, grown, and launched careers here.
             </p>
           </FadeIn>
