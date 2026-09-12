@@ -781,7 +781,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         {/* Bottom Navigation & CTA: View all placements */}
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           {maxIndex > 0 && (
-            <div className="flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center gap-2.5">
               <button
                 onClick={handlePrev}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
@@ -1162,7 +1162,7 @@ function TestimonialsSection({ settings }: SectionProps) {
             </p>
           </FadeIn>
           {/* Manual Arrow Controls */}
-          <div className="flex items-center justify-center gap-3 mt-6">
+          <div className="hidden sm:flex items-center justify-center gap-3 mt-6">
             <button
               onClick={handlePrev}
               className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
