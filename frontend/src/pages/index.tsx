@@ -15,6 +15,7 @@ import {
   Building2,
   Calendar,
   ChevronRight,
+  ChevronLeft,
   ClipboardCheck,
   Clock,
   GraduationCap,
@@ -857,64 +858,210 @@ const DEFAULT_TESTIMONIALS = [
     initials: 'AB',
     color: 'from-violet-500 to-purple-600',
   },
+  {
+    name: 'Sourav Mukherjee',
+    course: 'MCA, 2024',
+    quote: 'The practical tech lab sessions, coding hackathons, and placement training gave me the confidence to crack high-package IT interviews.',
+    initials: 'SM',
+    color: 'from-cyan-500 to-blue-600',
+  },
+  {
+    name: 'Deblina Ghosh',
+    course: 'BBA, 2024',
+    quote: 'From corporate seminars to soft skill workshops, the overall career mentoring helped me land an executive role right after final semester.',
+    initials: 'DG',
+    color: 'from-amber-500 to-orange-600',
+  },
+  {
+    name: 'Amit Sen',
+    course: 'MBA, 2023',
+    quote: 'The faculty mentors bring real industry case studies into every lecture. The network of alumni and corporate tie-ups here is top tier.',
+    initials: 'AS',
+    color: 'from-rose-500 to-pink-600',
+  },
 ];
 
 function TestimonialsSection({ settings }: SectionProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const touchStartX = useRef<number | null>(null);
+
+  let testimonials = DEFAULT_TESTIMONIALS;
+  if (settings.testimonials) {
+    try {
+      const parsed = JSON.parse(settings.testimonials);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        testimonials = parsed;
+      }
+    } catch {
+      // fallback to defaults
+    }
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerPage(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerPage(2);
+      } else {
+        setItemsPerPage(3);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, testimonials.length - itemsPerPage);
+
+  useEffect(() => {
+    if (isPaused || maxIndex === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isPaused, maxIndex, testimonials.length]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    if (deltaX > 50) {
+      handleNext();
+    } else if (deltaX < -50) {
+      handlePrev();
+    }
+    touchStartX.current = null;
+  };
+
   return (
-    <section className="bg-white py-20">
+    <section className="bg-white py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-12 text-center">
-          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
-            Student Stories
-          </p>
-          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
-            Hear from our students
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-            Real experiences from students who've studied, grown, and launched careers here.
-          </p>
-        </FadeIn>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <FadeIn className="text-center md:text-left">
+            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+              Student Stories
+            </p>
+            <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+              Hear from our students
+            </h2>
+            <p className="mt-3 max-w-2xl text-lg text-gray-600">
+              Real experiences from students who've studied, grown, and launched careers here.
+            </p>
+          </FadeIn>
 
-        {/* Mobile: horizontal scroll. Desktop: 3-column grid */}
-        <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
-          {DEFAULT_TESTIMONIALS.map((testimonial, index) => (
-            <FadeIn key={testimonial.name} delay={index * 0.1} className="shrink-0 w-[85vw] max-w-xs sm:w-[320px] md:w-auto snap-start">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.12, duration: 0.5 }}
-                whileHover={{ y: -6, boxShadow: '0 24px 48px rgba(0,0,0,0.08)' }}
-                className="h-full rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 transition-all flex flex-col"
-              >
-                {/* Stars */}
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <blockquote className="flex-1 text-gray-600 text-sm sm:text-base leading-relaxed italic mb-6">
-                  "{testimonial.quote}"
-                </blockquote>
-
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${testimonial.color} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
-                    {testimonial.initials}
-                  </div>
-                  <div>
-                    <div className="font-bold text-gray-900 text-sm">{testimonial.name}</div>
-                    <div className="text-xs text-gray-500">{testimonial.course}</div>
-                  </div>
-                </div>
-              </motion.div>
-            </FadeIn>
-          ))}
+          {/* Manual Arrow Controls */}
+          <div className="hidden sm:flex items-center justify-center md:justify-end gap-3 shrink-0">
+            <button
+              onClick={handlePrev}
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={handleNext}
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
+
+        {/* Sliding Cards Carousel Track */}
+        <div
+          className="relative overflow-hidden cursor-grab active:cursor-grabbing"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <div
+            className="flex transition-transform duration-700 ease-out py-4"
+            style={{
+              transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+            }}
+          >
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={`${testimonial.name}-${index}`}
+                className="shrink-0 px-3"
+                style={{ width: `${100 / itemsPerPage}%` }}
+              >
+                <div
+                  className="h-full rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 transition-all flex flex-col hover:shadow-xl hover:-translate-y-1 duration-300 shadow-sm"
+                >
+                  {/* Stars */}
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className="w-4 h-4 text-amber-400 fill-current"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  {/* Quote */}
+                  <blockquote className="flex-1 text-gray-600 text-sm sm:text-base leading-relaxed italic mb-6">
+                    "{testimonial.quote}"
+                  </blockquote>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                    <div
+                      className={`w-10 h-10 rounded-full bg-gradient-to-br ${testimonial.color || 'from-primary-500 to-indigo-600'} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm`}
+                    >
+                      {testimonial.initials || testimonial.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 text-sm">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {testimonial.course}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pagination Dots */}
+        {maxIndex > 0 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
+              <button
+                key={dotIndex}
+                onClick={() => setCurrentIndex(dotIndex)}
+                className={`transition-all duration-300 rounded-full ${
+                  currentIndex === dotIndex
+                    ? 'w-8 h-2.5 bg-primary-600'
+                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${dotIndex + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
