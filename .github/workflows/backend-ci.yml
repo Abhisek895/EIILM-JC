@@ -4,11 +4,11 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'backend/**'
+      - "backend/**"
   pull_request:
     branches: [main, develop]
     paths:
-      - 'backend/**'
+      - "backend/**"
 
 jobs:
   build-and-test:
@@ -29,14 +29,14 @@ jobs:
           - 3306:3306
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'backend/package-lock.json'
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "backend/package-lock.json"
 
       - name: Install dependencies
         working-directory: ./backend
@@ -65,10 +65,17 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Deploy to Render
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          curl -X POST $RENDER_DEPLOY_HOOK
+          curl --fail --silent --show-error --request POST --url "$RENDER_DEPLOY_HOOK"
+
+      - name: Render deploy skipped
+        if: ${{ env.RENDER_DEPLOY_HOOK == '' }}
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: echo "RENDER_DEPLOY_HOOK is not configured; skipping Render deployment."
