@@ -516,8 +516,8 @@ export default function AdminFacultyPage() {
             <table className="w-full text-sm responsive-table">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Name', 'Department', 'Designation', 'Sort', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-2.5 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
+                  {['Image', 'Name', 'Department', 'Designation', 'Sort', 'Status', 'Actions'].map((h) => (
+                    <th key={h} className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -525,8 +525,8 @@ export default function AdminFacultyPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
-                        <td key={j} className="px-4 py-2.5">
+                      {Array.from({ length: 7 }).map((_, j) => (
+                        <td key={j} className="px-4 py-4">
                           <div className="h-4 bg-gray-100 rounded animate-pulse" />
                         </td>
                       ))}
@@ -534,24 +534,36 @@ export default function AdminFacultyPage() {
                   ))
                 ) : faculty.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
                       No faculty members yet. Click &quot;Add Faculty&quot; to get started.
                     </td>
                   </tr>
                 ) : (
                   faculty.map((f) => (
                     <tr key={f.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td data-label="Name" className="px-4 py-2.5 font-medium text-gray-900">{f.name}</td>
-                      <td data-label="Department" className="px-4 py-2.5 text-gray-600">{f.department?.name || '—'}</td>
-                      <td data-label="Designation" className="px-4 py-2.5 text-gray-600">{f.designation || '—'}</td>
-                      <td data-label="Sort" className="px-4 py-2.5 text-gray-600 font-mono text-xs">{f.sortOrder}</td>
-                      <td data-label="Status" className="px-4 py-2.5">
+                      <td data-label="Image" className="px-4 py-3">
+                        {f.photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={f.photo} alt={f.name} className="w-12 h-12 rounded-full object-cover shadow-sm bg-white" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        )}
+                      </td>
+                      <td data-label="Name" className="px-4 py-3 font-medium text-gray-900">{f.name}</td>
+                      <td data-label="Department" className="px-4 py-3 text-gray-600">{f.department?.name || '—'}</td>
+                      <td data-label="Designation" className="px-4 py-3 text-gray-600">{f.designation || '—'}</td>
+                      <td data-label="Sort" className="px-4 py-3 text-gray-600 font-mono text-xs">{f.sortOrder}</td>
+                      <td data-label="Status" className="px-4 py-3">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[f.status] || STATUS_COLORS.active}`}>
                           {f.status}
                         </span>
                       </td>
-                      <td data-label="Actions" className="px-4 py-2.5">
-                        <div className="flex items-center gap-3 whitespace-nowrap -mt-0.5">
+                      <td data-label="Actions" className="px-4 py-3">
+                        <div className="flex items-center gap-3 whitespace-nowrap">
                           {canWrite && (
                             <button
                               onClick={() => openEdit(f)}
