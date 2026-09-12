@@ -10,6 +10,10 @@ import {
   comparePassword,
   normalizeRoleName,
 } from '@/lib/auth';
+import { handleUsers } from './handlers/users';
+import { handleDashboard } from './handlers/dashboard';
+import { handleCrud } from './handlers/crud';
+import { handleMedia } from './handlers/media';
 
 export const config = {
   api: {
@@ -392,9 +396,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
     }
+    
+    // ── 1.5. New Handlers ──────────────────────────────────────────────────────
+    if (endpoint === 'users') {
+      return handleUsers(req, res, subEndpoint, pathParts);
+    }
+    if (endpoint === 'dashboard') {
+      return handleDashboard(req, res, subEndpoint);
+    }
+    if (endpoint === 'media') {
+      return handleMedia(req, res, subEndpoint, pathParts);
+    }
+    if (endpoint === 'chatbot') {
+      return res.status(200).json({ success: true, message: 'Chatbot endpoint stubbed' });
+    }
+
+    const crudEndpoints = ['courses', 'notices', 'events', 'faculty', 'departments', 'placements', 'infrastructures', 'site-settings'];
+    if (crudEndpoints.includes(endpoint) && req.method !== 'GET') {
+      return handleCrud(req, res, endpoint, subEndpoint);
+    }
+    if (endpoint === 'inquiries' && req.method !== 'POST') {
+      return handleCrud(req, res, endpoint, subEndpoint);
+    }
 
     // ── 2. CMS Page Sections ───────────────────────────────────────────────────
     if (endpoint === 'cms' && subEndpoint === 'page-sections') {
+      if (req.method !== 'GET') {
+        return handleCrud(req, res, endpoint, subEndpoint);
+      }
       const pageKey = (req.query.pageKey as string) || 'home';
       const rows = await queryDb(
         'SELECT id, tenant_id, page_key, section_key, sort_order, config, status FROM page_sections WHERE page_key = $1 ORDER BY sort_order ASC',
