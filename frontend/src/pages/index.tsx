@@ -679,7 +679,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   };
 
   return (
-    <section className="relative bg-white py-14 sm:py-16 overflow-hidden">
+    <section className="relative bg-white pt-20 pb-14 sm:pt-24 sm:pb-16 overflow-hidden">
       <div
         className="absolute inset-0 opacity-40 pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
