@@ -621,81 +621,13 @@ function StatsSection({ settings }: SectionProps) {
   );
 }
 
-const DEFAULT_TOP_PLACEMENTS: PlacementRecord[] = [
-  {
-    id: 1,
-    studentName: 'Shuvadip Mallik',
-    companyName: 'RetechPrime',
-    companyLogo: null,
-    package: '17 LPA',
-    year: '2026',
-    course: 'BCA',
-    studentImage: null,
-    placementType: 'placement',
-  },
-  {
-    id: 2,
-    studentName: 'Ananya Sen',
-    companyName: 'Deloitte',
-    companyLogo: null,
-    package: '9.5 LPA',
-    year: '2026',
-    course: 'BBA',
-    studentImage: null,
-    placementType: 'placement',
-  },
-  {
-    id: 3,
-    studentName: 'Debanjan Roy',
-    companyName: 'Cognizant',
-    companyLogo: null,
-    package: '8.2 LPA',
-    year: '2026',
-    course: 'BCA',
-    studentImage: null,
-    placementType: 'placement',
-  },
-  {
-    id: 4,
-    studentName: 'Pooja Mukherjee',
-    companyName: 'Tata Consultancy Services',
-    companyLogo: null,
-    package: '7.5 LPA',
-    year: '2026',
-    course: 'BBA',
-    studentImage: null,
-    placementType: 'placement',
-  },
-  {
-    id: 5,
-    studentName: 'Rohan Chakraborty',
-    companyName: 'Wipro Technologies',
-    companyLogo: null,
-    package: '6.8 LPA',
-    year: '2026',
-    course: 'BCA',
-    studentImage: null,
-    placementType: 'placement',
-  },
-];
-
 function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecord[]; settings: SiteSettings }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const touchStartX = useRef<number | null>(null);
 
-  const displayPlacements =
-    placements.length >= 4
-      ? placements.slice(0, 6)
-      : placements.length > 0
-      ? [
-          ...placements,
-          ...DEFAULT_TOP_PLACEMENTS.filter(
-            (d) => !placements.some((p) => p.studentName.toLowerCase() === d.studentName.toLowerCase())
-          ),
-        ].slice(0, 5)
-      : DEFAULT_TOP_PLACEMENTS;
+  const displayPlacements = placements.slice(0, 6);
 
   useEffect(() => {
     const handleResize = () => {
