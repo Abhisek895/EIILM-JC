@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import MainLayout from '@layouts/MainLayout';
-import { cmsApi, courseApi, eventApi, noticeApi, siteSettingsApi } from '@api/endpoints';
+import { cmsApi, courseApi, eventApi, noticeApi, placementApi, siteSettingsApi } from '@api/endpoints';
 import HeroSlider from '@components/HeroSlider';
 import FadeIn from '@components/FadeIn';
 import SEO from '@components/SEO';
@@ -76,11 +76,25 @@ type PageSection = {
 
 type SiteSettings = Record<string, string>;
 
+type PlacementRecord = {
+  id: number | string;
+  studentName: string;
+  companyName: string;
+  companyLogo: string | null;
+  package: string;
+  year: string;
+  course: string | null;
+  studentImage: string | null;
+  placementType?: 'placement' | 'internship';
+  status?: string;
+};
+
 type SectionProps = {
   settings: SiteSettings;
   courses: Course[];
   notices: Notice[];
   events: Event[];
+  placements?: PlacementRecord[];
 };
 
 const DEFAULT_FEATURES = [
@@ -136,13 +150,6 @@ const STUDENT_ACTIONS = [
     href: '/courses',
     icon: BookOpen,
     chip: 'Compare options',
-  },
-  {
-    title: 'Check Placements',
-    desc: 'See the career outcomes and employer support students care about most.',
-    href: '/placements',
-    icon: Briefcase,
-    chip: 'Career proof',
   },
   {
     title: 'Talk to a Counselor',
@@ -319,7 +326,7 @@ function StudentFirstSection({ settings }: SectionProps) {
           </p>
         </FadeIn>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {actions.map((action, index) => {
             const Icon = action.icon;
             return (
@@ -609,6 +616,250 @@ function StatsSection({ settings }: SectionProps) {
             );
           })}
         </div>
+      </div>
+    </section>
+  );
+}
+
+const DEFAULT_TOP_PLACEMENTS: PlacementRecord[] = [
+  {
+    id: 1,
+    studentName: 'Shuvadip Mallik',
+    companyName: 'RetechPrime',
+    companyLogo: null,
+    package: '17 LPA',
+    year: '2026',
+    course: 'BCA',
+    studentImage: null,
+    placementType: 'placement',
+  },
+  {
+    id: 2,
+    studentName: 'Ananya Sen',
+    companyName: 'Deloitte',
+    companyLogo: null,
+    package: '9.5 LPA',
+    year: '2026',
+    course: 'BBA',
+    studentImage: null,
+    placementType: 'placement',
+  },
+  {
+    id: 3,
+    studentName: 'Debanjan Roy',
+    companyName: 'Cognizant',
+    companyLogo: null,
+    package: '8.2 LPA',
+    year: '2026',
+    course: 'BCA',
+    studentImage: null,
+    placementType: 'placement',
+  },
+  {
+    id: 4,
+    studentName: 'Pooja Mukherjee',
+    companyName: 'Tata Consultancy Services',
+    companyLogo: null,
+    package: '7.5 LPA',
+    year: '2026',
+    course: 'BBA',
+    studentImage: null,
+    placementType: 'placement',
+  },
+  {
+    id: 5,
+    studentName: 'Rohan Chakraborty',
+    companyName: 'Wipro Technologies',
+    companyLogo: null,
+    package: '6.8 LPA',
+    year: '2026',
+    course: 'BCA',
+    studentImage: null,
+    placementType: 'placement',
+  },
+];
+
+function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecord[]; settings: SiteSettings }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const touchStartX = useRef<number | null>(null);
+
+  const displayPlacements = placements.length > 0 ? placements.slice(0, 5) : DEFAULT_TOP_PLACEMENTS;
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerPage(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerPage(2);
+      } else {
+        setItemsPerPage(3);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, displayPlacements.length - itemsPerPage);
+
+  useEffect(() => {
+    if (isPaused || maxIndex === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isPaused, maxIndex, displayPlacements.length]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    if (deltaX > 50) {
+      handleNext();
+    } else if (deltaX < -50) {
+      handlePrev();
+    }
+    touchStartX.current = null;
+  };
+
+  return (
+    <section className="bg-white py-20 overflow-hidden border-t border-gray-100">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <FadeIn className="text-center md:text-left">
+            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
+              Career Proof
+            </p>
+            <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+              Top Placement Achievers
+            </h2>
+            <p className="mt-3 max-w-2xl text-lg text-gray-600">
+              Our graduates land high-growth roles at industry leaders and multinational corporations.
+            </p>
+          </FadeIn>
+
+          {/* Controls */}
+          {maxIndex > 0 && (
+            <div className="hidden sm:flex items-center justify-center md:justify-end gap-3 shrink-0">
+              <button
+                onClick={handlePrev}
+                className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Previous placement"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-11 h-11 rounded-full border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 text-gray-600 hover:text-primary-700 transition-all flex items-center justify-center shadow-sm hover:shadow"
+                aria-label="Next placement"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Carousel Track */}
+        <div
+          className="relative overflow-hidden cursor-grab active:cursor-grabbing"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <div
+            className="flex transition-transform duration-700 ease-out py-4"
+            style={{
+              transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+            }}
+          >
+            {displayPlacements.map((p, index) => (
+              <div
+                key={`${p.studentName}-${index}`}
+                className="shrink-0 px-3"
+                style={{ width: `${100 / itemsPerPage}%` }}
+              >
+                <div className="h-full rounded-3xl border border-gray-100 bg-white p-6 sm:p-7 transition-all flex flex-col hover:shadow-xl hover:-translate-y-1 duration-300 shadow-sm">
+                  {/* Top: Avatar/Photo + Package */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="relative">
+                      {p.studentImage ? (
+                        <img
+                          src={getImageUrl(p.studentImage)}
+                          alt={p.studentName}
+                          className="w-14 h-14 rounded-2xl object-cover border-2 border-primary-100 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-sm">
+                          {p.studentName.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm px-3.5 py-1.5 rounded-xl shadow-sm">
+                      {p.package.toUpperCase().includes('LPA') ? p.package : `${p.package} LPA`}
+                    </span>
+                  </div>
+
+                  {/* Student Details */}
+                  <h3 className="text-lg font-bold text-gray-900 leading-snug">
+                    {p.studentName}
+                  </h3>
+                  <p className="text-xs font-semibold text-primary-600 mt-1">
+                    {p.course || 'Degree'} · Batch {p.year}
+                  </p>
+
+                  {/* Company Box */}
+                  <div className="mt-6 flex items-center gap-3 rounded-2xl bg-gray-50 p-3.5 border border-gray-100 mt-auto">
+                    {p.companyLogo ? (
+                      <div className="w-10 h-10 bg-white rounded-xl p-1 border border-gray-200 flex-shrink-0 flex items-center justify-center">
+                        <img
+                          src={getImageUrl(p.companyLogo)}
+                          alt={p.companyName}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 bg-white rounded-xl border border-gray-200 flex-shrink-0 flex items-center justify-center text-primary-600 shadow-xs">
+                        <Building2 size={18} />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
+                        {p.placementType === 'internship' ? 'Interning At' : 'Placed At'}
+                      </p>
+                      <p className="text-sm font-extrabold text-gray-900 truncate">
+                        {p.companyName}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* View all placements CTA before ending section */}
+        <FadeIn className="mt-12 flex justify-center">
+          <Link
+            href="/placements"
+            className="inline-flex items-center gap-2 font-semibold text-primary-600 transition-colors hover:text-primary-700 text-base group"
+          >
+            View all placements <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </FadeIn>
       </div>
     </section>
   );
@@ -1139,12 +1390,14 @@ function SectionRenderer({
   events,
   settings,
   courses,
+  placements,
 }: {
   section: PageSection;
   notices: Notice[];
   events: Event[];
   settings: SiteSettings;
   courses: Course[];
+  placements: PlacementRecord[];
 }) {
   const cfg = normalizeConfig(section.config);
 
@@ -1166,6 +1419,8 @@ function SectionRenderer({
       return <FeaturedProgramsSection settings={settings} courses={courses} notices={notices} events={events} />;
     case 'stats':
       return <StatsSection settings={settings} courses={courses} notices={notices} events={events} />;
+    case 'placements':
+      return <TopPlacementsSection placements={placements} settings={settings} />;
     case 'notices_list':
       return <NoticesSection settings={settings} courses={courses} notices={notices} events={events} />;
     case 'events_list':
@@ -1186,11 +1441,12 @@ const DEFAULT_SECTIONS: PageSection[] = [
   { id: 2, sectionKey: 'student_first', config: {}, sortOrder: 1 },
   { id: 3, sectionKey: 'featured_courses', config: {}, sortOrder: 2 },
   { id: 4, sectionKey: 'stats', config: {}, sortOrder: 3 },
-  { id: 5, sectionKey: 'features', config: {}, sortOrder: 4 },
-  { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 5 },
-  { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 6 },
-  { id: 8, sectionKey: 'testimonials', config: {}, sortOrder: 7 },
-  { id: 9, sectionKey: 'cta', config: {}, sortOrder: 8 },
+  { id: 10, sectionKey: 'placements', config: {}, sortOrder: 4 },
+  { id: 5, sectionKey: 'features', config: {}, sortOrder: 5 },
+  { id: 6, sectionKey: 'notices_list', config: {}, sortOrder: 6 },
+  { id: 7, sectionKey: 'events_list', config: {}, sortOrder: 7 },
+  { id: 8, sectionKey: 'testimonials', config: {}, sortOrder: 8 },
+  { id: 9, sectionKey: 'cta', config: {}, sortOrder: 9 },
 ];
 
 export default function HomePage() {
@@ -1198,18 +1454,20 @@ export default function HomePage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [placements, setPlacements] = useState<PlacementRecord[]>([]);
   const [settings, setSettings] = useState<SiteSettings>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [sectionsRes, noticesRes, eventsRes, settingsRes, coursesRes] = await Promise.allSettled([
+        const [sectionsRes, noticesRes, eventsRes, settingsRes, coursesRes, placementsRes] = await Promise.allSettled([
           cmsApi.getPageSections('home'),
           noticeApi.getAll(1, 6),
           eventApi.getAll(1, 3),
           siteSettingsApi.getMap(),
           courseApi.getAll(1, 6, 'published'),
+          placementApi.getAll(1, 10, 'published'),
         ]);
 
         if (sectionsRes.status === 'fulfilled') {
@@ -1244,6 +1502,11 @@ export default function HomePage() {
         if (coursesRes.status === 'fulfilled') {
           const data = normalizeList<Course>(coursesRes.value);
           setCourses(Array.isArray(data) ? data : []);
+        }
+
+        if (placementsRes.status === 'fulfilled') {
+          const data = normalizeList<PlacementRecord>(placementsRes.value);
+          setPlacements(Array.isArray(data) ? data.slice(0, 5) : []);
         }
       } finally {
         setLoading(false);
@@ -1287,6 +1550,7 @@ export default function HomePage() {
           events={events}
           settings={settings}
           courses={courses}
+          placements={placements}
         />
       ))}
     </MainLayout>
