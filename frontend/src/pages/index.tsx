@@ -430,7 +430,7 @@ function StatsSection({ settings }: SectionProps) {
   return (
     <section className="relative overflow-hidden bg-[#0a0a0a] py-20 sm:py-28 lg:py-32">
       {/* Background gradients aligned with yellow branding */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]" />
+      <div className="absolute inset-x-0 top-0 h-[45%] sm:inset-0 sm:h-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-[#0a0a0a] to-[#0a0a0a]" />
       
       {/* Top ambient brand glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[1000px] h-[300px] sm:h-[500px] bg-amber-500/10 blur-[100px] sm:blur-[120px] rounded-full pointer-events-none" />
