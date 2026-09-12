@@ -387,24 +387,16 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
   return (
     <section className="bg-gray-50 py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
-              Popular choices
-            </p>
-            <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
-              Programs students explore first
-            </h2>
-            <p className="mt-4 max-w-2xl text-lg text-gray-600">
-              Compare a few strong options before you dive into the full course list.
-            </p>
-          </div>
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 font-semibold text-primary-600 transition-colors hover:text-primary-700"
-          >
-            View all courses <ArrowRight size={16} />
-          </Link>
+        <FadeIn className="mb-12">
+          <p className="text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
+            Popular choices
+          </p>
+          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+            Programs students explore first
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg text-gray-600">
+            Compare a few strong options before you dive into the full course list.
+          </p>
         </FadeIn>
 
         {featuredCourses.length === 0 ? (
@@ -521,6 +513,15 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
             })}
           </div>
         )}
+
+        <FadeIn className="mt-12 flex justify-center">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 font-semibold text-primary-600 transition-colors hover:text-primary-700"
+          >
+            View all courses <ArrowRight size={16} />
+          </Link>
+        </FadeIn>
       </div>
     </section>
   );
