@@ -872,7 +872,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
 
         {/* Pagination Dots */}
         {maxIndex > 0 && (
-          <div className="flex justify-center items-center gap-2 mt-6">
+          <div className="flex justify-center items-center gap-2 mt-4 sm:mt-5">
             {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
               <button
                 key={dotIndex}
@@ -889,7 +889,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         )}
 
         {/* Bottom Navigation & CTA: View all placements */}
-        <div className="mt-6 sm:mt-8 flex flex-col items-center justify-center gap-4 sm:gap-5">
+        <div className="mt-3 sm:mt-4 flex flex-col items-center justify-center gap-2.5 sm:gap-3">
           {maxIndex > 0 && (
             <div className="hidden sm:flex items-center gap-2.5">
               <button
