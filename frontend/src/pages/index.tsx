@@ -260,15 +260,16 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
       } else if (window.innerWidth < 1024) {
         setItemsPerPage(2);
       } else {
-        setItemsPerPage(3);
+        setItemsPerPage(displayCourses.length > 3 ? 3 : 2);
       }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [displayCourses.length]);
 
   const maxIndex = Math.max(0, displayCourses.length - itemsPerPage);
+  const totalDots = maxIndex > 0 ? maxIndex + 1 : (displayCourses.length > 1 ? displayCourses.length : 0);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -449,12 +450,12 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
         )}
 
         {/* Pagination Dots */}
-        {maxIndex > 0 && (
+        {totalDots > 1 && (
           <div className="flex justify-center items-center gap-2 mt-6">
-            {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
+            {Array.from({ length: totalDots }).map((_, dotIndex) => (
               <button
                 key={dotIndex}
-                onClick={() => setCurrentIndex(dotIndex)}
+                onClick={() => setCurrentIndex(maxIndex > 0 ? dotIndex : (dotIndex % Math.max(1, maxIndex + 1)))}
                 className={`transition-all duration-300 rounded-full ${
                   currentIndex === dotIndex
                     ? 'w-8 h-2.5 bg-primary-600'
@@ -684,7 +685,17 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const touchStartX = useRef<number | null>(null);
 
-  const displayPlacements = placements.length > 0 ? placements.slice(0, 5) : DEFAULT_TOP_PLACEMENTS;
+  const displayPlacements =
+    placements.length >= 4
+      ? placements.slice(0, 6)
+      : placements.length > 0
+      ? [
+          ...placements,
+          ...DEFAULT_TOP_PLACEMENTS.filter(
+            (d) => !placements.some((p) => p.studentName.toLowerCase() === d.studentName.toLowerCase())
+          ),
+        ].slice(0, 5)
+      : DEFAULT_TOP_PLACEMENTS;
 
   useEffect(() => {
     const handleResize = () => {
@@ -692,10 +703,8 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         setItemsPerPage(1);
       } else if (window.innerWidth < 1024) {
         setItemsPerPage(2);
-      } else if (window.innerWidth < 1280) {
-        setItemsPerPage(3);
       } else {
-        setItemsPerPage(4);
+        setItemsPerPage(3);
       }
     };
     handleResize();
@@ -704,6 +713,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
   }, []);
 
   const maxIndex = Math.max(0, displayPlacements.length - itemsPerPage);
+  const totalDots = maxIndex > 0 ? maxIndex + 1 : (displayPlacements.length > 1 ? displayPlacements.length : 0);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -871,12 +881,12 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         </div>
 
         {/* Pagination Dots */}
-        {maxIndex > 0 && (
-          <div className="flex justify-center items-center gap-2 mt-4 sm:mt-5">
-            {Array.from({ length: maxIndex + 1 }).map((_, dotIndex) => (
+        {totalDots > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {Array.from({ length: totalDots }).map((_, dotIndex) => (
               <button
                 key={dotIndex}
-                onClick={() => setCurrentIndex(dotIndex)}
+                onClick={() => setCurrentIndex(maxIndex > 0 ? dotIndex : (dotIndex % Math.max(1, maxIndex + 1)))}
                 className={`transition-all duration-300 rounded-full ${
                   currentIndex === dotIndex
                     ? 'w-8 h-2.5 bg-primary-600'
