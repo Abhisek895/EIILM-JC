@@ -8,11 +8,6 @@ export const config = {
   api: { bodyParser: false },
 };
 
-/**
- * Read the raw body from the request as a Buffer.
- * On Vercel, the stream may already be partially consumed by the edge,
- * so we collect it via data events before passing to busboy.
- */
 function readRawBody(req: NextApiRequest): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -22,11 +17,6 @@ function readRawBody(req: NextApiRequest): Promise<Buffer> {
   });
 }
 
-/**
- * Parse a multipart buffer with busboy.
- * We write the buffer directly to busboy instead of piping the stream
- * so this works on Vercel serverless where the stream is pre-buffered.
- */
 function parseMultipart(
   rawBody: Buffer,
   contentType: string
@@ -58,15 +48,10 @@ function parseMultipart(
     });
 
     busboy.on("finish", () => {
-      if (!resolved) {
-        resolved = true;
-        resolve(null); // no file field found
-      }
+      if (!resolved) { resolved = true; resolve(null); }
     });
 
     busboy.on("error", reject);
-
-    // Write the pre-buffered body directly — no stream piping
     busboy.write(rawBody);
     busboy.end();
   });
@@ -79,16 +64,12 @@ export default async function handler(
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token,X-Requested-With,Accept,Content-Type,Date,Authorization"
-  );
+  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token,X-Requested-With,Accept,Content-Type,Date,Authorization");
 
   if (req.method === "OPTIONS") { res.status(200).end(); return; }
   if (req.method !== "POST")
     return res.status(405).json({ success: false, message: "Method not allowed" });
 
-  // 1. Auth
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer "))
     return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -101,22 +82,33 @@ export default async function handler(
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 
-  // 2. Read raw body first (required for Vercel edge compatibility)
+  const contentType = req.headers["content-type"] || "";
+
+  // Read raw body
   let rawBody: Buffer;
   try {
     rawBody = await readRawBody(req);
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: "Failed to read request body: " + err.message });
+    return res.status(500).json({ success: false, message: "Failed to read body: " + err.message });
   }
+
+  // DEBUG: return info about what we received so we can diagnose
+  console.log("[upload] body bytes:", rawBody.length, "| content-type:", contentType);
 
   if (!rawBody.length) {
-    return res.status(400).json({ success: false, message: "Empty request body — no file received" });
+    return res.status(400).json({
+      success: false,
+      message: "Empty request body",
+      debug: { contentType, bodyLength: 0 }
+    });
   }
 
-  // 3. Parse the buffered multipart data with busboy
-  const contentType = req.headers["content-type"] || "";
   if (!contentType.includes("multipart/form-data")) {
-    return res.status(400).json({ success: false, message: "Expected multipart/form-data, got: " + contentType });
+    return res.status(400).json({
+      success: false,
+      message: "Expected multipart/form-data",
+      debug: { contentType, bodyLength: rawBody.length }
+    });
   }
 
   let fileData: { buffer: Buffer; filename: string; mimetype: string } | null;
@@ -124,20 +116,20 @@ export default async function handler(
     fileData = await parseMultipart(rawBody, contentType);
   } catch (err: any) {
     console.error("Busboy parse error:", err);
-    return res.status(500).json({ success: false, message: "Error parsing upload: " + err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Error parsing upload: " + err.message,
+      debug: { contentType, bodyLength: rawBody.length, bodyPreview: rawBody.slice(0, 200).toString("latin1") }
+    });
   }
 
   if (!fileData || !fileData.buffer.length)
-    return res.status(400).json({ success: false, message: "No file uploaded" });
+    return res.status(400).json({ success: false, message: "No file field in form data", debug: { contentType } });
 
   const { buffer, filename, mimetype } = fileData;
   const ext = path.extname(filename);
-  const basename = path
-    .basename(filename, ext)
-    .toLowerCase()
-    .replace(/[^a-z0-9_-]/g, "_");
+  const basename = path.basename(filename, ext).toLowerCase().replace(/[^a-z0-9_-]/g, "_");
 
-  // 4. Upload to Vercel Blob
   try {
     let finalUrl = "";
     const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -163,7 +155,6 @@ export default async function handler(
       const blobJson = await blobRes.json();
       finalUrl = blobJson.url;
     } else {
-      // Local dev fallback
       const fs = require("fs") as typeof import("fs");
       const uploadDir = path.join(process.cwd(), "public", "uploads");
       if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -172,7 +163,6 @@ export default async function handler(
       finalUrl = `/uploads/${localFile}`;
     }
 
-    // 5. Save to Postgres
     const dbResult = await queryDb(
       `INSERT INTO media_library (file_name, file_type, file_size, file_url, uploaded_by, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id`,
