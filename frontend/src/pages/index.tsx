@@ -778,26 +778,26 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         </span>
                       </div>
 
-                      {/* 2-Column Info Grid */}
-                      <div className="mt-2.5 grid grid-cols-2 gap-1.5 sm:gap-2 rounded-xl border border-gray-100 bg-gray-50 p-2 sm:p-2.5">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700 min-w-0">
+                      {/* Company Info Box */}
+                      <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100 mt-3">
+                        <div className="w-9 h-9 bg-white rounded-lg p-1 border border-gray-200 flex-shrink-0 flex items-center justify-center">
                           {p.companyLogo ? (
                             <img
                               src={getImageUrl(p.companyLogo)}
                               alt={p.companyName}
-                              className="h-3.5 w-3.5 object-contain shrink-0"
+                              className="max-w-full max-h-full object-contain"
                             />
                           ) : (
-                            <Building2 size={14} className="shrink-0 text-primary-500" />
+                            <Building2 size={18} className="shrink-0 text-primary-500" />
                           )}
-                          <span className="truncate" title={p.companyName}>{p.companyName}</span>
                         </div>
-                        <div
-                          className="flex items-center gap-1.5 text-xs font-medium text-gray-700 min-w-0"
-                          title={p.placementType === 'internship' ? 'Internship' : 'Placed'}
-                        >
-                          <Award size={14} className="shrink-0 text-primary-500" />
-                          <span className="truncate">{p.placementType === 'internship' ? 'Internship' : 'Placed'}</span>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">
+                            {p.placementType === 'internship' ? 'Interning at' : 'Placed at'}
+                          </p>
+                          <p className="text-sm font-extrabold text-gray-900 truncate">
+                            {p.companyName}
+                          </p>
                         </div>
                       </div>
 
