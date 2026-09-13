@@ -728,7 +728,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                     className="group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-100 bg-white transition-all shadow-sm"
                   >
                     {/* Top Banner / Student Visual */}
-                    <Link href="/placements" className="relative block h-40 sm:h-44 overflow-hidden">
+                    <Link href="/placements" className="relative block h-56 sm:h-64 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {p.studentImage ? (
                         <img
