@@ -827,7 +827,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // ── 10. Infrastructures ───────────────────────────────────────────────────
     if (endpoint === 'infrastructures') {
       const rows = await queryDb(
-        "SELECT * FROM infrastructures WHERE status = 'published' AND deleted_at IS NULL ORDER BY sort_order ASC"
+        "SELECT * FROM infrastructures WHERE (status = 'active' OR status = 'published') AND deleted_at IS NULL ORDER BY sort_order ASC"
       );
       const mapped = rows.map((r) => ({
         id: Number(r.id),

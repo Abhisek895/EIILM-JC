@@ -21,12 +21,12 @@ import fs from 'fs';
 
 // ─── Detect Storage Provider ──────────────────────────────────────────────────
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
-const API_KEY    = process.env.CLOUDINARY_API_KEY    || '';
+const API_KEY = process.env.CLOUDINARY_API_KEY || '';
 const API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
 
 const isCloudinaryConfigured =
   CLOUD_NAME && CLOUD_NAME !== 'your_cloud_name_here' &&
-  API_KEY    && API_KEY    !== 'your_api_key_here'    &&
+  API_KEY && API_KEY !== 'your_api_key_here' &&
   API_SECRET && API_SECRET !== 'your_api_secret_here';
 
 const isVercelBlobConfigured = Boolean(
@@ -107,7 +107,7 @@ const buildLocalDiskStorage = (): StorageEngine =>
       cb(null, uploadPath);
     },
     filename: (_req, file, cb) => {
-      const ext      = path.extname(file.originalname);
+      const ext = path.extname(file.originalname);
       const basename = path.basename(file.originalname, ext)
         .toLowerCase()
         .replace(/[^a-z0-9_-]/g, '_');
@@ -125,7 +125,7 @@ if (isVercelBlobConfigured) {
   try {
     cloudinary.v2.config({
       cloud_name: CLOUD_NAME,
-      api_key:    API_KEY,
+      api_key: API_KEY,
       api_secret: API_SECRET,
     });
 
@@ -133,13 +133,13 @@ if (isVercelBlobConfigured) {
       cloudinary: cloudinary.v2,
       params: async (_req, file) => {
         const isVideo = file.mimetype.startsWith('video/');
-        const isRaw   = file.mimetype === 'application/pdf'
-                     || file.mimetype.startsWith('application/');
+        const isRaw = file.mimetype === 'application/pdf'
+          || file.mimetype.startsWith('application/');
         return {
           folder: 'eiilm-jc',
           resource_type: isVideo ? 'video' : isRaw ? 'raw' : 'image',
           allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg',
-                            'mp4', 'webm', 'pdf', 'doc', 'docx'],
+            'mp4', 'webm', 'pdf', 'doc', 'docx'],
           public_id: file.originalname
             .replace(/\.[^.]+$/, '')
             .toLowerCase()
@@ -177,7 +177,7 @@ export const uploadCloud = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    
+
     // Explicitly reject executable / script / stored XSS extensions
     const dangerousExts = ['.exe', '.sh', '.bat', '.cmd', '.php', '.html', '.htm', '.svg', '.js', '.jsx', '.ts', '.tsx', '.cgi', '.pl'];
     if (dangerousExts.includes(ext)) {
