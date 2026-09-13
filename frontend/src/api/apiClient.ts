@@ -269,7 +269,6 @@ class ApiClient {
   async upload<T>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
     try {
       const response: AxiosResponse<T> = await this.client.post(url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress,
       });
       return response.data;

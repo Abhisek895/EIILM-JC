@@ -223,7 +223,7 @@ export default function AdminPlacementPage() {
         setForm((prev) => ({ ...prev, [field]: url }));
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to upload photo');
+      setError(err?.message || 'Failed to upload photo');
     } finally {
       setUploadingImage(false);
     }
