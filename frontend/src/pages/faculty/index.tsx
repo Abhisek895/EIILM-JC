@@ -255,12 +255,12 @@ export default function FacultyPage() {
 
       {/* CTA */}
       {!loading && faculty.length > 0 && (
-        <section className="py-16 bg-white">
-          <FadeIn className="container mx-auto px-4 sm:px-6">
-            <div className="bg-gradient-to-r from-primary-600 to-indigo-700 rounded-3xl p-10 text-white text-center relative overflow-hidden">
+        <section className="bg-white">
+          <FadeIn>
+            <div className="bg-gradient-to-r from-primary-600 to-indigo-700 py-16 px-4 sm:px-6 text-white text-center relative overflow-hidden">
               <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-              <div className="relative z-10">
+              <div className="relative z-10 max-w-7xl mx-auto">
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-3">Learn From the Best</h2>
                 <p className="text-primary-100 mb-7 max-w-lg mx-auto">Our faculty are committed to your success. Join our institution and get taught by industry experts.</p>
                 <Link href="/admissions" className="bg-white text-primary-700 font-bold px-10 py-4 rounded-full hover:bg-primary-50 transition-all shadow-xl hover:-translate-y-1 text-lg inline-block">
