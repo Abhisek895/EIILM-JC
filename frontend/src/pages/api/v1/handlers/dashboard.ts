@@ -68,7 +68,38 @@ export async function handleDashboard(req: NextApiRequest, res: NextApiResponse,
       GROUP BY DATE(created_at) 
       ORDER BY date ASC
     `).catch(() => []); // Fallback if page_views table doesn't exist
-    return res.status(200).json({ success: true, data: { pageViews: rows } });
+    return res.status(200).json({ 
+      success: true, 
+      data: { 
+        pageViews: rows,
+        kpiCards: [
+          { label: 'Total Applications', value: '2,405', trend: '+12.5%', isPositive: true, icon: '📄', color: 'from-blue-500 to-cyan-400' },
+          { label: 'Admissions Offered', value: '840', trend: '+5.2%', isPositive: true, icon: '🎓', color: 'from-emerald-500 to-teal-400' },
+          { label: 'Enrollment Rate', value: '34.9%', trend: '-1.1%', isPositive: false, icon: '📈', color: 'from-purple-500 to-indigo-400' },
+          { label: 'Active Students', value: '1,500+', trend: '+8.4%', isPositive: true, icon: '👥', color: 'from-orange-500 to-amber-400' }
+        ],
+        courses: [
+          { name: 'Bachelor of Business Administration', code: 'BBA', students: 450, percentage: 30 },
+          { name: 'Bachelor of Computer Applications', code: 'BCA', students: 380, percentage: 25 },
+          { name: 'Master of Business Administration', code: 'MBA', students: 320, percentage: 21 },
+          { name: 'B.Sc in Hospitality & Tourism', code: 'BHM', students: 200, percentage: 13 },
+          { name: 'Master of Computer Applications', code: 'MCA', students: 150, percentage: 11 }
+        ],
+        funnelSteps: [
+          { stepName: 'Website Visits', count: 12500, percentage: 100, color: 'bg-blue-500' },
+          { stepName: 'Inquiries Submitted', count: 4200, percentage: 33.6, color: 'bg-indigo-500' },
+          { stepName: 'Applications Started', count: 2800, percentage: 22.4, color: 'bg-violet-500' },
+          { stepName: 'Completed Applications', count: 2405, percentage: 19.2, color: 'bg-emerald-500' }
+        ],
+        locations: [
+          { country: 'IN', city: 'Kolkata', count: 4500, percentage: 45 },
+          { country: 'IN', city: 'Delhi', count: 1200, percentage: 12 },
+          { country: 'IN', city: 'Mumbai', count: 950, percentage: 9.5 },
+          { country: 'BD', city: 'Dhaka', count: 800, percentage: 8 },
+          { country: 'NP', city: 'Kathmandu', count: 500, percentage: 5 }
+        ]
+      } 
+    });
   }
 
   // POST /api/v1/dashboard/track
