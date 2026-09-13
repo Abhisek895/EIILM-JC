@@ -355,7 +355,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
                       whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
                       className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white transition-all shadow-sm"
                     >
-                      <Link href={`/courses/${course.id}`} className="relative block h-36 sm:h-48 overflow-hidden shrink-0">
+                      <Link href={`/courses/${course.id}`} className="relative block h-32 sm:h-40 overflow-hidden shrink-0">
                         <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient}`} />
                         {course.banner ? (
                           <img
@@ -728,7 +728,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                     className="group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-100 bg-white transition-all shadow-sm"
                   >
                     {/* Top Banner / Student Visual */}
-                    <Link href="/placements" className="relative block h-48 sm:h-52 overflow-hidden">
+                    <Link href="/placements" className="relative block h-40 sm:h-44 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
                       {p.studentImage ? (
                         <img
