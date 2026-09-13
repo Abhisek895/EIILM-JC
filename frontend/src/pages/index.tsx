@@ -1327,64 +1327,62 @@ function TestimonialsSection({ settings }: SectionProps) {
 
 function CTASection({ settings, notices, events }: SectionProps & { config?: Record<string, any> }) {
   return (
-    <section className="bg-white py-20">
-      <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn>
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-700 via-primary-600 to-indigo-700 p-12 text-center text-white shadow-2xl shadow-primary-900/30 md:p-20"
-          >
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}
-            />
-            <div className="absolute left-0 top-0 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/30 blur-3xl" />
-            <div className="absolute bottom-0 right-0 h-80 w-80 translate-x-1/2 translate-y-1/2 rounded-full bg-primary-300/20 blur-3xl" />
+    <section className="bg-white">
+      <FadeIn>
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-600 to-indigo-700 py-20 px-4 text-center text-white shadow-2xl shadow-primary-900/30"
+        >
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}
+          />
+          <div className="absolute left-0 top-0 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/30 blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-80 w-80 translate-x-1/2 translate-y-1/2 rounded-full bg-primary-300/20 blur-3xl" />
 
-            <div className="relative z-10">
-              <p className="mb-4 text-sm font-bold uppercase tracking-widest text-primary-200">
-                Ready to move forward?
-              </p>
-              <h2 className="mb-6 text-3xl font-extrabold leading-tight text-white md:text-5xl">
-                Start your application with confidence
-              </h2>
-              <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-primary-100">
-                {settings.college_name
-                  ? `Join ${settings.college_name} and compare your options before you apply.`
-                  : 'Join our college and compare your options before you apply.'}
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link
-                  href="/admissions"
-                  className="inline-block rounded-full bg-white px-10 py-4 text-lg font-bold text-primary-700 shadow-xl transition-all hover:-translate-y-1 hover:bg-primary-50"
-                >
-                  Apply Now
-                </Link>
-                <Link
-                  href="/courses"
-                  className="inline-block rounded-full border-2 border-white/70 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-white/10"
-                >
-                  Explore Courses
-                </Link>
-              </div>
-              <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm font-semibold text-primary-100">
-                {[
-                  'Fast response',
-                  'Scholarship guidance',
-                  'Placement support',
-                ].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                    {item}
-                  </span>
-                ))}
-              </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+            <p className="mb-4 text-sm font-bold uppercase tracking-widest text-primary-200">
+              Ready to move forward?
+            </p>
+            <h2 className="mb-6 text-3xl font-extrabold leading-tight text-white md:text-5xl">
+              Start your application with confidence
+            </h2>
+            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-primary-100">
+              {settings.college_name
+                ? `Join ${settings.college_name} and compare your options before you apply.`
+                : 'Join our college and compare your options before you apply.'}
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/admissions"
+                className="inline-block rounded-full bg-white px-10 py-4 text-lg font-bold text-primary-700 shadow-xl transition-all hover:-translate-y-1 hover:bg-primary-50"
+              >
+                Apply Now
+              </Link>
+              <Link
+                href="/courses"
+                className="inline-block rounded-full border-2 border-white/70 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-white/10"
+              >
+                Explore Courses
+              </Link>
             </div>
-          </motion.div>
-        </FadeIn>
-      </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm font-semibold text-primary-100">
+              {[
+                'Fast response',
+                'Scholarship guidance',
+                'Placement support',
+              ].map((item) => (
+                <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </FadeIn>
     </section>
   );
 }
