@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { queryDb } from "@/lib/db";
 import { verifyAccessToken } from "@/lib/auth";
 import path from "path";
@@ -94,8 +94,8 @@ export default async function handler(
 
     // Save to Postgres
     const dbResult = await queryDb(
-      `INSERT INTO media_library (file_name, file_type, file_size, file_url, uploaded_by, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id`,
+      `INSERT INTO media_library (file_name, file_type, file_size, file_url, uploaded_by, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id`,
       [basename + ext, mimeType, buffer.length, finalUrl, userId]
     );
 
