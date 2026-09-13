@@ -182,7 +182,7 @@ export async function handleCrud(req: NextApiRequest, res: NextApiResponse, endp
     }
 
     if (endpoint === 'site-settings') {
-      if (method === 'PUT') {
+      if (method === 'PUT' && subEndpoint !== 'bulk') {
         const { value } = req.body;
         const key = subEndpoint;
         const exists = await queryDb('SELECT key_name FROM site_settings WHERE key_name=$1', [key]);
