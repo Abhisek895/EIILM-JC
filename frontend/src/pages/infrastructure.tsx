@@ -486,50 +486,33 @@ export default function InfrastructurePage() {
                 <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
                   Designed to feel calm, modern, and student-first.
                 </h2>
-                <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-                  This layout is intentionally structured to help prospective students quickly understand
-                  the quality of our spaces, the range of facilities, and the overall campus experience.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <Link
-                    href="/admissions"
-                    className="inline-flex items-center justify-center rounded-full bg-primary-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700"
-                  >
-                    Apply Now
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center justify-center rounded-full border-2 border-slate-300 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 transition-all hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
-                  >
-                    Plan a Visit
-                  </Link>
-                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-row gap-4 overflow-x-auto pb-4 snap-x w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {overviewStats.map((stat) => (
-                <OverviewStatCard
-                  key={stat.label}
-                  icon={stat.icon}
-                  label={stat.label}
-                  value={stat.value}
-                  note={stat.note}
-                  accent={stat.accent}
-                />
+                <div key={stat.label} className="min-w-[260px] md:min-w-0 md:flex-1 shrink-0 snap-start">
+                  <OverviewStatCard
+                    icon={stat.icon}
+                    label={stat.label}
+                    value={stat.value}
+                    note={stat.note}
+                    accent={stat.accent}
+                  />
+                </div>
               ))}
             </div>
           </FadeIn>
 
           {totalItems > 0 && (
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-10 flex flex-nowrap overflow-x-auto items-center justify-start md:justify-center gap-3 pb-4 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 sm:px-0">
               {tabs.map((tab) => {
                 const active = filter === tab.id;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setFilter(tab.id)}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-all ${
+                    className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-all ${
                       active
                         ? 'border-primary-600 bg-primary-600 text-white shadow-lg shadow-primary-600/20'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:text-primary-700'
