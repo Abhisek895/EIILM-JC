@@ -30,10 +30,10 @@ export async function handleMedia(req: NextApiRequest, res: NextApiResponse, sub
       const mapped = rows.map((r) => ({
         id: Number(r.id),
         fileName: r.file_name,
-        originalName: r.original_name,
-        mimeType: r.mime_type,
-        size: r.size,
-        url: r.url,
+        originalName: r.file_name,
+        mimeType: r.file_type,
+        size: r.file_size,
+        url: r.file_url,
         uploadedBy: r.uploaded_by,
         createdAt: r.created_at,
       }));
