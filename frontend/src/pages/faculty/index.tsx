@@ -7,15 +7,64 @@ import FadeIn from '@components/FadeIn';
 import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '@utils/getImageUrl';
-import { GraduationCap, Mail, Users, ChevronRight } from 'lucide-react';
+import { GraduationCap, Mail, Users, ChevronRight, Linkedin } from 'lucide-react';
 
 type FacultyMember = {
   id: number; name: string; designation: string | null; photo: string | null;
   qualification: string | null; experience: string | null; email: string | null;
   department?: { id: number; name: string; slug: string | null };
+  sortOrder?: number;
+  bio?: string | null;
 };
 
 type Department = { id: number; name: string; slug: string | null };
+
+function LeadershipCard({ f }: { f: FacultyMember }) {
+  const initials = f.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
+  return (
+    <FadeIn>
+      <div className="bg-[#0B1120] rounded-3xl p-8 md:p-12 w-full mx-auto shadow-2xl flex flex-col md:flex-row gap-10 md:gap-16 items-center">
+        {/* Left: Image */}
+        <div className="relative w-full md:w-[35%] max-w-sm flex-shrink-0">
+          {/* Yellow decoration behind image */}
+          <div className="absolute -right-4 -bottom-4 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-500 rounded-3xl z-0" />
+          <div className="relative z-10 aspect-[4/5] w-full rounded-3xl overflow-hidden bg-blue-600 shadow-xl">
+            {f.photo ? (
+              <img
+                src={getImageUrl(f.photo)}
+                alt={f.name}
+                className="w-full h-full object-cover object-top"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-blue-600">
+                <span className="text-6xl font-extrabold text-white/90">{initials}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Text */}
+        <div className="flex-1 flex flex-col items-start text-left">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-yellow-500" />
+            <span className="text-yellow-500 text-xs font-bold tracking-[0.2em] uppercase">Leadership</span>
+          </div>
+          <h2 className="text-white text-3xl md:text-5xl font-black mb-2">{f.name}</h2>
+          <p className="text-blue-500 text-lg md:text-xl font-bold mb-6">{f.designation || 'Faculty Member'}</p>
+          <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 max-w-2xl">
+            {f.bio || 'A dedicated member of our leadership team, guiding our institution towards academic excellence and student success.'}
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link href={`/faculty/${f.id}`} className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 transition-colors">
+              <Linkedin size={18} className="text-black" /> Connect on LinkedIn
+            </Link>
+          </div>
+        </div>
+      </div>
+    </FadeIn>
+  );
+}
 
 function FacultyCard({ f, idx }: { f: FacultyMember; idx: number }) {
   const initials = f.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -178,10 +227,24 @@ export default function FacultyPage() {
             </FadeIn>
           )}
 
-          {/* Faculty grid */}
+          {/* Faculty List */}
           {!loading && faculty.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {faculty.map((f, idx) => <FacultyCard key={f.id} f={f} idx={idx} />)}
+            <div className="flex flex-col gap-16">
+              {/* Leadership Cards */}
+              {faculty.some(f => f.sortOrder === 10) && (
+                <div className="flex flex-col gap-10">
+                  {faculty.filter(f => f.sortOrder === 10).map(f => (
+                    <LeadershipCard key={f.id} f={f} />
+                  ))}
+                </div>
+              )}
+
+              {/* Regular Faculty Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {faculty.filter(f => f.sortOrder !== 10).map((f, idx) => (
+                  <FacultyCard key={f.id} f={f} idx={idx} />
+                ))}
+              </div>
             </div>
           )}
         </div>
