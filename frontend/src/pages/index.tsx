@@ -361,7 +361,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
                           <img
                             src={getImageUrl(course.banner)}
                             alt={course.courseName}
-                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-white/90">
@@ -734,7 +734,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         <img
                           src={getImageUrl(p.studentImage)}
                           alt={p.studentName}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
