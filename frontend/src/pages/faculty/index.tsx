@@ -145,32 +145,7 @@ export default function FacultyPage() {
             </h2>
           </FadeIn>
 
-          {/* Department filter */}
-          {departments.length > 0 && (
-            <FadeIn className="flex flex-wrap gap-2 mb-8 justify-center">
-              <button
-                onClick={() => handleDeptFilter(undefined)}
-                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all border ${selectedDept === undefined
-                    ? 'bg-primary-600 text-white border-primary-600 shadow-md shadow-primary-200'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-primary-400 hover:text-primary-600'
-                  }`}
-              >
-                All Departments
-              </button>
-              {departments.map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => handleDeptFilter(d.id)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all border ${selectedDept === d.id
-                      ? 'bg-primary-600 text-white border-primary-600 shadow-md shadow-primary-200'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-primary-400 hover:text-primary-600'
-                    }`}
-                >
-                  {d.name}
-                </button>
-              ))}
-            </FadeIn>
-          )}
+
 
           {error && (
             <div className="text-center py-10 text-red-600 font-semibold">{error}</div>
