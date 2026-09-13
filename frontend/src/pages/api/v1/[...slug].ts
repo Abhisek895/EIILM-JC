@@ -690,7 +690,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
          WHERE f.deleted_at IS NULL 
            AND ($1 = 0 OR f.department_id = $1)
            AND ($2 = '' OR f.name ILIKE $3)
-         ORDER BY f.sort_order ASC, f.id ASC`,
+         ORDER BY f.sort_order DESC, f.id ASC`,
         [deptId, search, `%${search}%`]
       );
 
