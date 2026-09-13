@@ -31,8 +31,11 @@ export async function handleMedia(req: NextApiRequest, res: NextApiResponse, sub
         id: Number(r.id),
         fileName: r.file_name,
         originalName: r.file_name,
+        fileType: r.file_type,   // used by gallery filter: item.fileType?.includes('image')
         mimeType: r.file_type,
         size: r.file_size,
+        fileSize: r.file_size,
+        fileUrl: r.file_url,     // used by gallery render: item.fileUrl
         url: r.file_url,
         uploadedBy: r.uploaded_by,
         createdAt: r.created_at,
