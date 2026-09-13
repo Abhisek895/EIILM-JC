@@ -254,8 +254,15 @@ export default function AdminAnalyticsPage() {
           <div className="space-y-4">
             {data.locations && data.locations.length > 0 ? (
               data.locations.map((loc, i) => {
-                const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-                const countryName = loc.country ? regionNames.of(loc.country) : 'Unknown';
+                let countryName = 'Unknown';
+                try {
+                  if (loc.country) {
+                    const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+                    countryName = regionNames.of(loc.country) || 'Unknown';
+                  }
+                } catch (e) {
+                  countryName = loc.country || 'Unknown';
+                }
                 return (
                   <div key={i} className="flex items-center justify-between p-3.5 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
                     <div className="flex items-center gap-3">
