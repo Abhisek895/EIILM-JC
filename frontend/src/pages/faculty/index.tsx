@@ -7,7 +7,8 @@ import FadeIn from '@components/FadeIn';
 import SEO from '@components/SEO';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '@utils/getImageUrl';
-import { GraduationCap, Mail, Users, ChevronRight, Linkedin } from 'lucide-react';
+import { GraduationCap, Mail, Users, ChevronRight } from 'lucide-react';
+import { FaLinkedin } from 'react-icons/fa';
 
 type FacultyMember = {
   id: number; name: string; designation: string | null; photo: string | null;
@@ -57,7 +58,7 @@ function LeadershipCard({ f }: { f: FacultyMember }) {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link href={`/faculty/${f.id}`} className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 transition-colors">
-              <Linkedin size={18} className="text-black" /> Connect on LinkedIn
+              <FaLinkedin size={18} className="text-black" /> Connect on LinkedIn
             </Link>
           </div>
         </div>
