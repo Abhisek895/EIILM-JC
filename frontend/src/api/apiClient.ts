@@ -265,11 +265,29 @@ class ApiClient {
     }
   }
 
-  // Upload with multipart/form-data
+  // Upload: converts File to base64 and sends as JSON to avoid multipart parsing issues
   async upload<T>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+    const file = formData.get('file') as File | null;
+    if (!file) throw new Error('No file provided in FormData');
+
+    // Read file as base64 in the browser
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // result = "data:image/jpeg;base64,<data>" — strip the prefix
+        resolve(result.split(',')[1] ?? '');
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
     try {
-      const response: AxiosResponse<T> = await this.client.post(url, formData, {
-        onUploadProgress,
+      const response: AxiosResponse<T> = await this.client.post(url, {
+        data: base64,
+        filename: file.name || 'upload',
+        mimetype: file.type || 'application/octet-stream',
+        size: file.size,
       });
       return response.data;
     } catch (error: any) {
