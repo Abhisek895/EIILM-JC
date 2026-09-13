@@ -25,7 +25,7 @@ function LeadershipCard({ f }: { f: FacultyMember }) {
 
   return (
     <FadeIn>
-      <div className="bg-[#0B1120] w-[100vw] relative left-1/2 -translate-x-1/2 py-12 md:py-20 px-4 shadow-2xl">
+      <div className="relative overflow-hidden bg-[#0a0a0a] w-[100vw] left-1/2 -translate-x-1/2 py-12 md:py-20 px-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-10 md:gap-16 items-center px-4 sm:px-6 lg:px-8">
           {/* Left: Image */}
           <div className="relative w-full md:w-[35%] max-w-sm flex-shrink-0 mx-auto md:mx-0">
