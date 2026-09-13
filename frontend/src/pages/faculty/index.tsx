@@ -25,41 +25,43 @@ function LeadershipCard({ f }: { f: FacultyMember }) {
 
   return (
     <FadeIn>
-      <div className="bg-[#0B1120] rounded-3xl p-8 md:p-12 w-full mx-auto shadow-2xl flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-        {/* Left: Image */}
-        <div className="relative w-full md:w-[35%] max-w-sm flex-shrink-0">
-          {/* Yellow decoration behind image */}
-          <div className="absolute -right-4 -bottom-4 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-500 rounded-3xl z-0" />
-          <div className="relative z-10 aspect-[4/5] w-full rounded-3xl overflow-hidden bg-blue-600 shadow-xl">
-            {f.photo ? (
-              <img
-                src={getImageUrl(f.photo)}
-                alt={f.name}
-                className="w-full h-full object-cover object-top"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-blue-600">
-                <span className="text-6xl font-extrabold text-white/90">{initials}</span>
-              </div>
-            )}
+      <div className="bg-[#0B1120] w-[100vw] relative left-1/2 -translate-x-1/2 py-12 md:py-20 px-4 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-10 md:gap-16 items-center px-4 sm:px-6 lg:px-8">
+          {/* Left: Image */}
+          <div className="relative w-full md:w-[35%] max-w-sm flex-shrink-0 mx-auto md:mx-0">
+            {/* Yellow decoration behind image */}
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-500 rounded-3xl z-0" />
+            <div className="relative z-10 aspect-[4/5] w-full rounded-3xl overflow-hidden bg-blue-600 shadow-xl">
+              {f.photo ? (
+                <img
+                  src={getImageUrl(f.photo)}
+                  alt={f.name}
+                  className="w-full h-full object-cover object-top"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-blue-600">
+                  <span className="text-6xl font-extrabold text-white/90">{initials}</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Right: Text */}
-        <div className="flex-1 flex flex-col items-start text-left">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-yellow-500" />
-            <span className="text-yellow-500 text-xs font-bold tracking-[0.2em] uppercase">Leadership</span>
-          </div>
-          <h2 className="text-white text-3xl md:text-5xl font-black mb-2">{f.name}</h2>
-          <p className="text-blue-500 text-lg md:text-xl font-bold mb-6">{f.designation || 'Faculty Member'}</p>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 max-w-2xl">
-            {f.bio || 'A dedicated member of our leadership team, guiding our institution towards academic excellence and student success.'}
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href={`/faculty/${f.id}`} className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 transition-colors">
-              <FaLinkedin size={18} className="text-black" /> Connect on LinkedIn
-            </Link>
+          {/* Right: Text */}
+          <div className="flex-1 flex flex-col items-start text-left">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-[2px] bg-yellow-500" />
+              <span className="text-yellow-500 text-xs font-bold tracking-[0.2em] uppercase">Leadership</span>
+            </div>
+            <h2 className="text-white text-3xl md:text-5xl font-black mb-2">{f.name}</h2>
+            <p className="text-blue-500 text-lg md:text-xl font-bold mb-6">{f.designation || 'Faculty Member'}</p>
+            <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 max-w-2xl">
+              {f.bio || 'A dedicated member of our leadership team, guiding our institution towards academic excellence and student success.'}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href={`/faculty/${f.id}`} className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 transition-colors">
+                <FaLinkedin size={18} className="text-black" /> Connect on LinkedIn
+              </Link>
+            </div>
           </div>
         </div>
       </div>
