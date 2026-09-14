@@ -261,8 +261,10 @@ export default function AdminMediaPage() {
                       <div className="h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden">
                         {isImage ? (
                           <img src={getImageUrl(item.fileUrl)} alt={item.fileName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : isVideo ? (
+                          <video src={`${getImageUrl(item.fileUrl)}#t=0.1`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" preload="metadata" muted playsInline />
                         ) : (
-                          <div className="text-5xl select-none">{isVideo ? '🎥' : '📄'}</div>
+                          <div className="text-5xl select-none">📄</div>
                         )}
                         <span className="absolute top-3 left-3 bg-slate-900/80 text-white text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-md shadow-sm">
                           {itemTypeStr}
