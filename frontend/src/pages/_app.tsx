@@ -176,7 +176,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <PageTracker />
       <AnimatePresence mode="wait">
         <motion.div
-          key={router.asPath}
+          key={router.pathname.startsWith('/dashboard') ? 'dashboard' : router.asPath}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}

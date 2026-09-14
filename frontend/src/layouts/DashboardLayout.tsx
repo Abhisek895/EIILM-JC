@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@hooks/useAuth';
 import { siteSettingsApi } from '@api/endpoints';
 import { getImageUrl } from '@utils/getImageUrl';
@@ -243,7 +244,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         </header>
 
         {/* Dashboard inner content */}
-        <main className="flex-1 overflow-auto px-3 lg:px-5 pt-4 pb-8 bg-gray-50/50">{children}</main>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50/50 relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={router.asPath}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="px-3 lg:px-5 pt-4 pb-8 min-h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
 
       {/* Premium Glassmorphic Logout Confirmation Modal */}
