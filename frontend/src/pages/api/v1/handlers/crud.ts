@@ -213,7 +213,11 @@ export async function handleCrud(req: NextApiRequest, res: NextApiResponse, endp
       if (method === 'POST') {
         const { pageKey, sectionKey, config, sortOrder } = req.body;
         const result = await queryDb(
-          `INSERT INTO page_sections (page_key, section_key, config, sort_order, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id`,
+          `INSERT INTO page_sections (page_key, section_key, config, sort_order, created_at, updated_at) 
+           VALUES ($1, $2, $3, $4, NOW(), NOW())
+           ON CONFLICT (page_key, section_key)
+           DO UPDATE SET config = EXCLUDED.config, sort_order = EXCLUDED.sort_order, updated_at = NOW()
+           RETURNING id`,
           [pageKey, sectionKey, JSON.stringify(config || {}), sortOrder || 0]
         );
         return res.status(201).json({ success: true, data: { id: result[0].id } });
