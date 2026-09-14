@@ -115,6 +115,9 @@ const authSlice = createSlice({
     setHydrated: (state) => {
       state.isHydrated = true;
     },
+    updateUser: (state, action: PayloadAction<User>) => {
+      state.user = injectLegacyPermissions(action.payload);
+    },
   },
 });
 
@@ -125,6 +128,7 @@ export const {
   logout,
   hydrateAuth,
   setHydrated,
+  updateUser,
 } = authSlice.actions;
 
 export default authSlice.reducer;

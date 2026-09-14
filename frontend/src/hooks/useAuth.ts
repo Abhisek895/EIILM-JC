@@ -79,11 +79,25 @@ export const useAuth = () => {
     dispatch(logoutAction());
   }, [dispatch]);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const response: any = await authApi.me();
+      if (response?.data?.data || response?.data) {
+        const userData = response.data?.data || response.data;
+        window.localStorage.setItem('user', JSON.stringify(userData));
+        dispatch(require('@store/slices/authSlice').updateUser(userData));
+      }
+    } catch (error) {
+      console.error('Failed to refresh user session', error);
+    }
+  }, [dispatch]);
+
   return {
     ...auth,
     login,
     register,
     logout,
+    refreshUser,
   };
 };
 

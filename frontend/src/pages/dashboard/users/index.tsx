@@ -42,7 +42,7 @@ const ROLE_IDS: Record<string, number> = {
 };
 
 export default function AdminUsersPage() {
-  const { isAuthenticated, isHydrated, user } = useAuth();
+  const { isAuthenticated, isHydrated, user, refreshUser } = useAuth();
   const role = user?.role;
   const canWrite = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('write'));
   const canDelete = role === 'super_admin' || user?.permissions?.canManageRbac || ((role === 'admin' || role === 'faculty') && user?.permissions?.modules?.users?.includes('delete'));
@@ -135,6 +135,9 @@ export default function AdminUsersPage() {
         };
         await userApi.update(editId, payload);
         showSuccessToast('User Updated', 'User account has been updated successfully!');
+        if (editId === user?.id) {
+          await refreshUser();
+        }
       } else {
         await userApi.create(form);
         showSuccessToast('User Created', 'New user account has been created successfully!');
