@@ -242,23 +242,26 @@ export async function handleCrud(req: NextApiRequest, res: NextApiResponse, endp
         const status = (req.query.status as string) || 'all';
 
         const rows = await queryDb(
-          `SELECT * FROM inquiries 
-           WHERE ($1 = 'all' OR status = $1)
-             AND ($2 = '' OR name ILIKE $3 OR email ILIKE $3)
-           ORDER BY created_at DESC LIMIT $4 OFFSET $5`,
+          `SELECT i.*, c.course_name as course_interest
+           FROM inquiries i
+           LEFT JOIN courses c ON i.course_id = c.id
+           WHERE ($1 = 'all' OR i.status = $1)
+             AND ($2 = '' OR i.full_name ILIKE $3 OR i.email ILIKE $3)
+           ORDER BY i.created_at DESC LIMIT $4 OFFSET $5`,
           [status, search, `%${search}%`, limit, offset]
         );
         const countRes = await queryDb(
-          `SELECT count(*) FROM inquiries WHERE ($1 = 'all' OR status = $1) AND ($2 = '' OR name ILIKE $3 OR email ILIKE $3)`,
+          `SELECT count(*) FROM inquiries WHERE ($1 = 'all' OR status = $1) AND ($2 = '' OR full_name ILIKE $3 OR email ILIKE $3)`,
           [status, search, `%${search}%`]
         );
         const total = Number(countRes[0]?.count || 0);
         
         const mapped = rows.map(r => ({
           id: Number(r.id),
-          name: r.name,
+          fullName: r.full_name,
           email: r.email,
           phone: r.phone,
+          courseInterest: r.course_interest,
           message: r.message,
           status: r.status,
           createdAt: r.created_at,

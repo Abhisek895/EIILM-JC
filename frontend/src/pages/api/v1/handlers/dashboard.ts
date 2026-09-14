@@ -49,7 +49,7 @@ export async function handleDashboard(req: NextApiRequest, res: NextApiResponse,
     );
     const mapped = rows.map((r) => ({
       id: Number(r.id),
-      name: r.name,
+      fullName: r.full_name,
       email: r.email,
       phone: r.phone,
       message: r.message,

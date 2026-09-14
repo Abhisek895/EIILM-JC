@@ -680,6 +680,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // ── 6. Faculty ────────────────────────────────────────────────────────────
     if (endpoint === 'faculty') {
+      if (subEndpoint) {
+        const rows = await queryDb(
+          `SELECT f.*, d.name as department_name, d.slug as department_slug 
+           FROM faculty f 
+           LEFT JOIN departments d ON f.department_id = d.id 
+           WHERE f.id::text = $1 AND f.deleted_at IS NULL LIMIT 1`,
+          [subEndpoint]
+        );
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Faculty not found' });
+        const r = rows[0];
+        return res.status(200).json({
+          success: true,
+          data: {
+            id: Number(r.id),
+            departmentId: r.department_id ? Number(r.department_id) : null,
+            name: r.name,
+            designation: r.designation,
+            photo: r.photo,
+            qualification: r.qualification,
+            experience: r.experience,
+            email: r.email,
+            phone: r.phone,
+            bio: r.bio,
+            status: r.status || 'active',
+            sortOrder: r.sort_order ?? 0,
+            department: r.department_name
+              ? { id: Number(r.department_id), name: r.department_name, slug: r.department_slug }
+              : null,
+          }
+        });
+      }
+
       const deptId = Number(req.query.departmentId) || 0;
       const search = (req.query.search as string) || '';
 
@@ -845,10 +877,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // ── 11. Inquiries ─────────────────────────────────────────────────────────
     if (endpoint === 'inquiries' && req.method === 'POST') {
-      const { name, email, phone, courseId, message } = req.body || {};
+      const b = req.body || {};
       await queryDb(
-        'INSERT INTO inquiries (name, email, phone, course_id, message, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())',
-        [name || '', email || '', phone || '', courseId ? Number(courseId) : null, message || '', 'new']
+        `INSERT INTO inquiries (
+          full_name, phone, email, course_id, city, message, source, source_name, status,
+          first_name, last_name, gender, blood_group, caste, dob, place_of_birth,
+          address, state, pin, alt_phone, whatsapp, father_name, father_occupation,
+          mother_name, mother_occupation, annual_income, board_12th, stream_12th,
+          year_of_passing_12th, aggregate_marks_12th, school_name, mba_college_name,
+          mba_degree_name, mba_specialization, mba_graduation_year, mba_university,
+          mba_score, created_at, updated_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+          $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32,
+          $33, $34, $35, $36, $37, NOW(), NOW()
+        )`,
+        [
+          b.fullName || '', b.phone || '', b.email || '', b.courseId ? Number(b.courseId) : null,
+          b.city || '', b.message || '', b.source || 'website', b.sourceName || '', 'new',
+          b.firstName || '', b.lastName || '', b.gender || '', b.bloodGroup || '', b.caste || '',
+          b.dob || '', b.placeOfBirth || '', b.address || '', b.state || '', b.pin || '',
+          b.altPhone || '', b.whatsapp || '', b.fatherName || '', b.fatherOccupation || '',
+          b.motherName || '', b.motherOccupation || '', b.annualIncome || '', b.board12th || '',
+          b.stream12th || '', b.yearOfPassing12th || '', b.aggregateMarks12th || '', b.schoolName || '',
+          b.mbaCollegeName || '', b.mbaDegreeName || '', b.mbaSpecialization || '', b.mbaGraduationYear || '',
+          b.mbaUniversity || '', b.mbaScore || ''
+        ]
       );
       return res.status(201).json({ success: true, message: 'Inquiry submitted successfully' });
     }
