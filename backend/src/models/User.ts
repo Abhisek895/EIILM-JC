@@ -83,8 +83,10 @@ User.init(
     sequelize: db,
     tableName: 'users',
     timestamps: true,
+    paranoid: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    deletedAt: 'deleted_at',
     underscored: true,
     hooks: {
       beforeCreate: async (user: User) => {

@@ -114,7 +114,10 @@ export class UserService {
       user.password = data.password; // hook hashes it
       user.status = 'active';
     }
-    if (data.permissions !== undefined) user.permissions = data.permissions;
+    if (data.permissions !== undefined) {
+      user.permissions = data.permissions;
+      user.changed('permissions', true);
+    }
 
     await user.save();
 
@@ -125,14 +128,12 @@ export class UserService {
   }
 
   async deleteUser(userId: number): Promise<boolean> {
-    const db = Database.getInstance();
-    return await db.transaction(async (t) => {
-      // Relational cleanup without disabling foreign key checks
-      await AuditLog.destroy({ where: { userId }, transaction: t });
-      await MediaLibrary.update({ uploadedBy: null as any }, { where: { uploadedBy: userId }, transaction: t });
-      const affectedRows = await User.destroy({ where: { id: userId }, transaction: t });
-      return affectedRows > 0;
-    });
+    const user = await User.findByPk(userId);
+    if (!user) return false;
+    
+    // Soft delete the user (sets deleted_at timestamp)
+    await user.destroy();
+    return true;
   }
 
   async listUsers(): Promise<SafeUser[]> {
