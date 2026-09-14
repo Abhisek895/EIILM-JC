@@ -27,6 +27,7 @@ export default function AdminMediaPage() {
   const [filterType, setFilterType] = useState<string>('all');
   const [isUploading, setIsUploading] = useState(false);
   const [replacingId, setReplacingId] = useState<number | null>(null);
+  const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -258,7 +259,10 @@ export default function AdminMediaPage() {
 
                   return (
                     <div key={item.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col justify-between">
-                      <div className="h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden">
+                      <div 
+                        className={`h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden ${(isImage || isVideo) ? 'cursor-pointer' : ''}`}
+                        onClick={() => { if (isImage || isVideo) setPreviewMedia(item); }}
+                      >
                         {isImage ? (
                           <img src={getImageUrl(item.fileUrl)} alt={item.fileName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         ) : isVideo ? (
@@ -318,6 +322,61 @@ export default function AdminMediaPage() {
       )}
 
       <ConfirmDialogModal dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
+
+      {previewMedia && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 backdrop-blur-sm p-4 sm:p-8 animate-in fade-in duration-200" 
+          onClick={() => setPreviewMedia(null)}
+        >
+          {/* Top Bar */}
+          <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 flex items-start sm:items-center justify-between bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+            <div className="text-white drop-shadow-md pointer-events-auto max-w-[70vw]">
+              <h3 className="font-bold text-base sm:text-lg truncate">{previewMedia.fileName}</h3>
+              <p className="text-xs text-slate-300">{(previewMedia.fileSize / (1024 * 1024)).toFixed(2)} MB • {previewMedia.fileType}</p>
+            </div>
+            
+            <div className="flex gap-2 sm:gap-3 pointer-events-auto">
+              <a 
+                href={getImageUrl(previewMedia.fileUrl)} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors"
+                title="Open original"
+              >
+                🔗
+              </a>
+              <button 
+                onClick={() => setPreviewMedia(null)}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-rose-500/80 text-white backdrop-blur-md transition-colors"
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Media Container */}
+          <div 
+            className="relative w-full max-w-6xl max-h-[85vh] flex items-center justify-center animate-in zoom-in-95 duration-300" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            {previewMedia.fileType?.includes('video') ? (
+              <video 
+                src={getImageUrl(previewMedia.fileUrl)} 
+                controls 
+                autoPlay 
+                className="max-w-full max-h-[85vh] rounded-lg shadow-2xl ring-1 ring-white/10" 
+              />
+            ) : (
+              <img 
+                src={getImageUrl(previewMedia.fileUrl)} 
+                alt={previewMedia.fileName} 
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl ring-1 ring-white/10" 
+              />
+            )}
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
