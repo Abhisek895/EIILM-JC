@@ -634,8 +634,10 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         setItemsPerPage(1);
       } else if (window.innerWidth < 1024) {
         setItemsPerPage(2);
-      } else {
+      } else if (window.innerWidth < 1280) {
         setItemsPerPage(3);
+      } else {
+        setItemsPerPage(4);
       }
     };
     handleResize();
@@ -763,7 +765,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                     </Link>
 
                     {/* Card Body */}
-                    <div className="flex flex-1 flex-col p-3.5 sm:p-4">
+                    <div className="flex flex-1 flex-col p-5 sm:p-6 pb-6 sm:pb-7">
                       <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-primary-600">
                         Placement spotlight
                       </p>
@@ -810,7 +812,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
 
         {/* Pagination Dots */}
         {totalDots > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-6">
+          <div className="flex justify-center items-center gap-2 mt-0">
             {Array.from({ length: totalDots }).map((_, dotIndex) => (
               <button
                 key={dotIndex}
