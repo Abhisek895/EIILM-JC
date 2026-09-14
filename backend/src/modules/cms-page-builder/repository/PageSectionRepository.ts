@@ -23,15 +23,25 @@ export class PageSectionRepository extends BaseRepository<PageSection> {
     config: object,
     sortOrder?: number
   ): Promise<PageSection> {
-    const [section] = await (this.model as typeof PageSection).findOrCreate({
+    let section = await this.model.findOne({
       where: { pageKey, sectionKey },
-      defaults: { pageKey, sectionKey, config, sortOrder: sortOrder ?? 0, status: 'active', tenantId: null },
     });
 
-    section.config = config;
-    section.changed('config', true);
-    if (sortOrder !== undefined) section.sortOrder = sortOrder;
-    await section.save();
+    if (section) {
+      section.config = config;
+      section.changed('config', true);
+      if (sortOrder !== undefined) section.sortOrder = sortOrder;
+      await section.save();
+    } else {
+      section = await this.model.create({
+        pageKey,
+        sectionKey,
+        config,
+        sortOrder: sortOrder ?? 0,
+        status: 'active',
+        tenantId: null,
+      } as any);
+    }
 
     return section;
   }
