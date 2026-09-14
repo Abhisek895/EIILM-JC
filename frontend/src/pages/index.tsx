@@ -259,8 +259,10 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
         setItemsPerPage(1);
       } else if (window.innerWidth < 1024) {
         setItemsPerPage(2);
-      } else {
+      } else if (window.innerWidth < 1280) {
         setItemsPerPage(displayCourses.length > 3 ? 3 : 2);
+      } else {
+        setItemsPerPage(displayCourses.length >= 4 ? 4 : 3);
       }
     };
     handleResize();
@@ -305,14 +307,14 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
   return (
     <section className="relative bg-gray-50 pt-20 pb-16 sm:pt-24 sm:pb-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
-        <FadeIn className="mb-10 sm:mb-12 text-center">
+        <FadeIn className="mb-3 sm:mb-4 text-center">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
             Popular choices
           </p>
           <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl lg:text-5xl">
             Programs students explore first
           </h2>
-          <p className="mt-2 sm:mt-4 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-gray-600">
+          <p className="mt-1 sm:mt-2 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-gray-600">
             Compare a few strong options before you dive into the full course list.
           </p>
         </FadeIn>
@@ -383,29 +385,21 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
                         )}
                       </Link>
 
-                      <div className="flex flex-1 flex-col p-4 sm:p-5">
-                        <p className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                      <div className="flex flex-1 flex-col p-3 sm:p-4">
+                        <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary-600">
                           Student spotlight
                         </p>
-                        <h3 className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700 line-clamp-1">
-                          {course.courseName}
+                        <h3 className="mt-1 text-base sm:text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary-700 line-clamp-1" title={course.specialization ? `${course.courseName} - ${course.specialization}` : course.courseName}>
+                          {course.specialization ? `${course.courseName} - ${course.specialization}` : course.courseName}
                         </h3>
 
-                        <div className="mt-2 sm:mt-3 mb-2 sm:mb-0 min-h-[26px]">
-                          {course.specialization ? (
-                            <span className="inline-block rounded-full border border-primary-100 bg-primary-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-700">
-                              {course.specialization}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <div className="mt-2 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-2 sm:p-4">
-                          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700">
+                        <div className="mt-2 sm:mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 rounded-xl border border-gray-100 bg-gray-50 p-2 sm:p-3">
+                          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-700">
                             <Clock size={16} className="shrink-0 text-primary-500" />
                             <span className="truncate">{course.duration || 'Duration TBA'}</span>
                           </div>
                           <div
-                            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700"
+                            className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-700"
                             title={course.eligibility || ''}
                           >
                             <ClipboardCheck size={16} className="shrink-0 text-primary-500" />
@@ -413,13 +407,13 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
                           </div>
                         </div>
 
-                        <p className="mt-3 sm:mt-5 flex-grow text-xs sm:text-sm leading-snug sm:leading-relaxed text-gray-500 line-clamp-3">
+                        <p className="mt-2 sm:mt-3 flex-grow text-[11px] sm:text-xs leading-snug sm:leading-relaxed text-gray-500 line-clamp-2 sm:line-clamp-3">
                           {course.description || 'Programme details will be updated soon.'}
                         </p>
 
-                        <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4 border-t border-gray-100 pt-3 sm:pt-5">
+                        <div className="mt-1 sm:mt-2 flex items-end justify-between gap-3 border-t border-gray-100 pt-2.5 sm:pt-3">
                           <div>
-                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            <p className="mb-0.5 sm:mb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-gray-400">
                               Program Fee
                             </p>
                             {course.showFees === false ? (
@@ -451,7 +445,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
 
         {/* Pagination Dots */}
         {totalDots > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-6">
+          <div className="flex justify-center items-center gap-2 mt-0">
             {Array.from({ length: totalDots }).map((_, dotIndex) => (
               <button
                 key={dotIndex}
@@ -467,7 +461,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
         )}
 
         {/* Bottom Navigation & CTA: View all courses */}
-        <div className="mt-6 sm:mt-8 flex flex-col items-center justify-center gap-4 sm:gap-5">
+        <div className="mt-1 sm:mt-2 flex flex-col items-center justify-center gap-2.5 sm:gap-3">
           {maxIndex > 0 && (
             <div className="hidden sm:flex items-center gap-2.5">
               <button
@@ -686,7 +680,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(15,23,42,0.06) 1px, transparent 0)', backgroundSize: '24px 24px' }}
       />
       <div className="container relative mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8 sm:mb-10">
+        <div className="text-center mb-3 sm:mb-4">
           <FadeIn>
             <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
               Career Proof
