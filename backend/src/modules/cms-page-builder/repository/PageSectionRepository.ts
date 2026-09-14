@@ -29,6 +29,7 @@ export class PageSectionRepository extends BaseRepository<PageSection> {
     });
 
     section.config = config;
+    section.changed('config', true);
     if (sortOrder !== undefined) section.sortOrder = sortOrder;
     await section.save();
 

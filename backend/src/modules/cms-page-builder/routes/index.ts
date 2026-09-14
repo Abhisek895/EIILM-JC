@@ -12,25 +12,25 @@ router.get('/', (req, res) => ctrl.listByPage(req, res));
 router.get(
   '/all',
   authenticateToken,
-  authorizePermission('media', 'read'),
+  authorizePermission('settings', 'read'),
   (req, res) => ctrl.listAll(req, res)
 );
 router.post(
   '/',
   authenticateToken,
-  authorizePermission('media', 'write'),
+  authorizePermission('settings', 'write'),
   (req, res) => ctrl.upsert(req, res)
 );
 router.put(
   '/:id',
   authenticateToken,
-  authorizePermission('media', 'write'),
+  authorizePermission('settings', 'write'),
   (req, res) => ctrl.update(req, res)
 );
 router.delete(
   '/:id',
   authenticateToken,
-  authorizePermission('media', 'delete'),
+  authorizePermission('settings', 'delete'),
   (req, res) => ctrl.remove(req, res)
 );
 

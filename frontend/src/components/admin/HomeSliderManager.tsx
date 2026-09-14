@@ -90,8 +90,9 @@ export default function HomeSliderManager() {
         config: { slides: newSlides },
       });
       showToast('Saved Successfully', `${PAGE_OPTIONS.find(p => p.value === pageKey)?.label} slider has been updated.`);
-    } catch (error) {
-      showToast('Save Failed', 'Failed to update the slider.', 'error');
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error.message || 'Failed to update the slider.';
+      showToast('Save Failed', msg, 'error');
     } finally {
       setSaving(false);
     }

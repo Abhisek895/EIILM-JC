@@ -121,8 +121,9 @@ export default function PageContentManager() {
         config: { slides: newSlides },
       });
       showToast('Saved Successfully', `${selectedPage} slider has been updated.`);
-    } catch (error) {
-      showToast('Save Failed', 'Failed to update the slider.', 'error');
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error.message || 'Failed to update the slider.';
+      showToast('Save Failed', msg, 'error');
     } finally {
       setSaving(false);
     }
