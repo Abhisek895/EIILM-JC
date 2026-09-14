@@ -162,7 +162,7 @@ export const Footer: React.FC = () => {
                 { label: 'Notices', href: '/notices' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-white hover:translate-x-1 inline-block">
+                  <Link href={link.href} className="text-gray-400 transition-all duration-300 hover:text-white hover:translate-x-1.5 inline-block">
                     {link.label}
                   </Link>
                 </li>
@@ -183,7 +183,7 @@ export const Footer: React.FC = () => {
                 { label: 'Contact', href: '/contact' },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-white hover:translate-x-1 inline-block">
+                  <Link href={link.href} className="text-gray-400 transition-all duration-300 hover:text-white hover:translate-x-1.5 inline-block">
                     {link.label}
                   </Link>
                 </li>

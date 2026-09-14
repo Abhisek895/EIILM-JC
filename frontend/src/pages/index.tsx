@@ -495,6 +495,8 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
 }
 
 function StatsSection({ settings }: SectionProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const statsMeta = [
     {
       label: 'Years of Excellence',
@@ -527,6 +529,14 @@ function StatsSection({ settings }: SectionProps) {
   ];
 
   const active = statsMeta.filter((stat) => stat.value && stat.value.trim() !== '');
+
+  useEffect(() => {
+    if (active.length === 0) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % active.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [active.length]);
 
   if (active.length === 0) return null;
 
@@ -570,6 +580,7 @@ function StatsSection({ settings }: SectionProps) {
         >
           {active.map((stat, index) => {
             const Icon = stat.icon;
+            const isActive = activeIndex === index;
             return (
               <FadeIn key={stat.label} delay={index * 0.1}>
                 <motion.div
@@ -578,16 +589,16 @@ function StatsSection({ settings }: SectionProps) {
                   viewport={{ once: true, margin: "-20px" }}
                   transition={{ delay: index * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -3, scale: 1.02, transition: { duration: 0.2, ease: 'easeOut' } }}
-                  className="group relative flex flex-col items-center justify-center p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.04] hover:border-white/[0.12] shadow-lg hover:shadow-xl overflow-hidden"
+                  className={`group relative flex flex-col items-center justify-center p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl transition-all duration-1000 ease-[ease] shadow-lg overflow-hidden ${isActive ? 'bg-white/[0.04] border-white/[0.12] shadow-xl' : 'hover:bg-white/[0.04] hover:border-white/[0.12] hover:shadow-xl'}`}
                 >
                   {/* Subtle hover gradient background */}
-                  <div className={`absolute inset-0 opacity-0 group-hover:opacity-[0.03] bg-gradient-to-br ${stat.color} transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} transition-opacity duration-1000 ${isActive ? 'opacity-[0.03]' : 'opacity-0 group-hover:opacity-[0.03]'}`} />
 
                   {/* Inner top highlight for glass effect */}
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
 
                   {/* Icon Container */}
-                  <div className={`relative mb-1.5 sm:mb-2 flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded sm:rounded-lg bg-gradient-to-br ${stat.color} ${stat.glow} shadow-[0_0_10px_rgba(0,0,0,0.2)] ring-1 ring-white/20 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
+                  <div className={`relative mb-1.5 sm:mb-2 flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded sm:rounded-lg bg-gradient-to-br ${stat.color} ${stat.glow} shadow-[0_0_10px_rgba(0,0,0,0.2)] ring-1 ring-white/20 transition-all duration-1000 ${isActive ? 'scale-110 -rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'}`}>
                     <Icon strokeWidth={2.5} size={14} className="text-white w-3 h-3 sm:w-4 sm:h-4 drop-shadow-sm" />
                     {/* Icon internal reflection */}
                     <div className="absolute inset-0 rounded-[inherit] shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)] pointer-events-none" />
@@ -597,11 +608,11 @@ function StatsSection({ settings }: SectionProps) {
                   <div className="text-lg sm:text-xl lg:text-2xl font-black text-white tracking-tighter mb-0.5 relative">
                     <AnimatedCounter valueStr={stat.value!} />
                     {/* Subtle text glow on hover */}
-                    <div className="absolute -inset-1 blur-sm bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full" />
+                    <div className={`absolute -inset-1 blur-sm bg-white/10 transition-opacity duration-1000 pointer-events-none rounded-full ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
                   </div>
 
                   {/* Stat Label */}
-                  <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400/90 group-hover:text-white transition-colors duration-300 text-center leading-tight">
+                  <div className={`text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.1em] transition-colors duration-1000 text-center leading-tight ${isActive ? 'text-white' : 'text-slate-400/90 group-hover:text-white'}`}>
                     {stat.label}
                   </div>
                 </motion.div>
