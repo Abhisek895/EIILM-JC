@@ -89,10 +89,11 @@ export default function AdminInquiriesPage() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const [ExcelJS, { saveAs }] = await Promise.all([
-        import('exceljs'),
-        import('file-saver'),
-      ]);
+      const exceljsModule = await import('exceljs');
+      const fileSaverModule = await import('file-saver');
+
+      const ExcelJS = exceljsModule.default || exceljsModule;
+      const saveAs = fileSaverModule.default?.saveAs || fileSaverModule.default || fileSaverModule.saveAs;
 
       const res: any = await inquiryApi.getAll(1, 10000);
       const allInquiries = res?.data || [];
