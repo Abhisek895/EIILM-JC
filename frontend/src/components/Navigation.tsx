@@ -184,7 +184,7 @@ export const Navigation: React.FC = () => {
             {collegeName || logo ? (
               <>
                 {logo ? (
-                  <img src={getImageUrl(logo)} alt={collegeName || 'Logo'} className="h-14 object-contain" />
+                  <img src={getImageUrl(logo)} alt={collegeName || 'Logo'} className="h-14 object-contain scale-125 sm:scale-150 origin-left" />
                 ) : (
                   <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-extrabold text-sm">
                     {collegeName.charAt(0)}
