@@ -456,11 +456,10 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
               <button
                 key={dotIndex}
                 onClick={() => setCurrentIndex(maxIndex > 0 ? dotIndex : (dotIndex % Math.max(1, maxIndex + 1)))}
-                className={`transition-all duration-300 rounded-full ${
-                  currentIndex === dotIndex
-                    ? 'w-8 h-2.5 bg-primary-600'
-                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
-                }`}
+                className={`transition-all duration-300 rounded-full ${currentIndex === dotIndex
+                  ? 'w-8 h-2.5 bg-primary-600'
+                  : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                  }`}
                 aria-label={`Go to slide ${dotIndex + 1}`}
               />
             ))}
@@ -801,9 +800,6 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
                         </div>
                       </div>
 
-                      <p className="mt-2 text-xs leading-relaxed text-gray-500 line-clamp-2">
-                        Secured campus placement at {p.companyName} with {p.package} package.
-                      </p>
                     </div>
                   </motion.article>
                 </div>
@@ -819,11 +815,10 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
               <button
                 key={dotIndex}
                 onClick={() => setCurrentIndex(maxIndex > 0 ? dotIndex : (dotIndex % Math.max(1, maxIndex + 1)))}
-                className={`transition-all duration-300 rounded-full ${
-                  currentIndex === dotIndex
-                    ? 'w-8 h-2.5 bg-primary-600'
-                    : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
-                }`}
+                className={`transition-all duration-300 rounded-full ${currentIndex === dotIndex
+                  ? 'w-8 h-2.5 bg-primary-600'
+                  : 'w-2.5 h-2.5 bg-gray-200 hover:bg-gray-400'
+                  }`}
                 aria-label={`Go to slide ${dotIndex + 1}`}
               />
             ))}

@@ -242,7 +242,7 @@ export const Navigation: React.FC = () => {
                       href="/auth/login"
                       className="text-sm font-semibold text-gray-700 hover:text-primary-600"
                     >
-                      Student Login
+                      Login
                     </Link>
                     <Link
                       href="/admissions"
@@ -307,7 +307,7 @@ export const Navigation: React.FC = () => {
                 ) : (
                   <>
                     <Link href="/auth/login" className="flex-1 text-center min-h-[44px] flex items-center justify-center text-gray-700 font-semibold text-sm bg-gray-50 rounded-lg">
-                      Student Login
+                      Login
                     </Link>
                     <Link
                       href="/admissions"

@@ -86,7 +86,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const handleConfirmLogout = async () => {
     setShowLogoutModal(false);
     await logout();
-    router.push('/auth/login');
+    router.push('/');
   };
 
   return (
