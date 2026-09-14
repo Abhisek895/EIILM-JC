@@ -311,7 +311,7 @@ function FeaturedProgramsSection({ courses }: SectionProps) {
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600 mb-2">
             Popular choices
           </p>
-          <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl lg:text-5xl">
+          <h2 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">
             Programs students explore first
           </h2>
           <p className="mt-1 sm:mt-2 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg text-gray-600">
@@ -685,7 +685,7 @@ function TopPlacementsSection({ placements = [] }: { placements?: PlacementRecor
             <p className="mb-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-primary-600">
               Career Proof
             </p>
-            <h2 className="text-2xl font-extrabold text-gray-900 md:text-4xl">
+            <h2 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">
               Top Placement Achievers
             </h2>
             <p className="hidden sm:block mt-2 max-w-2xl mx-auto text-sm sm:text-base text-gray-600">
@@ -864,7 +864,7 @@ function NoticesSection({ notices }: SectionProps) {
           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
             Stay updated
           </p>
-          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
+          <h2 className="flex items-center justify-center gap-3 text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">
             <Bell size={32} className="text-primary-600" /> Latest notices
           </h2>
         </div>
@@ -933,7 +933,7 @@ function EventsSection({ events }: SectionProps) {
           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
             What is happening
           </p>
-          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 md:text-5xl">
+          <h2 className="flex items-center justify-center gap-3 text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">
             <Calendar size={32} className="text-primary-600" /> Upcoming events
           </h2>
         </div>
@@ -1048,7 +1048,7 @@ function FeaturesSection({ settings }: SectionProps & { config?: Record<string, 
           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
             Our strengths
           </p>
-          <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">{heading}</h2>
+          <h2 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">{heading}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
             {subheading}
           </p>
@@ -1203,7 +1203,7 @@ function TestimonialsSection({ settings }: SectionProps) {
             <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-600">
               Student Stories
             </p>
-            <h2 className="text-3xl font-extrabold text-gray-900 md:text-5xl">
+            <h2 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-gray-900">
               Hear from our students
             </h2>
             <p className="mt-3 max-w-2xl mx-auto text-lg text-gray-600">
@@ -1338,7 +1338,7 @@ function CTASection({ settings, notices, events }: SectionProps & { config?: Rec
             <p className="mb-4 text-sm font-bold uppercase tracking-widest text-primary-200">
               Ready to move forward?
             </p>
-            <h2 className="mb-6 text-3xl font-extrabold leading-tight text-white md:text-5xl">
+            <h2 className="mb-6 text-xl md:text-3xl lg:text-4xl font-extrabold leading-tight text-white">
               Start your application with confidence
             </h2>
             <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-primary-100">
