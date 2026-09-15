@@ -42,7 +42,8 @@ SiteSetting.init(
   {
     sequelize: Database.getInstance(),
     tableName: 'site_settings',
-    timestamps: false,
+    timestamps: true,
+    createdAt: false,
     updatedAt: 'updated_at',
     underscored: true,
   }
