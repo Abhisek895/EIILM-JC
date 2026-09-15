@@ -278,6 +278,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
     key_name VARCHAR(150) NOT NULL,
     value TEXT,
     description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_tenant_key UNIQUE (tenant_id, key_name)
 );
