@@ -115,6 +115,7 @@ export const Navigation: React.FC = () => {
   const router = useRouter();
   const [collegeName, setCollegeName] = useState('');
   const [showCollegeName, setShowCollegeName] = useState(true);
+  const [showAdmissionButtons, setShowAdmissionButtons] = useState(true);
   const [logo, setLogo] = useState('');
   const [favicon, setFavicon] = useState('');
   const [phone, setPhone] = useState('');
@@ -130,6 +131,8 @@ export const Navigation: React.FC = () => {
         else setCollegeName('');
         if (data?.show_college_name === 'false') setShowCollegeName(false);
         else setShowCollegeName(true);
+        if (data?.show_admission_buttons === 'false') setShowAdmissionButtons(false);
+        else setShowAdmissionButtons(true);
         if (data?.logo) setLogo(data.logo);
         if (data?.favicon) setFavicon(data.favicon);
         if (data?.phone) setPhone(data.phone);
@@ -244,12 +247,14 @@ export const Navigation: React.FC = () => {
                     >
                       Login
                     </Link>
-                    <Link
-                      href="/admissions"
-                      className="text-sm bg-primary-600 text-white px-5 py-2.5 rounded-lg hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 active:scale-95"
-                    >
-                      Apply Now
-                    </Link>
+                    {showAdmissionButtons && (
+                      <Link
+                        href="/admissions"
+                        className="text-sm bg-primary-600 text-white px-5 py-2.5 rounded-lg hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 active:scale-95"
+                      >
+                        Apply Now
+                      </Link>
+                    )}
                   </>
                 )}
               </div>
@@ -309,12 +314,14 @@ export const Navigation: React.FC = () => {
                     <Link href="/auth/login" className="flex-1 text-center min-h-[44px] flex items-center justify-center text-gray-700 font-semibold text-sm bg-gray-50 rounded-lg">
                       Login
                     </Link>
-                    <Link
-                      href="/admissions"
-                      className="flex-1 text-center min-h-[44px] flex items-center justify-center bg-primary-600 text-white rounded-lg text-sm font-bold shadow-md active:scale-95 transition-transform"
-                    >
-                      Apply Now
-                    </Link>
+                    {showAdmissionButtons && (
+                      <Link
+                        href="/admissions"
+                        className="flex-1 text-center min-h-[44px] flex items-center justify-center bg-primary-600 text-white rounded-lg text-sm font-bold shadow-md active:scale-95 transition-transform"
+                      >
+                        Apply Now
+                      </Link>
+                    )}
                   </>
                 )}
               </div>
@@ -324,7 +331,7 @@ export const Navigation: React.FC = () => {
       </nav>
 
       {/* Sticky Mobile Bottom CTA Bar — shows after scrolling past hero */}
-      {!isAdmissions && scrolled && (
+      {!isAdmissions && scrolled && showAdmissionButtons && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center gap-0 shadow-[0_-4px_20px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-300">
           {phone && (
             <a

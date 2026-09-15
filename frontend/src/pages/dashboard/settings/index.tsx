@@ -12,6 +12,7 @@ const GLOBAL_SETTINGS_FIELDS = [
   { key: 'favicon', label: 'Favicon / App Icon', type: 'image', placeholder: '' },
   { key: 'college_name', label: 'College Name', type: 'text', placeholder: 'e.g. ABC College' },
   { key: 'show_college_name', label: 'Show College Name (Header/Footer)', type: 'toggle', placeholder: '' },
+  { key: 'show_admission_buttons', label: 'Show Admission Buttons (Apply Now / Call Us)', type: 'toggle', placeholder: '' },
   { key: 'stat_years', label: 'Stats: Years of Excellence', type: 'text', placeholder: '15+' },
   { key: 'stat_students', label: 'Stats: Students Enrolled', type: 'text', placeholder: '1,500+' },
   { key: 'stat_faculty', label: 'Stats: Faculty Members', type: 'text', placeholder: '45+' },
@@ -205,7 +206,7 @@ export default function AdminSettingsPage() {
           val = '[\n  { "title": "Career-ready learning", "desc": "Programs are presented clearly so students can quickly understand the path from classroom to career.", "icon": "Briefcase", "gradient": "from-emerald-500 to-teal-600" },\n  { "title": "Guided admissions", "desc": "Fast response, clear steps, and a counselor-led process so visitors never feel stuck.", "icon": "Zap", "gradient": "from-primary-500 to-primary-700" },\n  { "title": "Experienced faculty", "desc": "Students can trust the value of learning from mentors who make complex topics feel manageable.", "icon": "GraduationCap", "gradient": "from-sky-500 to-blue-600" },\n  { "title": "Practical labs and projects", "desc": "The site should communicate hands-on learning, not just theory, because students want outcomes.", "icon": "ClipboardCheck", "gradient": "from-violet-500 to-purple-600" },\n  { "title": "Campus life and support", "desc": "Hostel, clubs, events, and student services help first-time visitors picture themselves here.", "icon": "Building2", "gradient": "from-amber-500 to-orange-600" },\n  { "title": "Scholarship and growth support", "desc": "Admissions guidance should reduce anxiety and make the next step feel simple and achievable.", "icon": "Sparkles", "gradient": "from-rose-500 to-pink-600" }\n]';
         } else if (!val && f.key === 'contact_faqs') {
           val = '[\n  { "q": "How can I apply for admission?", "a": "You can apply online..." }\n]';
-        } else if (!val && (f.key === 'show_college_name' || f.key === 'show_tagline')) {
+        } else if (!val && (f.key === 'show_college_name' || f.key === 'show_tagline' || f.key === 'show_admission_buttons')) {
           val = 'true';
         } else if (!val) {
           // Pre-fill plain text defaults from placeholder if empty
