@@ -242,8 +242,8 @@ export default function AdminSettingsPage() {
       showToast('Site Settings Saved', 'Site settings updated successfully!');
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to save settings');
-      showToast('Settings Update Failed', 'Failed to save settings', 'error');
+      setError(err?.message || 'Failed to save settings');
+      showToast('Settings Update Failed', err?.message || 'Failed to save settings', 'error');
     } finally {
       setSaving(false);
     }
